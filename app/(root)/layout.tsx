@@ -1,5 +1,6 @@
 import LeftSidebar from "@/components/LeftSidebar";
 import RightSidebar from "@/components/RightSidebar";
+import "../globals.css";
 
 export default function RootLayout({
   children,
@@ -9,10 +10,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <main>
-          <LeftSidebar />
-          {children}
-          <RightSidebar />
+        <main className="grid grid-cols-12 h-screen pattern">
+          <div className="col-span-2 ">
+            <LeftSidebar />
+          </div>
+          <div className="col-span-8">{children}</div>
+          <div className="col-span-2 b ">
+            <RightSidebar />
+          </div>
         </main>
       </body>
     </html>
