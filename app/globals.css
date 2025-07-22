@@ -77,6 +77,11 @@
   --sidebar-ring: oklch(0.704 0.04 256.788);
   --background: oklch(1 0 0);
   --foreground: oklch(0.129 0.042 264.695);
+  --font-manrope: "Manrope", sans-serif;
+}
+
+body {
+  font-family: var(--font-manrope);
 }
 
 .dark {
@@ -121,5 +126,3 @@
     @apply bg-background text-foreground;
   }
 }
-
-
