@@ -3,7 +3,7 @@
 
 import { useEffect } from 'react';
 
-export function HtmlClassManager() {
+export function ThemeProvider() {
   useEffect(() => {
     document.documentElement.classList.add('dark');
   }, []);

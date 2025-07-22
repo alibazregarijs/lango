@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Manrope } from "next/font/google";
 import "./globals.css";
-import { HtmlClassManager } from "@/components/HtmlClassManager";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 const manrope = Manrope({ subsets: ["latin"] });
 
@@ -18,7 +18,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <HtmlClassManager />
+        <ThemeProvider />
         {children}
       </body>
     </html>
