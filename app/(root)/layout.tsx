@@ -10,12 +10,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <main className="grid grid-cols-12 h-screen pattern">
-          <div className="col-span-2 ">
+        <main className="md:grid md:grid-cols-12 h-screen pattern">
+          <div className="md:col-span-2 col-span-12">
             <LeftSidebar />
           </div>
-          <div className="col-span-8 text-center">{children}</div>
-          <div className="col-span-2 b ">
+          <div className="md:col-span-8  col-span-12">{children}</div>
+          <div className="md:col-span-2  col-span-12">
             <RightSidebar />
           </div>
         </main>
