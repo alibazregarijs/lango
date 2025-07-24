@@ -8,6 +8,7 @@ export type wordProps = {
   user: string;
   definition: string;
   word: string;
+  type: string;
   isSeen: boolean;
   audioWordUrl: string;
 };
@@ -18,6 +19,7 @@ const Word = () => {
     {
       audioDefinitionStorageId: "1",
       user: "1",
+      type: "verb",
       definition: "Definition 1",
       word: "Word 1",
       isSeen: false,
@@ -28,6 +30,7 @@ const Word = () => {
       user: "2",
       definition: "Definition 2",
       word: "Word 2",
+      type: "noun",
       isSeen: false,
       audioWordUrl: "https://www.example.com/audio.mp3",
     },
@@ -43,7 +46,12 @@ const Word = () => {
 
   return (
     <div className="flex-center h-full">
-      <CarouselDemo onNextClick={handleNextButton} onPrevClick={handlePreviousButton} word={words[slideIndex]} />
+      <CarouselDemo
+        onNextClick={handleNextButton}
+        onPrevClick={handlePreviousButton}
+        words={words}
+        slideIndex={slideIndex}
+      />
     </div>
   );
 };
