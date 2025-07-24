@@ -15,6 +15,7 @@ const LeftSidebar = () => {
         <Image
           className="md:w-24 md:h-24 h-28 w-28 "
           src={"/icons/logo.png"}
+          priority
           width={500}
           height={500}
           alt="logo"

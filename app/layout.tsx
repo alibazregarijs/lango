@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Manrope } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import { ConvexClientProvider } from "@/app/providers/ConvexProvider";
+import ConvexClerkProvider from "@/app/providers/ConvexProviderWithClerk";
 
 const manrope = Manrope({ subsets: ["latin"] });
 
@@ -20,7 +20,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <ThemeProvider />
-        <ConvexClientProvider>{children}</ConvexClientProvider>
+        <ConvexClerkProvider>{children}</ConvexClerkProvider>
       </body>
     </html>
   );
