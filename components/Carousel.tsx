@@ -1,6 +1,5 @@
 import * as React from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { wordProps } from "@/app/(root)/words/page";
+import { Card } from "@/components/ui/card";
 import {
   Carousel,
   CarouselContent,
@@ -17,56 +16,64 @@ export function CarouselDemo({
 }: {
   onNextClick: () => void;
   onPrevClick: () => void;
-  words: wordProps[];
+  words: any[];
   slideIndex: number;
 }) {
   return (
-    <Carousel className="w-full max-w-xs bg-[#f97535] p-1 rounded-lg">
-      <CarouselContent>
-        {words.map((word, index) => (
-          <CarouselItem key={index}>
-            <div className="">
-              <Card className="bg-[#15171C]">
+    <Carousel className="md:w-2xl w-full max-h-full bg-[#15171C] border p-1 rounded-lg">
+      <CarouselContent className="flex flex-col h-[70vh] overflow-y-scroll no-scrollbar">
+        <div className="flex-center mt-4">
+          <span className="text-medium font-semibold">
+            Random<span className="text-orange-1 ml-2">Word</span>
+          </span>
+        </div>
+        <CarouselItem>
+          {Array.from({ length: words[slideIndex]?.meaningCount }).map(
+            (_, index) => (
+              <div
+                key={index}
+                className="flex flex-col h-[70vh] overflow-y-scroll no-scrollbar ml-2"
+              >
                 <div className="flex flex-col">
-                  <div className="flex-center">
-                    <span className="text-medium font-semibold">
-                      Random
-                      <span className="text-medium font-semibold text-orange-1 ml-2">
-                        Word
+                  <div className="flex flex-col ml-4 space-y-1 flex-grow">
+                    <span className="text-medium font-semibold capitalize">
+                      {words[slideIndex]?.word}
+                    </span>
+                    <div className="flex flex-col">
+                      <span className="text-[12px] text-gray-400">
+                        As a {words[slideIndex]?.type[index + 1]?.partOfSpeech}
                       </span>
-                    </span>
+                      <div className="mt-2 space-y-2 mb-4">
+                        <p>
+                          {words[slideIndex]?.definition[index + 1]?.definition}
+                        </p>
+                        {words[slideIndex]?.definition[index + 1]?.example && (
+                          <p className="text-gray-400 text-[12px]">
+                            {words[slideIndex]?.definition[index + 1]?.example}
+                          </p>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex flex-col ml-4 mt-10 space-y-1">
-                    <span className="text-medium font-semibold">
-                      {word.word}
-                    </span>
-                    <span className="text-[12px]">{word.type}</span>
-                  </div>
-                  <div className="flex-center mt-10">
-                    <audio controls>
-                      <source
-                        src="https://api.dictionaryapi.dev/media/pronunciations/en/start-us.mp3"
-                        type="audio/mpeg"
-                      />
-                      Your browser does not support the audio element.
-                    </audio>
-
-                    <audio controls>
-                      <source
-                        src="https://api.dictionaryapi.dev/media/pronunciations/en/start-uk.mp3"
-                        type="audio/mpeg"
-                      />
-                      Your browser does not support the audio element.
-                    </audio>
+                  <div className="flex-center">
+                    {words[slideIndex]?.audioWordUrl[index + 1]?.audio ? (
+                      <audio controls>
+                        <source
+                          src={
+                            words[slideIndex]?.audioWordUrl[index + 1]?.audio ||
+                            undefined
+                          }
+                          type="audio/mpeg"
+                        />
+                        Your browser does not support the audio element.
+                      </audio>
+                    ):<span className="text-red-400 text-[12px]">No Audio</span>}
                   </div>
                 </div>
-                <CardContent className="flex aspect-square items-center justify-center p-6">
-                  <span className="text-4xl font-semibold">{word.word}</span>
-                </CardContent>
-              </Card>
-            </div>
-          </CarouselItem>
-        ))}
+              </div>
+            )
+          )}
+        </CarouselItem>
       </CarouselContent>
       <div onClick={onPrevClick}>
         <CarouselPrevious className="text-white hover:text-gray-200" />

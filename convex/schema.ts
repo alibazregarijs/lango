@@ -7,6 +7,7 @@ export default defineSchema({
         user:v.id('users'),
         definition:v.string(),
         word:v.string(),
+        phonetic:v.optional(v.string()),
         isSeen:v.boolean(),
         audioWordUrl:v.optional(v.string()),
     })
