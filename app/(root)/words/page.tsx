@@ -1,23 +1,11 @@
 "use client";
 
-// TODO : add type for words
-
-import React, { useEffect } from "react";
-import { CarouselDemo } from "@/components/Carousel";
-import { useRef } from "react";
+import essentialWords from "@/words.json";
+import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
+import { CarouselDemo } from "@/components/Carousel";
 
-export type wordProps = {
-  audioDefinitionStorageId: string;
-  user: string;
-  definition: string;
-  word: string;
-  type: string;
-  isSeen: boolean;
-  audioWordUrl: string;
-};
-
-export type WordObjectProps = {
+export type WordObject = {
   definition: {
     definition: string;
     example: string;
@@ -30,135 +18,77 @@ export type WordObjectProps = {
     audio: string;
   }[];
   meaningCount: number;
-}[];
+};
 
 const Word = () => {
   const slideIndexRef = useRef(0);
-  const [words, setWords] = React.useState<any[]>([]);
+  const [, forceUpdate] = useState(0);
+  const [words, setWords] = useState<WordObject[]>([]);
 
-  let wordObj: WordObjectProps = [
-    {
-      definition: [
-        {
-          definition: "",
-          example: "",
-        },
-      ],
-      word: "",
-      type: [
-        {
-          partOfSpeech: "",
-        },
-      ],
-      audioWordUrl: [
-        {
-          audio: "",
-        },
-      ],
-      meaningCount: 0,
-    },
-  ];
-  useEffect(() => {
-    const fetchRandomWord = async () => {
-      try {
-        const response = await axios.get(
-          "https://random-word-api.herokuapp.com/word?number=1"
-        );
+  const fetchRandomWord = async () => {
+    try {
+      const randomWord =
+        essentialWords[Math.floor(Math.random() * essentialWords.length)];
 
-        const randomWordObj = await axios.get(
-          `https://api.dictionaryapi.dev/api/v2/entries/en/run`
-        );
+      const apiWord = randomWord;
+      const randomWordObj = await axios.get(
+        `https://api.dictionaryapi.dev/api/v2/entries/en/${apiWord}`
+      );
 
-        // console.log(randomWordObj.data[0], "word from api");
-        const meaningCount = randomWordObj.data[0].meanings.length;
-        randomWordObj.data[0].meanings.map(
-          (
-            item: {
-              partOfSpeech: string;
-              definitions: { definition: string; example: string }[];
-            },
-            index: number
-          ) => {
-            wordObj[words.length].type.push({
-              partOfSpeech: item.partOfSpeech,
-            });
-            wordObj[words.length].definition.push({
-              definition: item.definitions[0].definition,
-              example: item.definitions[0]?.example,
-            });
-          }
-        );
+      const apiData = randomWordObj.data[0];
 
-        randomWordObj.data[0].phonetics.map(
-          (item: { audio: string }, index: number) => {
-            wordObj[words.length].audioWordUrl.push({
-              audio: item.audio,
-            });
-          }
-        );
+      const newWord: WordObject = {
+        word: apiWord,
+        meaningCount: apiData.meanings.length || 0,
+        definition: [],
+        type: [],
+        audioWordUrl: [],
+      };
 
-        wordObj[words.length].word = "beautiful";
-        wordObj[words.length].meaningCount = meaningCount;
-        console.log(wordObj,"alo")
-        wordObj.push({
-          definition: [
-            {
-              definition: "",
-              example: "",
-            },
-          ],
-          word: "",
-          type: [
-            {
-              partOfSpeech: "",
-            },
-          ],
-          audioWordUrl: [
-            {
-              audio: "",
-            },
-          ],
-          meaningCount: 0,
+      apiData.meanings.forEach((item: any) => {
+        newWord.type.push({ partOfSpeech: item.partOfSpeech });
+        newWord.definition.push({
+          definition: item.definitions[0]?.definition || "",
+          example: item.definitions[0]?.example || "",
         });
+      });
 
-        setWords(wordObj);
+      apiData.phonetics.forEach((item: any) => {
+        newWord.audioWordUrl.push({
+          audio: item.audio || "",
+        });
+      });
 
-        // const typeOfWord = randomWordObj.data[0].meanings[0].partOfSpeech;
-      } catch (error) {
-        console.error("Failed to fetch random word:", error);
-      }
-    };
+      setWords((prev) => [...prev, newWord]);
+    } catch (error) {
+      console.error("Failed to fetch random word:", error);
+    }
+  };
 
-    fetchRandomWord();
+  useEffect(() => {
+    fetchRandomWord(); // Fetch initial word
   }, []);
 
   const handleNextButton = () => {
     slideIndexRef.current += 1;
 
-    if (slideIndexRef.current === words.length - 1) {
-      words.pop();
-      setWords((prevWords) => {
-        // Check if we're at the end of the list
-        const newWord: wordProps = {
-          audioDefinitionStorageId: `${prevWords.length + 1}`,
-          user: `${prevWords.length + 1}`,
-          type: "noun",
-          definition: `Definition ${prevWords.length + 1}`,
-          word: `added Word ${prevWords.length + 1}`,
-          isSeen: false,
-          audioWordUrl: "https://www.example.com/audio.mp3",
-        };
-        return [...prevWords, newWord];
-      });
+    // When reaching end, fetch new word
+    if (slideIndexRef.current === words.length) {
+      fetchRandomWord();
+    } else {
+      forceUpdate((prev) => prev + 1);
     }
   };
 
   const handlePreviousButton = () => {
-    slideIndexRef.current -= 1;
+    if (slideIndexRef.current > 0) {
+      slideIndexRef.current -= 1;
+      forceUpdate((prev) => prev + 1);
+    }
   };
 
   return (
-    <div className="flex-center  custom-scrollbar w-full h-full">
+    <div className="flex-center custom-scrollbar w-full h-full">
       <CarouselDemo
         onNextClick={handleNextButton}
         onPrevClick={handlePreviousButton}
