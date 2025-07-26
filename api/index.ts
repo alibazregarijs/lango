@@ -4,8 +4,10 @@ import essentialWords from "@/words.json";
 
 export const fetchRandomWord = async ({
   setWords,
+  setLoading,
 }: {
   setWords: React.Dispatch<React.SetStateAction<WordObject[]>>;
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
   try {
     const randomWord =
@@ -41,6 +43,7 @@ export const fetchRandomWord = async ({
     });
 
     setWords((prev) => [...prev, newWord]);
+    setLoading(false);
   } catch (error) {
     console.error("Failed to fetch random word:", error);
   }

@@ -9,9 +9,11 @@ const Word = () => {
   const slideIndexRef = useRef(0);
   const [, forceUpdate] = useState(0);
   const [words, setWords] = useState<WordObject[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetchRandomWord({ setWords }); // Fetch initial word
+    setLoading(true);
+    fetchRandomWord({ setWords , setLoading }); // Fetch initial word
   }, []);
 
   const handleNextButton = () => {
@@ -19,7 +21,8 @@ const Word = () => {
 
     // When reaching end, fetch new word
     if (slideIndexRef.current === words.length) {
-      fetchRandomWord({ setWords });
+      setLoading(true);
+      fetchRandomWord({ setWords , setLoading });
     } else {
       forceUpdate((prev) => prev + 1);
     }
@@ -39,6 +42,7 @@ const Word = () => {
         onPrevClick={handlePreviousButton}
         words={words}
         slideIndex={slideIndexRef.current}
+        loading={loading}
       />
     </div>
   );
