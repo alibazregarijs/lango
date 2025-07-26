@@ -36,7 +36,7 @@ const Word = () => {
   };
 
   return (
-    <div className="flex-center custom-scrollbar w-full h-full">
+    <div className="flex-center w-full h-full">
       <CarouselDemo
         onNextClick={handleNextButton}
         onPrevClick={handlePreviousButton}
