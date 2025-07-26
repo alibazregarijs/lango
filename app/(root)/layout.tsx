@@ -14,8 +14,8 @@ export default function RootLayout({
           <div className="md:col-span-2 col-span-12">
             <LeftSidebar />
           </div>
-          <div className="md:col-span-8  col-span-12">{children}</div>
-          <div className="md:col-span-2  col-span-12">
+          <div className="md:col-span-8 w-full col-span-12">{children}</div>
+          <div className="md:col-span-2 col-span-12">
             <RightSidebar />
           </div>
         </main>
