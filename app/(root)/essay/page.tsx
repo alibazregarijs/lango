@@ -6,9 +6,11 @@ import React, { useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { SelectDemo } from "@/components/Select";
+import { Modal } from "@/components/Modal";
 const Essay = () => {
   const [essay, setEssay] = useState("");
   const [level, setLevel] = useState("elementary_school");
+  const [open, setOpen] = useState(false);
   // const getEssayEvaluation = useAction(api.openai.EvaluateEssayAction);
 
   // try {
@@ -30,6 +32,7 @@ const Essay = () => {
   const submit = () => {
     console.log(essay, "essay");
     console.log(level, "level");
+    setOpen(true);
   };
 
   return (
@@ -46,7 +49,7 @@ const Essay = () => {
           </div>
           <Textarea
             placeholder="Enter your essay here"
-            className="w-[70vh] h-full bg-transparent text-[14px] sm:text-[12px] md:text-[14px] text-white p-4 rounded-lg"
+            className="w-[70vh] h-full bg-transparent text-[14px] custom-scrollbar sm:text-[12px] md:text-[14px] text-white p-4 rounded-lg"
             onChange={(e) => setEssay(e.target.value)}
           />
 
@@ -57,6 +60,8 @@ const Essay = () => {
             >
               Submit
             </Button>
+
+            <Modal setOpen={setOpen} open={open} />
           </div>
         </div>
       </div>
