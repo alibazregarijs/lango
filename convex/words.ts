@@ -3,6 +3,7 @@ import { v } from "convex/values";
 
 export const createWordMutation = mutation({
   args: {
+    userId: v.string(),
     definition: v.optional(v.array(
       v.object({
         definition: v.string(),

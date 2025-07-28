@@ -5,7 +5,8 @@ import { CarouselDemo } from "@/components/Carousel";
 import { type WordObject } from "@/types";
 import { fetchRandomWord } from "@/index";
 import { api } from "@/convex/_generated/api";
-import { useAction, useMutation } from "convex/react";
+import { useMutation } from "convex/react";
+import { useUser } from "@/context/UserContext";
 
 const Word = () => {
   const slideIndexRef = useRef(0);
@@ -13,9 +14,14 @@ const Word = () => {
   const [words, setWords] = useState<WordObject[]>([]);
   const [loading, setLoading] = useState(false);
   const createWordsMutation = useMutation(api.words.createWordMutation);
+  const { userId } = useUser();
 
   const handleCreateWords = async ({ word }: { word: WordObject }) => {
-    await createWordsMutation(word);
+    if (!userId) return;
+    await createWordsMutation({
+      ...word,
+      userId,
+    });
   };
 
   useEffect(() => {
@@ -48,6 +54,8 @@ const Word = () => {
 
   const handlePreviousButton = () => {
     // TODO : test if prev button show first slide
+    console.log(slideIndexRef.current, "slide index");
+
     if (slideIndexRef.current > 0) {
       slideIndexRef.current -= 1;
       forceUpdate((prev) => prev + 1);

@@ -3,6 +3,7 @@ import { v } from "convex/values";
 
 export default defineSchema({
   words: defineTable({
+    userId: v.string(),
     definition: v.optional(
       v.array(
         v.object({
@@ -35,4 +36,9 @@ export default defineSchema({
     clerkId: v.string(),
     name: v.string(),
   }),
+  // essay: defineTable({
+  //   essay: v.string(),
+  //   level: v.string(),
+  //   userId: v.string(),
+  // }),
 });
