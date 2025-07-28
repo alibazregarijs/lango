@@ -36,9 +36,12 @@ export default defineSchema({
     clerkId: v.string(),
     name: v.string(),
   }),
-  // essay: defineTable({
-  //   essay: v.string(),
-  //   level: v.string(),
-  //   userId: v.string(),
-  // }),
+  essay: defineTable({
+    essay: v.string(),
+    level: v.string(),
+    userId: v.string(),
+    grade:v.optional(v.string()),
+    grammer:v.optional(v.string()),
+    suggestion:v.optional(v.string()),
+  }),
 });

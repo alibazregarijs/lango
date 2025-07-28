@@ -1,13 +1,23 @@
 "use client";
 
 import { api } from "@/convex/_generated/api";
-import { useAction } from "convex/react";
+import { useAction, useMutation } from "convex/react";
 import React, { useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { SelectDemo } from "@/components/Select";
 import { Modal } from "@/components/Modal";
 import { toast } from "sonner";
+import { useUser } from "@/context/UserContext";
+
+type essayProps = {
+  essay: string;
+  level: string;
+  userId: string;
+  grade: string;
+  grammer: string;
+  suggestion: string;
+};
 
 const Essay = () => {
   const [essay, setEssay] = useState("");
@@ -20,17 +30,25 @@ const Essay = () => {
     suggestion: "",
   });
 
-  const getEssayEvaluation = useAction(api.groqai.EvaluateEssayAction);
+  const { userId } = useUser();
 
+  const getEssayEvaluation = useAction(api.groqai.EvaluateEssayAction);
+  const createEssayMutation = useMutation(api.essay.createEssayMutation);
+
+  const handleCreateEssay = async ({ essay }: { essay: essayProps }) => {
+    if (!userId) return;
+    await createEssayMutation({
+      ...essay,
+      userId,
+    });
+  };
   const submit = () => {
     setLoading(true);
 
     if (essay === "") {
       toast("Text must not be empty", {
         description: (
-          <span className="text-gray-400">
-            Please write your essay.
-          </span>
+          <span className="text-gray-400">Please write your essay.</span>
         ),
         action: {
           label: "Undo",
@@ -56,9 +74,23 @@ const Essay = () => {
           grammer,
           suggestion,
         });
+
         setEssay("");
         setLevel("pre_school");
         setLoading(false);
+
+        if (!userId) return;
+        
+        const essayObj = {
+          essay,
+          level,
+          userId,
+          grade,
+          grammer,
+          suggestion,
+        };
+        handleCreateEssay({ essay: essayObj });
+        
       };
       fetchEssayEvaluation();
     } catch (error) {
