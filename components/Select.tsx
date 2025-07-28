@@ -10,9 +10,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export function SelectDemo({setLevel}: {setLevel: React.Dispatch<React.SetStateAction<string>>}) {
+export function SelectDemo({setLevel,level}: {setLevel: React.Dispatch<React.SetStateAction<string>>,level:string}) {
   return (
-    <Select defaultValue="elementary_school" onValueChange={(value) => setLevel(value)}>
+    <Select defaultValue="pre_school" value={level} onValueChange={(value) => setLevel(value)}>
       <SelectTrigger className="w-[180px]">
         <SelectValue placeholder="Select a Level" />
       </SelectTrigger>
