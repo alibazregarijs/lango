@@ -7,31 +7,63 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { SelectDemo } from "@/components/Select";
 import { Modal } from "@/components/Modal";
+import { toast } from "sonner";
+
 const Essay = () => {
   const [essay, setEssay] = useState("");
-  const [level, setLevel] = useState("elementary_school");
+  const [level, setLevel] = useState("pre_school");
   const [open, setOpen] = useState(false);
-  // const getEssayEvaluation = useAction(api.openai.EvaluateEssayAction);
+  const [loading, setLoading] = useState(false);
+  const [evaluation, setEvaluation] = useState({
+    grade: "",
+    grammer: "",
+    suggestion: "",
+  });
 
-  // try {
-  //   const fetchEssayEvaluation = async () => {
-  //     const response = await getEssayEvaluation({
-  //       essay:
-  //         "Nature is the foundation of all life, offering beauty, balance, and resources essential for survival. It provides us with fresh air, clean water, and food to sustain our daily lives. The vibrant landscapes and diverse wildlife inspire peace and creativity. Protecting nature is vital to ensure a healthy planet for future generations. By respecting and preserving the environment, we nurture our own well-being.",
-  //       level: "mid school",
-  //     });
-
-  //     const cleanedArr = response.map((str) => str.replace(/\n/g, ""));
-  //     console.log(cleanedArr);
-  //   };
-  //   fetchEssayEvaluation();
-  // } catch (error) {
-  //   console.error(error);
-  // }
+  const getEssayEvaluation = useAction(api.groqai.EvaluateEssayAction);
 
   const submit = () => {
-    console.log(essay, "essay");
-    console.log(level, "level");
+    setLoading(true);
+
+    if (essay === "") {
+      toast("Text must not be empty", {
+        description: (
+          <span className="text-gray-400">
+            Please write your essay.
+          </span>
+        ),
+        action: {
+          label: "Undo",
+          onClick: () => "",
+        },
+      });
+      return;
+    }
+
+    try {
+      const fetchEssayEvaluation = async () => {
+        const response = await getEssayEvaluation({
+          essay,
+          level,
+        });
+
+        const cleanedArr = response.map((str) => str.replace(/\n/g, ""));
+        const grade = cleanedArr[0];
+        const grammer = cleanedArr[1];
+        const suggestion = cleanedArr[2];
+        setEvaluation({
+          grade,
+          grammer,
+          suggestion,
+        });
+        setEssay("");
+        setLevel("pre_school");
+        setLoading(false);
+      };
+      fetchEssayEvaluation();
+    } catch (error) {
+      console.error(error);
+    }
     setOpen(true);
   };
 
@@ -45,12 +77,13 @@ const Essay = () => {
 
         <div className="flex flex-col items-center  h-[40vh] mt-4">
           <div className="w-[70vh] mb-4 mt-4">
-            <SelectDemo setLevel={setLevel} />
+            <SelectDemo setLevel={setLevel} level={level} />
           </div>
           <Textarea
             placeholder="Enter your essay here"
             className="w-[70vh] h-full bg-transparent text-[14px] custom-scrollbar sm:text-[12px] md:text-[14px] text-white p-4 rounded-lg"
             onChange={(e) => setEssay(e.target.value)}
+            value={essay}
           />
 
           <div className="w-[70vh] mt-4">
@@ -61,7 +94,14 @@ const Essay = () => {
               Submit
             </Button>
 
-            <Modal setOpen={setOpen} open={open} />
+            <Modal
+              setOpen={setOpen}
+              open={open}
+              grade={evaluation.grade}
+              grammer={evaluation.grammer}
+              suggestion={evaluation.suggestion}
+              loading={loading}
+            />
           </div>
         </div>
       </div>

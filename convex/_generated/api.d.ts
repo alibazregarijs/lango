@@ -13,8 +13,8 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as groqai from "../groqai.js";
 import type * as http from "../http.js";
-import type * as openai from "../openai.js";
 import type * as users from "../users.js";
 
 /**
@@ -26,8 +26,8 @@ import type * as users from "../users.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  groqai: typeof groqai;
   http: typeof http;
-  openai: typeof openai;
   users: typeof users;
 }>;
 export declare const api: FilterApi<

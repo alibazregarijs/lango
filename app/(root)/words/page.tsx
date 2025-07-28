@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { CarouselDemo } from "@/components/Carousel";
 import { type WordObject } from "@/types";
-import { fetchRandomWord } from "@/api";
+import { fetchRandomWord } from "@/index";
 
 const Word = () => {
   const slideIndexRef = useRef(0);
