@@ -16,12 +16,12 @@ export const sidebarItems = [
 
 export const quizItems = [
   {
-    name: "Words",
-    href: "/quiz/words",
+    name: "Listening",
+    href: "quiz/listening",
   },
 
   {
-    name: "Listening",
-    href: "quiz/listening",
+    name: "Words",
+    href: "/quiz/words",
   },
 ];

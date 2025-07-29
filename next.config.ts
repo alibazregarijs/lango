@@ -4,9 +4,7 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   allowedDevOrigins: ["local-origin.dev", "*.local-origin.dev"],
-  experimental: {
-    allowedDevOrigins: ["local-origin.dev", "*.local-origin.dev"],
-  },
+ 
 };
 
 export default nextConfig;
