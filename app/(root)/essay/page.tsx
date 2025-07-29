@@ -9,15 +9,8 @@ import { SelectDemo } from "@/components/Select";
 import { Modal } from "@/components/Modal";
 import { toast } from "sonner";
 import { useUser } from "@/context/UserContext";
+import { essayProps } from "@/types";
 
-type essayProps = {
-  essay: string;
-  level: string;
-  userId: string;
-  grade: string;
-  grammer: string;
-  suggestion: string;
-};
 
 const Essay = () => {
   const [essay, setEssay] = useState("");

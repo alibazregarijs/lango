@@ -12,3 +12,12 @@ export type WordObject = {
   }[];
   meaningCount: number;
 };
+
+export type essayProps = {
+  essay: string;
+  level: string;
+  userId: string;
+  grade: string;
+  grammer: string;
+  suggestion: string;
+};
