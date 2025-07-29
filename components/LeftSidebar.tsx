@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { Book, PenAdd, Profile } from "iconsax-reactjs";
+import { Book,Book1, PenAdd, Profile } from "iconsax-reactjs";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { sidebarItems } from "@/constants";
@@ -37,11 +37,12 @@ const LeftSidebar = () => {
               {item.name === "Words" && (
                 <Book size="24" color={isActive ? "#F97535" : "#6B7280"} />
               )}
+              {item.name === "Quiz" && (
+                // <PenAdd size="24"  />
+                <Book1 size="24" color={isActive ? "#F97535" : "#6B7280"}/>
+              )}
               {item.name === "Essay" && (
                 <PenAdd size="24" color={isActive ? "#F97535" : "#6B7280"} />
-              )}
-              {item.name === "Profile" && (
-                <Profile size="24" color={isActive ? "#F97535" : "#6B7280"} />
               )}
               <span
                 className={`text-sm font-medium ${

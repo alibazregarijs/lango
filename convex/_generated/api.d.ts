@@ -13,9 +13,11 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as essay from "../essay.js";
 import type * as groqai from "../groqai.js";
 import type * as http from "../http.js";
 import type * as users from "../users.js";
+import type * as words from "../words.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -26,9 +28,11 @@ import type * as users from "../users.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  essay: typeof essay;
   groqai: typeof groqai;
   http: typeof http;
   users: typeof users;
+  words: typeof words;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

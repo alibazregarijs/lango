@@ -102,10 +102,10 @@ export function CarouselDemo({
         )}
       </CarouselContent>
       <div onClick={onPrevClick}>
-        <CarouselPrevious className="text-white hover:text-gray-200" />
+        <CarouselPrevious disabled={slideIndex === 0} className="text-white hover:text-gray-200" />
       </div>
       <div onClick={onNextClick}>
-        <CarouselNext className="text-white hover:text-gray-200" />
+        <CarouselNext disabled={loading === true} className="text-white hover:text-gray-200" />
       </div>
     </Carousel>
   );

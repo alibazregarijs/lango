@@ -44,6 +44,7 @@ export const fetchRandomWord = async ({
 
     setWords((prev) => [...prev, newWord]);
     setLoading(false);
+    return newWord;
   } catch (error) {
     console.error("Failed to fetch random word:", error);
   }
