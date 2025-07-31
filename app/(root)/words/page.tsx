@@ -1,20 +1,35 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
-import { CarouselDemo } from "@/components/Carousel";
+import React from "react";
+import { CarouselDemo as Carousel } from "@/components/Carousel";
 import { type WordObject } from "@/types";
 import { fetchRandomWord } from "@/index";
 import { api } from "@/convex/_generated/api";
 import { useMutation } from "convex/react";
 import { useUser } from "@/context/UserContext";
+import { WordCarouselSlide } from "@/components/WordCarouselSlide";
+import { useCarousel } from "@/hooks/useCarousel";
 
 const Word = () => {
-  const slideIndexRef = useRef(0);
-  const [, forceUpdate] = useState(0);
-  const [words, setWords] = useState<WordObject[]>([]);
-  const [loading, setLoading] = useState(false);
+  const {
+    slideIndex,
+    items: words,
+    setItems: setWords,
+    setLoading,
+    loading,
+    handleNext,
+    handlePrev,
+    canGoNext,
+    canGoPrev,
+  } = useCarousel<WordObject>();
+
   const createWordsMutation = useMutation(api.words.createWordMutation);
   const { userId } = useUser();
+
+  const speak = () => {
+    const utterance = new SpeechSynthesisUtterance(words[slideIndex]?.word);
+    speechSynthesis.speak(utterance);
+  };
 
   const handleCreateWords = async ({ word }: { word: WordObject }) => {
     if (!userId) return;
@@ -22,55 +37,40 @@ const Word = () => {
       ...word,
       userId,
     });
-  };
+  }; // saving word to db
 
-  useEffect(() => {
+  React.useEffect(() => {
     const fetchWord = async () => {
-      setLoading(true);
-      const newWord = await fetchRandomWord({ setWords, setLoading }); // Fetch initial word
+      const newWord = await fetchRandomWord({ setWords, setLoading });
       if (newWord) {
         handleCreateWords({ word: newWord });
       }
     };
     fetchWord();
-  }, []);
-  const handleNextButton = () => {
-    slideIndexRef.current += 1;
+  }, []); // fetching random word for the first time
 
-    // When reaching end, fetch new word
-    if (slideIndexRef.current === words.length) {
-      const fetchWord = async () => {
-        setLoading(true);
-        const newWord = await fetchRandomWord({ setWords, setLoading }); // Fetch initial word
-        if (newWord) {
-          handleCreateWords({ word: newWord });
-        }
-      };
-      fetchWord();
-    } else {
-      forceUpdate((prev) => prev + 1);
+  const handleFetchMore = async () => {
+    const newWord = await fetchRandomWord({ setWords, setLoading });
+    if (newWord) {
+      handleCreateWords({ word: newWord });
     }
-  };
-
-  const handlePreviousButton = () => {
-    // TODO : test if prev button show first slide
-    console.log(slideIndexRef.current, "slide index");
-
-    if (slideIndexRef.current > 0) {
-      slideIndexRef.current -= 1;
-      forceUpdate((prev) => prev + 1);
-    }
-  };
+  }; // fetching random word when reaching the end of the list
 
   return (
     <div className="flex-center w-full h-full">
-      <CarouselDemo
-        onNextClick={handleNextButton}
-        onPrevClick={handlePreviousButton}
-        words={words}
-        slideIndex={slideIndexRef.current}
-        loading={loading}
-      />
+      <Carousel
+        onNextClick={() => handleNext(handleFetchMore)}
+        onPrevClick={handlePrev}
+        canGoNext={canGoNext}
+        canGoPrev={canGoPrev}
+      >
+        <WordCarouselSlide
+          words={words}
+          slideIndex={slideIndex}
+          loading={loading}
+          speak={speak}
+        />
+      </Carousel>
     </div>
   );
 };

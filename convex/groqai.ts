@@ -19,8 +19,6 @@ export async function getGroqChatCompletion({ prompt }: { prompt: string }) {
 export const EvaluateEssayAction = action({
   args: { essay: v.string(), level: v.string() },
   handler: async (_, args) => {
-    console.log(args.essay,"essay");
-    console.log(args.level,"level");
     const chatGradeCompletion = await getGroqChatCompletion({
       prompt: `give a grade to this paragraph based on ${args.level} level . (give me just a number)
 
@@ -44,8 +42,38 @@ ${args.essay}`,
 
     const grammer = chatGrammerCompletion.choices[0]?.message?.content || "";
 
- 
-
     return [grade, grammer, suggestion];
+  },
+});
+
+// for quiz
+
+export const ListeningQuizAction = action({
+  args: { level: v.string() },
+  handler: async (_, args) => {
+    const sentenceCompletion = await getGroqChatCompletion({
+      prompt: `please give me one line random english sentence based on the level i give you . level : ${args.level}`,
+    });
+
+    const sentence = sentenceCompletion.choices[0]?.message?.content || "";
+    return sentence;
+  },
+});
+
+export const GiveGradeListening = action({
+  args: { answer: v.string(), sentence: v.string() },
+  handler: async (_, args) => {
+    const giveGradeListeningCompletion = await getGroqChatCompletion({
+      prompt: `Rate the textual similarity of these two sentences I give you:
+
+${args.sentence}
+
+${args.answer}
+If there’s no similarity, give a zero, and I only want the score, no extra explanation.`,
+    });
+
+    const grade =
+      giveGradeListeningCompletion.choices[0]?.message?.content || "";
+    return grade;
   },
 });
