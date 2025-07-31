@@ -44,4 +44,12 @@ export default defineSchema({
     grammer:v.optional(v.string()),
     suggestion:v.optional(v.string()),
   }),
+
+  ListeningQuiz: defineTable({
+    level: v.string(),
+    userId: v.string(),
+    grade : v.optional(v.string()),
+    sentence: v.string(),
+    answer: v.optional(v.string())
+  }),
 });

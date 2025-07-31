@@ -1,48 +1,181 @@
 "use client";
-import React from "react";
-import { Airpods } from "iconsax-reactjs";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { SelectDemo } from "@/components/Select";
+
+import React, { useEffect, useState, useRef } from "react";
+import { CarouselDemo as Carousel } from "@/components/Carousel";
+import ListeningCarouselSlide from "@/components/ListeningCarouselSlide";
+import { useCarousel } from "@/hooks/useCarousel";
+import { useAction, useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { useUser } from "@/context/UserContext";
+import { Modal } from "@/components/Modal";
+import { toast } from "sonner";
+import { type SentenceObjectProps } from "@/types/index";
+import { checkNull } from "@/utils/index";
 
 const page = () => {
-  const [level, setLevel] = React.useState("pre_school");
+  const [level, setLevel] = useState("pre_school");
+  const [answer, setAnswer] = useState("");
+  const hasMount = useRef(false);
+  const [open, setOpen] = useState(false);
 
-  const handleClick = () => {
-    console.log("start");
-  };
+  const {
+    slideIndex,
+    setItems,
+    loading,
+    setLoading,
+    handleNext,
+    handlePrev,
+    canGoPrev,
+    canGoNext,
+    items,
+    slideIndexRef,
+  } = useCarousel<SentenceObjectProps>();
+  const { userId } = useUser();
+  const sentenceObjectRef = React.useRef<SentenceObjectProps>({
+    userId: "",
+    level: "",
+    grade: "",
+    sentence: "",
+    answer: "",
+  });
+
+  const getListeningQuizAction = useAction(api.groqai.ListeningQuizAction); // get sentence
+  const getGradeQuizAction = useAction(api.groqai.GiveGradeListening); // get grade based on sentence
+  const createListeningQuiz = useMutation(
+    api.ListeningQuiz.createListeningQuizMutation
+  ); // save our data to listening quiz table
+
+  const handleCreateListeningQuiz = async (
+    listeningQuizObj: SentenceObjectProps
+  ) => {
+    const res = await createListeningQuiz(listeningQuizObj);
+    return res;
+  }; // function that handle saving quiz data into convex db
+
+  const handleIconClick = () => {
+    const utterance = new SpeechSynthesisUtterance(
+      items[slideIndex]?.sentence || ""
+    );
+    speechSynthesis.speak(utterance);
+  }; // make sentence speak !
+
+  const handleSubmit = () => {
+    const isTextNull = checkNull(
+      answer,
+      <span className="text-gray-400">Please write something.</span>
+    ); // check if answer not to be null.
+    if (!isTextNull) {
+      return;
+    }
+    const handleGetGradeQuizAction = async () => {
+      const grade = await getGradeQuizAction({
+        answer: answer,
+        sentence: sentenceObjectRef.current.sentence,
+      });
+      sentenceObjectRef.current.answer = answer;
+      sentenceObjectRef.current.grade = grade;
+      sentenceObjectRef.current.level = level;
+
+      const currentItem = items[slideIndex];
+      setItems((prevItems) => {
+        const newItems = [...prevItems];
+        newItems[slideIndex] = {
+          ...currentItem,
+          answer: answer,
+          grade: grade,
+          level: level,
+        };
+        return newItems;
+      });
+
+      const listeningQuizObj: SentenceObjectProps = {
+        userId: userId!,
+        answer: answer,
+        grade: grade,
+        level: level,
+        sentence: currentItem.sentence,
+      }; // this object will be saved in convex db
+
+      const openModal = handleCreateListeningQuiz(listeningQuizObj);
+      if ((await openModal) && openModal instanceof Promise) {
+        setOpen(true);
+      }
+    };
+    handleGetGradeQuizAction();
+  }; // get current item and save in convex db
+
+  const fetchSentence = async () => {
+    const sentence = await getListeningQuizAction({ level });
+
+    sentenceObjectRef.current.sentence = sentence;
+    sentenceObjectRef.current.userId = userId!;
+
+    setItems((prev) => {
+      const newItem = [
+        ...prev,
+        {
+          userId: userId!,
+          level,
+          grade: "",
+          sentence: sentence,
+          answer: "",
+        },
+      ];
+      return newItem;
+    });
+  }; // fetch more sentence
+
+  useEffect(() => {
+    if (hasMount.current) {
+      const run = async () => {
+        setLoading(true);
+        slideIndexRef.current += 1;
+        await fetchSentence();
+        setLoading(false);
+      };
+
+      run();
+    } else {
+      hasMount.current = true;
+    }
+  }, [level]); // for getting new sentence if user change level
+
+  useEffect(() => {
+    hasMount.current = true;
+    fetchSentence();
+  }, []); // fetch sentence on first mount up
 
   return (
-    <div className="flex flex-col items-center h-full w-full">
-      <span className="text-gray-400 mt-4">
-        Select your level ten click the <span className="text-orange-1">icon</span> to start the quiz.
-      </span>
-
-      <div className="flex flex-col space-y-4 mt-4">
-        <div className="flex-center space-x-4">
-          <Airpods
-            className="w-10 h-10 text-gray-400 cursor-pointer"
-            onClick={handleClick}
-            color="#FF8A65"
-          />
-          <SelectDemo setLevel={setLevel} level={level} />
-        </div>
-
-        <div className="w-[90vh] border-t-1 border-gray-400 my-4"></div>
-      </div>
-
-      <div className="flex flex-col h-full space-y-2">
-        <div className="flex h-full">
-          <Textarea
-            placeholder="Please write everything you heard."
-            className="w-[70vh] md:text-[16px] text-[14px]"
-          />
-        </div>
-        <div className="mb-4">
-          <Button>Submit</Button>
-        </div>
-      </div>
-    </div>
+    <>
+      <Carousel
+        onNextClick={() => handleNext(fetchSentence)}
+        onPrevClick={() => handlePrev()}
+        canGoNext={canGoNext}
+        canGoPrev={canGoPrev}
+      >
+        <ListeningCarouselSlide
+          handleIconClick={handleIconClick}
+          level={level}
+          setLevel={setLevel}
+          onSubmit={handleSubmit}
+          setAnswer={setAnswer}
+          loading={loading}
+        />
+      </Carousel>
+      <Modal open={open} onOpenChange={setOpen}>
+        <Modal.Content>
+          <Modal.Section title="Pay attention to this point." loading={loading}>
+            <Modal.Body label="Sentence got played">
+              {items[slideIndex]?.sentence}
+            </Modal.Body>
+            <Modal.Body label="Grade">{items[slideIndex]?.grade}</Modal.Body>
+            <Modal.Body label="Your response">
+              {items[slideIndex]?.answer}
+            </Modal.Body>
+          </Modal.Section>
+        </Modal.Content>
+      </Modal>
+    </>
   );
 };
 

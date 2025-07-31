@@ -10,7 +10,7 @@ import { Modal } from "@/components/Modal";
 import { toast } from "sonner";
 import { useUser } from "@/context/UserContext";
 import { essayProps } from "@/types";
-
+import { checkNull } from "@/utils/index";
 
 const Essay = () => {
   const [essay, setEssay] = useState("");
@@ -38,16 +38,11 @@ const Essay = () => {
   const submit = () => {
     setLoading(true);
 
-    if (essay === "") {
-      toast("Text must not be empty", {
-        description: (
-          <span className="text-gray-400">Please write your essay.</span>
-        ),
-        action: {
-          label: "Undo",
-          onClick: () => "",
-        },
-      });
+    const isTextNull = checkNull(
+      essay,
+      <span className="text-gray-400">Please write something.</span>
+    ); // check if answer not to be null.
+    if (!isTextNull) {
       return;
     }
 
@@ -73,7 +68,7 @@ const Essay = () => {
         setLoading(false);
 
         if (!userId) return;
-        
+
         const essayObj = {
           essay,
           level,
@@ -83,7 +78,6 @@ const Essay = () => {
           suggestion,
         };
         handleCreateEssay({ essay: essayObj });
-        
       };
       fetchEssayEvaluation();
     } catch (error) {
@@ -119,14 +113,22 @@ const Essay = () => {
               Submit
             </Button>
 
-            <Modal
-              setOpen={setOpen}
-              open={open}
-              grade={evaluation.grade}
-              grammer={evaluation.grammer}
-              suggestion={evaluation.suggestion}
-              loading={loading}
-            />
+            <Modal open={open} onOpenChange={setOpen}>
+              <Modal.Content>
+                <Modal.Section
+                  title="Pay attention to this point."
+                  loading={loading}
+                >
+                  <Modal.Body label="Grade">{evaluation.grade}</Modal.Body>
+                  <Modal.Body label="Grammatical problem">
+                    {evaluation.grammer}
+                  </Modal.Body>
+                  <Modal.Body label="Suggestion">
+                    {evaluation.suggestion}
+                  </Modal.Body>
+                </Modal.Section>
+              </Modal.Content>
+            </Modal>
           </div>
         </div>
       </div>
