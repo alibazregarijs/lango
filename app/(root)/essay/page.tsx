@@ -87,22 +87,24 @@ const Essay = () => {
 
   return (
     <div className="flex-center w-full h-full">
-      <div className="flex flex-col md:w-2xl w-full h-[70vh] bg-[#15171C] border p-1 rounded-lg">
-        <span className="flex-center text-gray-400 text-xl font-semibold">
+      <div className="flex flex-col justify-center md:w-2xl w-full lsm:h-[100vh] sm:h-[100vh] md:h-[70vh] bg-[#15171C] border p-1 rounded-lg">
+        <span className="flex-center text-gray-400 text-xl max-sm:text-[16px] md:font-semibold">
           Improve your writing skills with
           <span className="text-orange-1 ml-1"> AI</span>
         </span>
 
-        <div className="flex flex-col items-center  h-[40vh] mt-4">
+        <div className="flex flex-col items-center mt-4">
           <div className="w-[70vh] mb-4 mt-4">
             <SelectDemo setLevel={setLevel} level={level} />
           </div>
-          <Textarea
-            placeholder="Enter your essay here"
-            className="w-[70vh] h-full bg-transparent text-[14px] custom-scrollbar sm:text-[12px] md:text-[14px] text-white p-4 rounded-lg"
-            onChange={(e) => setEssay(e.target.value)}
-            value={essay}
-          />
+          <div>
+            <Textarea
+              placeholder="Enter your essay here"
+              className="w-[70vh] lsm:h-[50vh] sm:h-[50vh] md:h-[28vh]  bg-transparent max-sm:text-[14px] custom-scrollbar  text-white p-4 rounded-lg"
+              onChange={(e) => setEssay(e.target.value)}
+              value={essay}
+            />
+          </div>
 
           <div className="w-[70vh] mt-4">
             <Button
