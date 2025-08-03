@@ -14,7 +14,7 @@ export const WordCarouselSlide = ({
   loading,
   speak,
   title = (
-    <div className="flex-center mt-4">
+    <div className="md:flex-center flex mt-4">
       <span className="text-medium font-semibold">
         Random<span className="text-orange-1 ml-2">Word</span>
       </span>
@@ -22,7 +22,7 @@ export const WordCarouselSlide = ({
   ),
 }: WordCarouselSlideProps) => {
   return (
-    <div className="bg-[#15171C]">
+    <div className="bg-[#15171C] md:overflow-y-scroll custom-scrollbar">
       {title}
       {loading ? (
         <Spinner loading={loading} />
@@ -31,9 +31,9 @@ export const WordCarouselSlide = ({
           (item: WordObject["type"][0], index: number) => (
             item.partOfSpeech.length > 1 && (
               <CarouselItem key={slideIndex-index}>
-                <div className="flex flex-col h-[70vh] overflow-y-scroll no-scrollbar ml-2">
+                <div className="flex flex-col h-[70vh] overflow-y-scroll custom-scrollbar mt-4">
                   <div className="flex flex-col">
-                    <div className="flex flex-col ml-4 space-y-1 flex-grow">
+                    <div className="flex flex-col  space-y-1 flex-grow">
                       <span className="text-medium font-semibold capitalize">
                         {words[slideIndex]?.word}
                       </span>

@@ -17,6 +17,9 @@ const config = {
       },
     },
     extend: {
+      screens: {
+        lsm: { min: "320px", max: "639px" },
+      },
       colors: {
         white: {
           1: "#FFFFFF",
