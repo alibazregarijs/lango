@@ -16,7 +16,7 @@ import {
 
 const MineDialogContent = ({ children }: DialogContentProps) => {
   return (
-    <DialogContent className="sm:max-w-[425px] custom-scrollbar">
+    <DialogContent className="sm:max-w-[425px] lsm:h-full sm:h-[80vh] overflow-y-scroll custom-scrollbar">
       {children}
     </DialogContent>
   );
@@ -24,7 +24,7 @@ const MineDialogContent = ({ children }: DialogContentProps) => {
 
 const MineDialogHeader = ({ children, title, loading }: DialogHeaderProps) => {
   return (
-    <DialogHeader>
+    <DialogHeader className="mt-6">
       <DialogTitle>{title}</DialogTitle>
       {loading ? (
         <Spinner loading={loading} />
