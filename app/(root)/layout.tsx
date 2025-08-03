@@ -1,7 +1,7 @@
 import LeftSidebar from "@/components/LeftSidebar";
 import RightSidebar from "@/components/RightSidebar";
 import "../globals.css";
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 import { UserProvider } from "@/components/UserProvider";
 
 export default async function RootLayout({

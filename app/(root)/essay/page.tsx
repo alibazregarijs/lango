@@ -7,7 +7,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { SelectDemo } from "@/components/Select";
 import { Modal } from "@/components/Modal";
-import { toast } from "sonner";
 import { useUser } from "@/context/UserContext";
 import { essayProps } from "@/types";
 import { checkNull } from "@/utils/index";

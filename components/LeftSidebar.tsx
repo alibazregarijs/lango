@@ -13,7 +13,7 @@ const LeftSidebar = () => {
     <div className="flex md:flex-col h-full md:ml-4 space-x-2">
       <div className="flex items-start justify-start">
         <Image
-          className="md:w-24 md:h-24 h-28 w-28 "
+          className="md:w-24 md:h-24 h-20 w-20"
           src={"/icons/logo.png"}
           priority
           width={500}
@@ -35,14 +35,14 @@ const LeftSidebar = () => {
               }`}
             >
               {item.name === "Words" && (
-                <Book size="24" color={isActive ? "#F97535" : "#6B7280"} />
+                <Book  className="w-4 h-4 md:w-6 md:h-6" size="24" color={isActive ? "#F97535" : "#6B7280"} />
               )}
               {item.name === "Quiz" && (
                 // <PenAdd size="24"  />
-                <Book1 size="24" color={isActive ? "#F97535" : "#6B7280"}/>
+                <Book1  className="w-4 h-4 md:w-6 md:h-6" size="24" color={isActive ? "#F97535" : "#6B7280"}/>
               )}
               {item.name === "Essay" && (
-                <PenAdd size="24" color={isActive ? "#F97535" : "#6B7280"} />
+                <PenAdd className="w-4 h-4 md:w-6 md:h-6" color={isActive ? "#F97535" : "#6B7280"} />
               )}
               <span
                 className={`text-sm font-medium ${
