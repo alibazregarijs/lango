@@ -30,7 +30,7 @@ const page = () => {
       canGoNext={canGoNext}
       canGoPrev={canGoPrev}
     >
-      <QuizWordCarouselSlide level={level} setLevel={setLevel} />;
+      <QuizWordCarouselSlide level={level} setLevel={setLevel} />
     </CarouselDemo>
   );
 };

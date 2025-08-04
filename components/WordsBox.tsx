@@ -68,7 +68,7 @@ export function WordsBox() {
           name="items"
           render={() => (
             <FormItem>
-              <div className="flex w-[66vh] space-y-1 mt-4"> {/* Changed to flex with gap */}
+              <div className="grid"> {/* Changed to flex with gap */}
                 {items.map((item) => (
                   <FormField
                     key={item.id}
