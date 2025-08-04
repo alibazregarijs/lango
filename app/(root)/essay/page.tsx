@@ -87,33 +87,34 @@ const Essay = () => {
 
   return (
     <div className="flex-center w-full h-full">
-      <div className="flex flex-col justify-center md:w-2xl w-full lsm:h-[100vh] sm:h-[100vh] md:h-[70vh] bg-[#15171C] border p-1 rounded-lg">
+      <div className="flex flex-col justify-center w-[100%] bg-[#15171C] border p-1 rounded-lg">
         <span className="flex-center text-gray-400 text-xl max-sm:text-[16px] md:font-semibold">
           Improve your writing skills with
           <span className="text-orange-1 ml-1"> AI</span>
         </span>
 
         <div className="flex flex-col items-center mt-4">
-          <div className="w-[70vh] mb-4 mt-4">
+          <div className="mb-4 mt-4">
             <SelectDemo setLevel={setLevel} level={level} />
           </div>
-          <div>
+          <div className="flex-center flex-col h-full w-full">
             <Textarea
               placeholder="Enter your essay here"
-              className="w-[70vh] lsm:h-[50vh] sm:h-[50vh] md:h-[28vh]  bg-transparent max-sm:text-[14px] custom-scrollbar  text-white p-4 rounded-lg"
+              className="w-[70%] bg-transparent max-sm:text-[14px] custom-scrollbar  text-white p-4 rounded-lg"
               onChange={(e) => setEssay(e.target.value)}
               value={essay}
             />
+            <div className="w-[70%] flex justify-start mt-4">
+              <Button
+                onClick={submit}
+                className="bg-orange-1 text-white hover:bg-black-2 cursor-pointer"
+              >
+                Submit
+              </Button>
+            </div>
           </div>
 
           <div className="w-[70vh] mt-4">
-            <Button
-              onClick={submit}
-              className="bg-orange-1 text-white hover:bg-black-2 cursor-pointer"
-            >
-              Submit
-            </Button>
-
             <Modal open={open} onOpenChange={setOpen}>
               <Modal.Content>
                 <Modal.Section
