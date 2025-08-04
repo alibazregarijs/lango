@@ -60,7 +60,7 @@ export const ListeningQuizAction = action({
   },
 });
 
-export const GiveGradeListening = action({
+export const GiveGradeListeningAction = action({
   args: { answer: v.string(), sentence: v.string() },
   handler: async (_, args) => {
     const giveGradeListeningCompletion = await getGroqChatCompletion({
@@ -75,5 +75,40 @@ If there’s no similarity, give a zero, and I only want the score, no extra exp
     const grade =
       giveGradeListeningCompletion.choices[0]?.message?.content || "";
     return grade;
+  },
+});
+
+export const QuizWordAction = action({
+  args: { level: v.string() },
+  handler: async (_, args) => {
+    const QuizQuestionCompletion = await getGroqChatCompletion({
+      prompt: `Create a fill-in-the-blank question designed for ${args.level} level to test grammar and vocabulary, with exactly one blank space in the sentence. Provide the question followed by four word options, where only one option is correct , please make it randomly.`,
+    });
+
+    const question = QuizQuestionCompletion.choices[0]?.message?.content || "";
+
+    const QuizCorrectWordCompletion = await getGroqChatCompletion({
+      prompt: `${question} i want make a list from above plain text after A) until last item 
+as json array like : 
+[
+{
+ id:"book"
+label:"Book"
+}
+]
+just give only the array part. and extract it like i told you exactly.`,
+    });
+
+    const CorrectWordCompletion = await getGroqChatCompletion({
+      prompt: `${question} give me the correct word of this question , just give me the word . your choice must be in the four word in the question.`,
+    });
+
+    const wordsArray =
+      QuizCorrectWordCompletion.choices[0]?.message?.content || "";
+
+    const correctWord =
+      CorrectWordCompletion.choices[0]?.message?.content || "";
+
+    return [question, wordsArray, correctWord];
   },
 });

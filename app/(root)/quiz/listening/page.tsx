@@ -11,6 +11,7 @@ import { Modal } from "@/components/Modal";
 import { toast } from "sonner";
 import { type SentenceObjectProps } from "@/types/index";
 import { checkNull } from "@/utils/index";
+import useFetchItems from "@/hooks/useFetchItems";
 
 const page = () => {
   const [level, setLevel] = useState("pre_school");
@@ -40,7 +41,7 @@ const page = () => {
   });
 
   const getListeningQuizAction = useAction(api.groqai.ListeningQuizAction); // get sentence
-  const getGradeQuizAction = useAction(api.groqai.GiveGradeListening); // get grade based on sentence
+  const getGradeQuizAction = useAction(api.groqai.GiveGradeListeningAction); // get grade based on sentence
   const createListeningQuiz = useMutation(
     api.ListeningQuiz.createListeningQuizMutation
   ); // save our data to listening quiz table
@@ -125,25 +126,7 @@ const page = () => {
     });
   }; // fetch more sentence
 
-  useEffect(() => {
-    if (hasMount.current) {
-      const run = async () => {
-        setLoading(true);
-        slideIndexRef.current += 1;
-        await fetchSentence();
-        setLoading(false);
-      };
-
-      run();
-    } else {
-      hasMount.current = true;
-    }
-  }, [level]); // for getting new sentence if user change level
-
-  useEffect(() => {
-    hasMount.current = true;
-    fetchSentence();
-  }, []); // fetch sentence on first mount up
+  useFetchItems({ setLoading, slideIndexRef, handleFetchItems:fetchSentence, level, hasMount });
 
   return (
    
