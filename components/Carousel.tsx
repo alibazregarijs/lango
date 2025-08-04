@@ -26,7 +26,7 @@ export function CarouselDemo({
   canGoPrev,
   children,
   className = "w-[70%] mt-4",
-  contentClassName = "flex w-full flex-col  ml-0!",
+  contentClassName = "flex w-full flex-col ml-0!",
 }: CarouselDemoProps) {
   return (
     <Carousel className={className}>

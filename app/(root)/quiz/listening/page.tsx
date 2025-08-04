@@ -164,7 +164,7 @@ const page = () => {
           answer={answer}
         />
       </Carousel>
-      {/* <Modal open={open} onOpenChange={setOpen}>
+      <Modal open={open} onOpenChange={setOpen}>
         <Modal.Content>
           <Modal.Section title="Pay attention to this point." loading={loading}>
             <Modal.Body label="Sentence got played">
@@ -176,7 +176,7 @@ const page = () => {
             </Modal.Body>
           </Modal.Section>
         </Modal.Content>
-      </Modal> */}
+      </Modal>
   
     </div>
   );

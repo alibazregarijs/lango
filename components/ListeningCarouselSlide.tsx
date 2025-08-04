@@ -27,13 +27,13 @@ const ListeningCarouselSlide = ({
       {loading ? (
         <Spinner loading={loading} />
       ) : (
-        <div className="flex flex-col items-center w-[100%] h-full bg-[#15171C]">
+        <div className="flex flex-col items-center w-[100%] h-full bg-[#15171C] border-1 p-2 rounded-lg">
           <span className="text-gray-400 max-sm:text-[14px] ml-2">
             Select your level ten click the{" "}
             <span className="text-orange-1">icon</span> to start the quiz.
           </span>
 
-          <div className="flex flex-col space-y-4">
+          <div className="flex flex-col w-full space-y-4">
             <div className="flex-center flex-col space-y-4 mt-2">
               <Airpods
                 className="w-10 h-10 text-gray-400 cursor-pointer"
@@ -43,7 +43,7 @@ const ListeningCarouselSlide = ({
               <SelectDemo setLevel={setLevel} level={level} />
             </div>
 
-            <div className="w-[90vh] border-t-1 border-gray-400 my-4"></div>
+            <div className="w-full border-t-1 border-gray-400 my-4"></div>
           </div>
 
           <div className="flex flex-col w-full h-full space-y-2">
