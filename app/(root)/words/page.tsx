@@ -57,7 +57,7 @@ const Word = () => {
   }; // fetching random word when reaching the end of the list
 
   return (
-    <div className="flex-center w-full h-full">
+    <div className="flex-center w-full">
       <Carousel
         onNextClick={() => handleNext(handleFetchMore)}
         onPrevClick={handlePrev}

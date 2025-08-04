@@ -146,7 +146,8 @@ const page = () => {
   }, []); // fetch sentence on first mount up
 
   return (
-    <>
+   
+    <div className="flex-center w-full h-full">
       <Carousel
         onNextClick={() => handleNext(fetchSentence)}
         onPrevClick={() => handlePrev()}
@@ -160,9 +161,10 @@ const page = () => {
           onSubmit={handleSubmit}
           setAnswer={setAnswer}
           loading={loading}
+          answer={answer}
         />
       </Carousel>
-      <Modal open={open} onOpenChange={setOpen}>
+      {/* <Modal open={open} onOpenChange={setOpen}>
         <Modal.Content>
           <Modal.Section title="Pay attention to this point." loading={loading}>
             <Modal.Body label="Sentence got played">
@@ -174,8 +176,9 @@ const page = () => {
             </Modal.Body>
           </Modal.Section>
         </Modal.Content>
-      </Modal>
-    </>
+      </Modal> */}
+  
+    </div>
   );
 };
 

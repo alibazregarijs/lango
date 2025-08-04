@@ -25,8 +25,8 @@ export function CarouselDemo({
   canGoNext,
   canGoPrev,
   children,
-  className = "lg:w-2xl md:w-xl sm:w-[100vh] lsm:w-[60vh] max-h-full border p-1 rounded-lg",
-  contentClassName = "flex w-full flex-col h-[70vh] overflow-y-scroll no-scrollbar ml-0!",
+  className = "w-[70%] mt-4",
+  contentClassName = "flex w-full flex-col  ml-0!",
 }: CarouselDemoProps) {
   return (
     <Carousel className={className}>

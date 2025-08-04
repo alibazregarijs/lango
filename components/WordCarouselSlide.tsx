@@ -5,8 +5,7 @@ import { WordObject } from "@/types";
 import Spinner from "./Spinner";
 import { CarouselItem } from "@/components/ui/carousel";
 import { Play } from "iconsax-reactjs";
-import {type WordCarouselSlideProps} from "@/types/index"
-
+import { WordCarouselSlideProps } from "@/types/index";
 
 export const WordCarouselSlide = ({
   words,
@@ -14,7 +13,7 @@ export const WordCarouselSlide = ({
   loading,
   speak,
   title = (
-    <div className="md:flex-center flex mt-4">
+    <div className="flex-center flex mt-4">
       <span className="text-medium font-semibold">
         Random<span className="text-orange-1 ml-2">Word</span>
       </span>
@@ -22,38 +21,37 @@ export const WordCarouselSlide = ({
   ),
 }: WordCarouselSlideProps) => {
   return (
-    <div className="bg-[#15171C] md:overflow-y-scroll custom-scrollbar">
+    <div className="bg-[#15171C] w-full flex flex-col">
       {title}
+
       {loading ? (
-        <Spinner loading={loading} />
+        <div className="flex items-center justify-center py-20">
+          <Spinner loading={loading} />
+        </div>
       ) : (
         words[slideIndex]?.type?.map(
-          (item: WordObject["type"][0], index: number) => (
+          (item: WordObject["type"][0], index: number) =>
             item.partOfSpeech.length > 1 && (
-              <CarouselItem key={slideIndex-index}>
-                <div className="flex flex-col h-[70vh] overflow-y-scroll custom-scrollbar mt-4">
-                  <div className="flex flex-col">
-                    <div className="flex flex-col  space-y-1 flex-grow">
-                      <span className="text-medium font-semibold capitalize">
-                        {words[slideIndex]?.word}
-                      </span>
-                      <div className="flex flex-col">
-                        <span className="text-[12px] text-gray-400">
-                          As a {item.partOfSpeech}
-                        </span>
-                        <div className="mt-2 space-y-2 mb-20">
-                          <p>
-                            {words[slideIndex]?.definition[index]?.definition}
-                          </p>
-                          <p className="text-gray-400 text-[12px]">
-                            {words[slideIndex]?.definition[index]?.example}
-                          </p>
-                        </div>
-                      </div>
+              <CarouselItem key={slideIndex - index}>
+                <div className="flex flex-col w-full px-4 mt-4">
+                  <div className="flex flex-col border border-gray-700 rounded-md p-4 max-w-[600px] w-full mx-auto">
+                    <span className="text-medium font-semibold capitalize">
+                      {words[slideIndex]?.word}
+                    </span>
+                    <span className="text-[12px] text-gray-400">
+                      As a {item.partOfSpeech}
+                    </span>
+
+                    <div className="mt-2 space-y-2">
+                      <p>{words[slideIndex]?.definition[index]?.definition}</p>
+                      <p className="text-gray-400 text-[12px]">
+                        {words[slideIndex]?.definition[index]?.example}
+                      </p>
                     </div>
-                    <div className="flex-center">
+
+                    <div className="flex-center mt-8">
                       <div
-                        className="flex-center flex-col space-y-2"
+                        className="flex-center flex-col space-y-2 cursor-pointer"
                         onClick={speak}
                       >
                         <Play
@@ -71,7 +69,6 @@ export const WordCarouselSlide = ({
                 </div>
               </CarouselItem>
             )
-          )
         )
       )}
     </div>
