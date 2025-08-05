@@ -14,12 +14,14 @@ const QuizWordCarouselSlide = ({
   question,
   items,
   loading,
+  handleSubmit,
 }: {
   level: string;
   setLevel: React.Dispatch<React.SetStateAction<string>>;
   question: string;
   items: CheckboxItemProps[];
   loading: boolean;
+  handleSubmit: (choosedWord: string) => void;
 }) => {
 
   
@@ -45,7 +47,7 @@ const QuizWordCarouselSlide = ({
           </div>
 
           <div className="">
-            <WordsBox items={items} />
+            <WordsBox items={items} onSubmitHandler={handleSubmit} />
           </div>
         </div>
       )}

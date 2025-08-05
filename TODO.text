@@ -1,3 +1,3 @@
 TODO:
-- test useFetchItems hook 
-- add try catch block in useFetchItems hook
+- remove any type from useFetchItems hook in word page
+- use , useMemo , useCallback hook all pages for optimization.
