@@ -13,6 +13,8 @@ export async function getGroqChatCompletion({ prompt }: { prompt: string }) {
       },
     ],
     model: "llama-3.3-70b-versatile",
+    temperature: 0.9, // Increase randomness
+    max_tokens: 300, // Limit response length to avoid verbosity
   });
 }
 
@@ -82,7 +84,7 @@ export const QuizWordAction = action({
   args: { level: v.string() },
   handler: async (_, args) => {
     const QuizQuestionCompletion = await getGroqChatCompletion({
-      prompt: `Create a fill-in-the-blank question designed for ${args.level} level to test grammar and vocabulary, with exactly one blank space in the sentence. Provide the question followed by four word options, where only one option is correct , please make it randomly.`,
+      prompt: `Create a fill-in-the-blank question designed for ${args.level} level to test grammar and vocabulary, with exactly one blank space in the sentence. Provide the question followed by four word options, where only one option is correct. Ensure the question is unique by focusing on a different grammatical concept (e.g., verb tense, prepositions, adjectives, adverbs, modals) or theme (e.g., travel, work, nature, education) than previous questions. Make it random and creative.`,
     });
 
     const question = QuizQuestionCompletion.choices[0]?.message?.content || "";

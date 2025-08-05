@@ -24,7 +24,13 @@ const FormSchema = z.object({
   }),
 });
 
-export function WordsBox({ items , onSubmitHandler }: { items: CheckboxItemProps[], onSubmitHandler: (choosedWord: string) => void }) {
+export function WordsBox({
+  items,
+  onSubmitHandler,
+}: {
+  items: CheckboxItemProps[];
+  onSubmitHandler: (choosedWord: string) => void;
+}) {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -32,13 +38,11 @@ export function WordsBox({ items , onSubmitHandler }: { items: CheckboxItemProps
     },
   });
 
-  console.log(items,"items");
-
   function onSubmit(data: z.infer<typeof FormSchema>) {
     const choosedWord = data.items[0];
     onSubmitHandler(choosedWord);
   }
- 
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
