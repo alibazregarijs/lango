@@ -126,10 +126,16 @@ const page = () => {
     });
   }; // fetch more sentence
 
-  useFetchItems({ setLoading, slideIndexRef, handleFetchItems:fetchSentence, level, hasMount });
+  useFetchItems({
+    setLoading,
+    slideIndexRef,
+    handleFetchItems: fetchSentence,
+    level,
+    hasMount,
+    itemsLength: items.length,
+  });
 
   return (
-   
     <div className="flex-center w-full h-full">
       <Carousel
         onNextClick={() => handleNext(fetchSentence)}
@@ -160,7 +166,6 @@ const page = () => {
           </Modal.Section>
         </Modal.Content>
       </Modal>
-  
     </div>
   );
 };

@@ -1,27 +1,62 @@
-import React from 'react'
-import { useEffect } from 'react'
+import React from "react";
+import { useEffect } from "react";
 
-const useFetchItems = ({setLoading , slideIndexRef , handleFetchItems , level , hasMount}:{setLoading: React.Dispatch<React.SetStateAction<boolean>>, slideIndexRef: React.MutableRefObject<number>, handleFetchItems: () => Promise<void>,level:string,hasMount:React.MutableRefObject<boolean>}) => {
+const useFetchItems = ({
+  setLoading,
+  slideIndexRef,
+  handleFetchItems,
+  level,
+  hasMount,
+  itemsLength
+}: {
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  slideIndexRef: React.MutableRefObject<number>;
+  handleFetchItems: () => Promise<void>;
+  level: string;
+  hasMount: React.MutableRefObject<boolean>;
+  itemsLength: number;
+}) => {
+  useEffect(() => {
+    if (hasMount.current) {
+      const run = async () => {
+        try {
+          setLoading(true);
+     
+          if(slideIndexRef.current === itemsLength){
+            slideIndexRef.current += 1
+          }
+          else{
+            slideIndexRef.current = itemsLength
+          }
+          await handleFetchItems();
+        } catch (error) {
+          console.error("Error fetching items:", error);
+          // You might want to add additional error handling here
+          // For example: setErrorState(error.message) if you have error state
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      run();
+    } else {
+      hasMount.current = true;
+    }
+  }, [level]); // for getting new question and word items if user change level
 
   useEffect(() => {
-      if (hasMount.current) {
-        const run = async () => {
-          setLoading(true);
-          slideIndexRef.current += 1;
-          await handleFetchItems();
-          setLoading(false);
-        };
-  
-        run();
-      } else {
+    const fetchInitialItems = async () => {
+      try {
         hasMount.current = true;
+        await handleFetchItems();
+      } catch (error) {
+        console.error("Error fetching initial items:", error);
+        // Handle initial fetch error if needed
       }
-    }, [level]); // for getting new question and word items if user change level
-  
-    useEffect(() => {
-      hasMount.current = true;
-      handleFetchItems();
-    }, []); // fetch question and word items on first mount up
-}
+    };
 
-export default useFetchItems
+    fetchInitialItems();
+  }, []); // fetch question and word items on first mount up
+};
+
+export default useFetchItems;

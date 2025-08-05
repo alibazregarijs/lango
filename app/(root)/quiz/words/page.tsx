@@ -50,7 +50,7 @@ const page = () => {
     setCorrectWord(correctWord);
   };
 
-  useFetchItems({ setLoading, slideIndexRef, handleFetchItems:handleQuizWord, level, hasMount });
+  useFetchItems({ setLoading, slideIndexRef, handleFetchItems:handleQuizWord, level, hasMount , itemsLength: worditems.length});
 
   return (
     <CarouselDemo
