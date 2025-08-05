@@ -8,6 +8,10 @@ export async function getGroqChatCompletion({ prompt }: { prompt: string }) {
   return groq.chat.completions.create({
     messages: [
       {
+        role: "system",
+        content: "You are a creative English language teacher who generates unique and engaging sentences tailored to specific proficiency levels. Each sentence should vary in structure, theme, and linguistic focus to ensure diversity and avoid repetitive patterns.",
+      },
+      {
         role: "user",
         content: prompt,
       },
@@ -54,7 +58,7 @@ export const ListeningQuizAction = action({
   args: { level: v.string() },
   handler: async (_, args) => {
     const sentenceCompletion = await getGroqChatCompletion({
-      prompt: `please give me one line random english sentence based on the level i give you . level : ${args.level}`,
+      prompt: `Generate a single, unique English sentence designed for the ${args.level} level, ensuring appropriate grammar and vocabulary difficulty. The sentence should vary in structure (e.g., declarative, interrogative, or exclamatory), theme (e.g., daily life, nature, technology, education, or travel), and focus (e.g., verb usage, adjectives, or sentence complexity) to maximize diversity. Avoid repetition of common patterns and keep the sentence concise and engaging. in output just give the sentence not the explanation or prompt.`,
     });
 
     const sentence = sentenceCompletion.choices[0]?.message?.content || "";
