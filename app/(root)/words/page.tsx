@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useCallback, useEffect, startTransition } from "react";
 import { CarouselDemo as Carousel } from "@/components/Carousel";
 import { type WordObject } from "@/types";
 import { fetchRandomWord } from "@/index";
@@ -26,40 +26,54 @@ const Word = () => {
   const createWordsMutation = useMutation(api.words.createWordMutation);
   const { userId } = useUser();
 
-  const speak = () => {
+  const speak = useCallback(() => {
+    const synth = window.speechSynthesis;
+    synth.cancel();
     const utterance = new SpeechSynthesisUtterance(words[slideIndex]?.word);
-    speechSynthesis.speak(utterance);
-  };
+    synth.speak(utterance);
+  }, [words, slideIndex]);
 
-  const handleCreateWords = async ({ word }: { word: WordObject }) => {
-    if (!userId) return;
-    await createWordsMutation({
-      ...word,
-      userId,
+  const handleCreateWords = useCallback(
+    async ({ word }: { word: WordObject }) => {
+      if (!userId) return;
+      try {
+        await createWordsMutation({
+          ...word,
+          userId,
+        });
+      } catch (error) {
+        console.error("Failed to save word:", error);
+      }
+    },
+    [userId, createWordsMutation]
+  ); // save to db the words user have seen .
+
+  const fetchWord = useCallback(async () => {
+    startTransition(() => {
+      setLoading(true);
     });
-  }; // saving word to db
-
-  React.useEffect(() => {
-    const fetchWord = async () => {
+    try {
       const newWord = await fetchRandomWord({ setWords, setLoading });
       if (newWord) {
-        handleCreateWords({ word: newWord });
+        await handleCreateWords({ word: newWord });
       }
-    };
-    fetchWord();
-  }, []); // fetching random word for the first time
-
-  const handleFetchMore = async () => {
-    const newWord = await fetchRandomWord({ setWords, setLoading });
-    if (newWord) {
-      handleCreateWords({ word: newWord });
+    } catch (error) {
+      console.error("Failed to fetch word:", error);
+      setLoading(false);
     }
-  }; // fetching random word when reaching the end of the list
+  }, [setWords, setLoading, handleCreateWords]);
+
+  useEffect(() => {
+    fetchWord();
+    return () => {
+      window.speechSynthesis.cancel();
+    };
+  }, [fetchWord]);
 
   return (
     <div className="flex-center w-full">
       <Carousel
-        onNextClick={() => handleNext(handleFetchMore)}
+        onNextClick={() => handleNext(fetchWord)}
         onPrevClick={handlePrev}
         canGoNext={canGoNext}
         canGoPrev={canGoPrev}
