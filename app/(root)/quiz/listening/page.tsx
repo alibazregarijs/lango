@@ -11,6 +11,7 @@ import { Modal } from "@/components/Modal";
 import { type SentenceObjectProps } from "@/types/index";
 import { checkNull } from "@/utils/index";
 import useFetchItems from "@/hooks/useFetchItems";
+import useDebounce from "@/hooks/useDebounce";
 
 const page = () => {
   const [level, setLevel] = useState("pre_school");
@@ -61,49 +62,58 @@ const page = () => {
     synth.speak(utterance);
   }, [items, slideIndex]); // play current sentence
 
-  const handleSubmit = () => {
-    const isTextNull = checkNull(
-      answer,
-      <span className="text-gray-400">Please write something.</span>
-    ); // check if answer not to be null.
-    if (!isTextNull) {
-      return;
-    }
-    const handleGetGradeQuizAction = async () => {
-      const grade = await getGradeQuizAction({
-        answer: answer,
-        sentence: sentenceObjectRef.current.sentence,
-      });
-      sentenceObjectRef.current.answer = answer;
-      sentenceObjectRef.current.grade = grade;
-      sentenceObjectRef.current.level = level;
+  const debouncedSpeek = useDebounce({
+    callback: handleIconClick,
+    delay: 300,
+  });
 
-      const currentItem = items[slideIndex];
-      setItems((prevItems) => {
-        const newItems = [...prevItems];
-        newItems[slideIndex] = {
-          ...currentItem,
+  const handleSubmit = () => {
+    try {
+      const isTextNull = checkNull(
+        answer,
+        <span className="text-gray-400">Please write something.</span>
+      ); // check if answer not to be null.
+      if (!isTextNull) {
+        return;
+      }
+      const handleGetGradeQuizAction = async () => {
+        const grade = await getGradeQuizAction({
+          answer: answer,
+          sentence: sentenceObjectRef.current.sentence,
+        });
+        sentenceObjectRef.current.answer = answer;
+        sentenceObjectRef.current.grade = grade;
+        sentenceObjectRef.current.level = level;
+
+        const currentItem = items[slideIndex];
+        setItems((prevItems) => {
+          const newItems = [...prevItems];
+          newItems[slideIndex] = {
+            ...currentItem,
+            answer: answer,
+            grade: grade,
+            level: level,
+          };
+          return newItems;
+        });
+
+        const listeningQuizObj: SentenceObjectProps = {
+          userId: userId!,
           answer: answer,
           grade: grade,
           level: level,
-        };
-        return newItems;
-      });
+          sentence: currentItem.sentence,
+        }; // this object will be saved in convex db
 
-      const listeningQuizObj: SentenceObjectProps = {
-        userId: userId!,
-        answer: answer,
-        grade: grade,
-        level: level,
-        sentence: currentItem.sentence,
-      }; // this object will be saved in convex db
-
-      const openModal = handleCreateListeningQuiz(listeningQuizObj);
-      if ((await openModal) && openModal instanceof Promise) {
-        setOpen(true);
-      }
-    };
-    handleGetGradeQuizAction();
+        const openModal = handleCreateListeningQuiz(listeningQuizObj);
+        if ((await openModal) && openModal instanceof Promise) {
+          setOpen(true);
+        }
+      };
+      handleGetGradeQuizAction();
+    } catch (error) {
+      console.error("Failed to save quiz result:", error);
+    }
   }; // get current item and save in convex db
 
   const fetchSentence = useCallback(
@@ -165,7 +175,7 @@ const page = () => {
         canGoPrev={canGoPrev}
       >
         <ListeningCarouselSlide
-          handleIconClick={handleIconClick}
+          handleIconClick={debouncedSpeek}
           level={items[slideIndex]?.level || "pre_school"}
           setLevel={setLevel}
           onSubmit={handleSubmit}
