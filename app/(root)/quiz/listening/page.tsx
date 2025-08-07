@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import { CarouselDemo as Carousel } from "@/components/Carousel";
 import ListeningCarouselSlide from "@/components/ListeningCarouselSlide";
 import { useCarousel } from "@/hooks/useCarousel";
@@ -8,7 +8,6 @@ import { useAction, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useUser } from "@/context/UserContext";
 import { Modal } from "@/components/Modal";
-import { toast } from "sonner";
 import { type SentenceObjectProps } from "@/types/index";
 import { checkNull } from "@/utils/index";
 import useFetchItems from "@/hooks/useFetchItems";
@@ -53,12 +52,14 @@ const page = () => {
     return res;
   }; // function that handle saving quiz data into convex db
 
-  const handleIconClick = () => {
+  const handleIconClick = useCallback(() => {
+    const synth = window.speechSynthesis;
+    synth.cancel();
     const utterance = new SpeechSynthesisUtterance(
       items[slideIndex]?.sentence || ""
     );
-    speechSynthesis.speak(utterance);
-  }; // make sentence speak !
+    synth.speak(utterance);
+  }, [items, slideIndex]); // play current sentence
 
   const handleSubmit = () => {
     const isTextNull = checkNull(
@@ -105,26 +106,45 @@ const page = () => {
     handleGetGradeQuizAction();
   }; // get current item and save in convex db
 
-  const fetchSentence = async () => {
-    const sentence = await getListeningQuizAction({ level });
+  const fetchSentence = useCallback(
+    async ({ isModalClose = false }: { isModalClose?: boolean } = {}) => {
+      const sentence = await getListeningQuizAction({ level });
 
-    sentenceObjectRef.current.sentence = sentence;
-    sentenceObjectRef.current.userId = userId!;
+      sentenceObjectRef.current.sentence = sentence;
+      sentenceObjectRef.current.userId = userId!;
 
-    setItems((prev) => {
-      const newItem = [
-        ...prev,
-        {
-          userId: userId!,
-          level,
-          grade: "",
-          sentence: sentence,
-          answer: "",
-        },
-      ];
-      return newItem;
-    });
-  }; // fetch more sentence
+      setItems((prev) => {
+        const newItem = [
+          ...prev,
+          {
+            userId: userId!,
+            level,
+            grade: "",
+            sentence: sentence,
+            answer: "",
+          },
+        ];
+        return newItem;
+      });
+
+      if (isModalClose) {
+        if (slideIndexRef.current === items.length) {
+          slideIndexRef.current += 1;
+        } else {
+          slideIndexRef.current = items.length + 1;
+        }
+      }
+    },
+    [getListeningQuizAction, level, userId, setItems, sentenceObjectRef]
+  );
+
+  useEffect(() => {
+    if (!open && hasMount.current) {
+      fetchSentence({ isModalClose: true }); // fetch sentence when modal closed
+      setAnswer("");
+      window.speechSynthesis.cancel();
+    }
+  }, [open]);
 
   useFetchItems({
     setLoading,
@@ -140,12 +160,13 @@ const page = () => {
       <Carousel
         onNextClick={() => handleNext(fetchSentence)}
         onPrevClick={() => handlePrev()}
+        onStopClick={() => window.speechSynthesis.cancel()}
         canGoNext={canGoNext}
         canGoPrev={canGoPrev}
       >
         <ListeningCarouselSlide
           handleIconClick={handleIconClick}
-          level={level}
+          level={items[slideIndex]?.level || "pre_school"}
           setLevel={setLevel}
           onSubmit={handleSubmit}
           setAnswer={setAnswer}

@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback, startTransition } from "react";
 import QuizWordCarouselSlide from "@/components/QuizWordCarouselSlide";
 import { useCarousel } from "@/hooks/useCarousel";
 import { CarouselDemo } from "@/components/Carousel";
@@ -31,32 +31,40 @@ const page = () => {
   const [question, setQuestion] = useState<string[]>([]);
   const [correctWord, setCorrectWord] = useState("");
   const hasMount = useRef(false);
+
   const getQuizWordAction = useAction(api.groqai.QuizWordAction);
 
-  const handleQuizWord = async () => {
-    setLoading(true);
+  const handleQuizWord = useCallback(async () => {
+    startTransition(() => {
+      setLoading(true);
+    });
     const res = await getQuizWordAction({ level });
+
     if (res) {
       setLoading(false);
     }
+
     let question: number | string = res[0];
-    question = question.indexOf("A)");
-    question = res[0].slice(0, question); // extract question
+    const index = question.indexOf("A)");
+    question = res[0].slice(0, index); // extract question
+
     const correctWordResponse = res[2];
-    setWordItems((prev) => {
-      return [...prev, [...JSON.parse(res[1])]];
-    }); // set word item for checkbox
+
+    setWordItems((prev) => [...prev, [...JSON.parse(res[1])]]);
     setQuestion((prev) => [...prev, question]);
     setCorrectWord(correctWordResponse);
-  };
+  }, [level, getQuizWordAction]);
 
-  const handleSubmit = (choosedWord: string) => {
-    if (choosedWord.toLocaleLowerCase() === correctWord.toLocaleLowerCase()) {
-      toast.success("Correct Answer!");
-    } else {
-      toast.error("Wrong Answer!");
-    }
-  };
+  const handleSubmit = useCallback(
+    (choosedWord: string) => {
+      if (choosedWord.toLocaleLowerCase() === correctWord.toLocaleLowerCase()) {
+        toast.success("Correct Answer!");
+      } else {
+        toast.error("Wrong Answer!");
+      }
+    },
+    [correctWord]
+  );
 
   useFetchItems({
     setLoading,

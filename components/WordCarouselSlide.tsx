@@ -1,13 +1,13 @@
 "use client";
 
-import React from "react";
+import React , { memo } from "react";
 import { WordObject } from "@/types";
 import Spinner from "./Spinner";
 import { CarouselItem } from "@/components/ui/carousel";
 import { Play } from "iconsax-reactjs";
 import { WordCarouselSlideProps } from "@/types/index";
 
-export const WordCarouselSlide = ({
+const WordCarouselSlide = ({
   words,
   slideIndex,
   loading,
@@ -74,3 +74,5 @@ export const WordCarouselSlide = ({
     </div>
   );
 };
+
+export default memo(WordCarouselSlide);

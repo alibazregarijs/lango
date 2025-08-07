@@ -4,8 +4,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { SelectDemo } from "@/components/Select";
 import Spinner from "./Spinner";
+import { type ListeningCarouselSlideProps } from "@/types";
 
-const ListeningCarouselSlide = ({
+const ListeningCarouselSlideComponent = ({
   handleIconClick,
   level,
   setLevel,
@@ -13,15 +14,7 @@ const ListeningCarouselSlide = ({
   setAnswer,
   loading,
   answer,
-}: {
-  handleIconClick: () => void;
-  level: string;
-  setLevel: React.Dispatch<React.SetStateAction<string>>;
-  onSubmit: () => void;
-  setAnswer: React.Dispatch<React.SetStateAction<string>>;
-  loading: boolean;
-  answer: string;
-}) => {
+}: ListeningCarouselSlideProps) => {
   return (
     <>
       {loading ? (
@@ -29,7 +22,7 @@ const ListeningCarouselSlide = ({
       ) : (
         <div className="flex flex-col items-center w-[100%] h-full bg-[#15171C] border-1 p-2 rounded-lg">
           <span className="text-gray-400 max-sm:text-[14px] ml-2">
-            Select your level ten click the{" "}
+            Select your level then click the{" "}
             <span className="text-orange-1">icon</span> to start the quiz.
           </span>
 
@@ -72,4 +65,5 @@ const ListeningCarouselSlide = ({
   );
 };
 
-export default ListeningCarouselSlide;
+// 👇 Memoized export
+export default React.memo(ListeningCarouselSlideComponent);

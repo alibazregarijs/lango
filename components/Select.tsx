@@ -12,7 +12,7 @@ import {
 
 export function SelectDemo({setLevel,level}: {setLevel: React.Dispatch<React.SetStateAction<string>>,level:string}) {
   return (
-    <Select defaultValue="pre_school" value={level} onValueChange={(value) => setLevel(value)}>
+    <Select defaultValue={level} value={level} onValueChange={(value) => setLevel(value)}>
       <SelectTrigger className="w-[180px]">
         <SelectValue placeholder="Select a Level" />
       </SelectTrigger>

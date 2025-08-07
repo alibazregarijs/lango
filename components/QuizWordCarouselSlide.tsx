@@ -1,10 +1,6 @@
-import React, { useEffect } from "react";
+import React,  { memo } from "react";
 import { SelectDemo } from "@/components/Select";
 import { WordsBox } from "@/components/WordsBox";
-import { api } from "@/convex/_generated/api";
-import { useAction } from "convex/react";
-import { useState } from "react";
-import { useCarousel } from "@/hooks/useCarousel";
 import { type CheckboxItemProps } from "../app/(root)/quiz/words/page";
 import Spinner from "./Spinner";
 
@@ -55,4 +51,4 @@ const QuizWordCarouselSlide = ({
   );
 };
 
-export default QuizWordCarouselSlide;
+export default memo(QuizWordCarouselSlide);

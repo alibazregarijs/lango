@@ -7,7 +7,7 @@ const useFetchItems = ({
   handleFetchItems,
   level,
   hasMount,
-  itemsLength
+  itemsLength,
 }: {
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
   slideIndexRef: React.MutableRefObject<number>;
@@ -21,12 +21,11 @@ const useFetchItems = ({
       const run = async () => {
         try {
           setLoading(true);
-     
-          if(slideIndexRef.current === itemsLength){
-            slideIndexRef.current += 1
-          }
-          else{
-            slideIndexRef.current = itemsLength
+
+          if (slideIndexRef.current === itemsLength) {
+            slideIndexRef.current += 1;
+          } else {
+            slideIndexRef.current = itemsLength;
           }
           await handleFetchItems();
         } catch (error) {

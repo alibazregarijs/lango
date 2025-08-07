@@ -4,24 +4,15 @@ import * as React from "react";
 import {
   Carousel,
   CarouselContent,
-  CarouselItem,
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import { type CarouselDemoProps } from "@/types";
 
-interface CarouselDemoProps {
-  onNextClick: () => void;
-  onPrevClick: () => void;
-  canGoNext: boolean;
-  canGoPrev: boolean;
-  children: React.ReactNode;
-  className?: string;
-  contentClassName?: string;
-}
-
-export function CarouselDemo({
+function CarouselDemoComponent({
   onNextClick,
   onPrevClick,
+  onStopClick,
   canGoNext,
   canGoPrev,
   children,
@@ -31,13 +22,23 @@ export function CarouselDemo({
   return (
     <Carousel className={className}>
       <CarouselContent className={contentClassName}>{children}</CarouselContent>
-      <div onClick={onPrevClick}>
+      <div
+        onClick={() => {
+          onStopClick();
+          onPrevClick();
+        }}
+      >
         <CarouselPrevious
           disabled={!canGoPrev}
           className="text-white hover:text-gray-200"
         />
       </div>
-      <div onClick={onNextClick}>
+      <div
+        onClick={() => {
+          onStopClick();
+          onNextClick();
+        }}
+      >
         <CarouselNext
           disabled={!canGoNext}
           className="text-white hover:text-gray-200"
@@ -46,3 +47,6 @@ export function CarouselDemo({
     </Carousel>
   );
 }
+
+// 👇 Export memoized component
+export const CarouselDemo = React.memo(CarouselDemoComponent);

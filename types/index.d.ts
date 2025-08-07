@@ -38,6 +38,27 @@ export type SentenceObjectProps = {
   answer: string;
 };
 
+export interface CarouselDemoProps {
+  onNextClick: () => void;
+  onPrevClick: () => void;
+  onStopClick: () => void;
+  canGoNext: boolean;
+  canGoPrev: boolean;
+  children: React.ReactNode;
+  className?: string;
+  contentClassName?: string;
+}
+
+interface ListeningCarouselSlideProps {
+  handleIconClick: () => void;
+  level: string;
+  setLevel: React.Dispatch<React.SetStateAction<string>>;
+  onSubmit: () => void;
+  setAnswer: React.Dispatch<React.SetStateAction<string>>;
+  loading: boolean;
+  answer: string;
+}
+
 export type DialogProps = {
   open: boolean;
   onOpenChange: React.Dispatch<React.SetStateAction<boolean>>;
