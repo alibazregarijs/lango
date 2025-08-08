@@ -42,7 +42,7 @@ export type SentenceObjectProps = {
 export interface CarouselDemoProps {
   onNextClick: () => void;
   onPrevClick: () => void;
-  onStopClick: () => void;
+  onStopClick?: () => void;
   canGoNext: boolean;
   canGoPrev: boolean;
   children: React.ReactNode;
@@ -66,6 +66,12 @@ export type DialogProps = {
   onOpenChange: React.Dispatch<React.SetStateAction<boolean>>;
   children: React.ReactNode;
 };
+
+export type CheckboxItemProps = {
+  id: string;
+  label: string;
+};
+
 
 export type DialogContentProps = {
   children: React.ReactNode;

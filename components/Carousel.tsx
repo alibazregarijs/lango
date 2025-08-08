@@ -24,7 +24,7 @@ function CarouselDemoComponent({
       <CarouselContent className={contentClassName}>{children}</CarouselContent>
       <div
         onClick={() => {
-          onStopClick();
+          onStopClick?.();
           onPrevClick();
         }}
       >
@@ -35,7 +35,7 @@ function CarouselDemoComponent({
       </div>
       <div
         onClick={() => {
-          onStopClick();
+          onStopClick?.();
           onNextClick();
         }}
       >

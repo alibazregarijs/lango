@@ -101,7 +101,7 @@ as json array like :
 label:"Book"
 }
 ]
-just give only the array part , i want id be the label value with small character case and extract it like i told you exactly.`,
+just give only the array part , i want id be the label value with small character case and extract it like i told you exactly. please don't put A or B or C or D in the array.`,
     });
 
     const CorrectWordCompletion = await getGroqChatCompletion({
