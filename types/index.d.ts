@@ -36,6 +36,7 @@ export type SentenceObjectProps = {
   grade: string;
   sentence: string;
   answer: string;
+  disabled: boolean;
 };
 
 export interface CarouselDemoProps {
@@ -57,6 +58,7 @@ interface ListeningCarouselSlideProps {
   setAnswer: React.Dispatch<React.SetStateAction<string>>;
   loading: boolean;
   answer: string;
+  disabled: boolean;
 }
 
 export type DialogProps = {

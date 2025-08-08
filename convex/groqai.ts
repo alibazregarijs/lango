@@ -9,7 +9,8 @@ export async function getGroqChatCompletion({ prompt }: { prompt: string }) {
     messages: [
       {
         role: "system",
-        content: "You are a creative English language teacher who generates unique and engaging sentences tailored to specific proficiency levels. Each sentence should vary in structure, theme, and linguistic focus to ensure diversity and avoid repetitive patterns.",
+        content:
+          "You are a creative English language teacher who generates unique and engaging sentences tailored to specific proficiency levels. Each sentence should vary in structure, theme, and linguistic focus to ensure diversity and avoid repetitive patterns.",
       },
       {
         role: "user",
@@ -70,12 +71,10 @@ export const GiveGradeListeningAction = action({
   args: { answer: v.string(), sentence: v.string() },
   handler: async (_, args) => {
     const giveGradeListeningCompletion = await getGroqChatCompletion({
-      prompt: `Rate the textual similarity of these two sentences I give you:
+      prompt: `1-${args.sentence}
+2-${args.answer}
 
-${args.sentence}
-
-${args.answer}
-If there’s no similarity, give a zero, and I only want the score, no extra explanation.`,
+compare this two sentence word to word and give grade to it's similarity from one to ten. only give grade in the output.`,
     });
 
     const grade =

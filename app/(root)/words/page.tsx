@@ -7,8 +7,9 @@ import { fetchRandomWord } from "@/index";
 import { api } from "@/convex/_generated/api";
 import { useMutation } from "convex/react";
 import { useUser } from "@/context/UserContext";
-import  WordCarouselSlide  from "@/components/WordCarouselSlide";
+import WordCarouselSlide from "@/components/WordCarouselSlide";
 import { useCarousel } from "@/hooks/useCarousel";
+import useThrottle from "@/hooks/useThrottle";
 
 const Word = () => {
   const {
@@ -77,6 +78,7 @@ const Word = () => {
         onPrevClick={handlePrev}
         canGoNext={canGoNext}
         canGoPrev={canGoPrev}
+        onStopClick={() => window.speechSynthesis.cancel()}
       >
         <WordCarouselSlide
           words={words}

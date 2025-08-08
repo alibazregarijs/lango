@@ -14,6 +14,7 @@ const ListeningCarouselSlideComponent = ({
   setAnswer,
   loading,
   answer,
+  disabled,
 }: ListeningCarouselSlideProps) => {
   return (
     <>
@@ -47,11 +48,13 @@ const ListeningCarouselSlideComponent = ({
                   className="text-white p-4 rounded-lg md:text-[14px] text-[12px] lsm:h-[50px] overflow-y-auto resize-none custom-scrollbar"
                   onChange={(e) => setAnswer(e.target.value)}
                   value={answer}
+                  disabled={disabled}
                 />
                 <div className="flex justify-start w-[70%]">
                   <Button
                     className="bg-black-2 text-white cursor-pointer hover:bg-orange-1"
                     onClick={onSubmit}
+                    disabled={disabled}
                   >
                     Submit
                   </Button>

@@ -14,11 +14,6 @@ import useFetchItems from "@/hooks/useFetchItems";
 import useDebounce from "@/hooks/useDebounce";
 
 const page = () => {
-  const [level, setLevel] = useState("pre_school");
-  const [answer, setAnswer] = useState("");
-  const hasMount = useRef(false);
-  const [open, setOpen] = useState(false);
-
   const {
     slideIndex,
     setItems,
@@ -31,6 +26,12 @@ const page = () => {
     items,
     slideIndexRef,
   } = useCarousel<SentenceObjectProps>();
+
+  const [level, setLevel] = useState("pre_school");
+  const [answer, setAnswer] = useState("");
+  const hasMount = useRef(false);
+  const [open, setOpen] = useState(false);
+
   const { userId } = useUser();
   const sentenceObjectRef = React.useRef<SentenceObjectProps>({
     userId: "",
@@ -38,6 +39,7 @@ const page = () => {
     grade: "",
     sentence: "",
     answer: "",
+    disabled: false,
   });
 
   const getListeningQuizAction = useAction(api.groqai.ListeningQuizAction); // get sentence
@@ -68,6 +70,7 @@ const page = () => {
   });
 
   const handleSubmit = () => {
+    window.speechSynthesis.cancel();
     try {
       const isTextNull = checkNull(
         answer,
@@ -81,9 +84,11 @@ const page = () => {
           answer: answer,
           sentence: sentenceObjectRef.current.sentence,
         });
+
+        console.log(items[slideIndexRef.current]?.level, "level");
         sentenceObjectRef.current.answer = answer;
         sentenceObjectRef.current.grade = grade;
-        sentenceObjectRef.current.level = level;
+        sentenceObjectRef.current.level = items[slideIndexRef.current]?.level;
 
         const currentItem = items[slideIndex];
         setItems((prevItems) => {
@@ -92,7 +97,7 @@ const page = () => {
             ...currentItem,
             answer: answer,
             grade: grade,
-            level: level,
+            level: items[slideIndexRef.current]?.level,
           };
           return newItems;
         });
@@ -101,8 +106,9 @@ const page = () => {
           userId: userId!,
           answer: answer,
           grade: grade,
-          level: level,
+          level: items[slideIndexRef.current]?.level,
           sentence: currentItem.sentence,
+          disabled: false,
         }; // this object will be saved in convex db
 
         const openModal = handleCreateListeningQuiz(listeningQuizObj);
@@ -116,43 +122,39 @@ const page = () => {
     }
   }; // get current item and save in convex db
 
-  const fetchSentence = useCallback(
-    async ({ isModalClose = false }: { isModalClose?: boolean } = {}) => {
-      const sentence = await getListeningQuizAction({ level });
+  const fetchSentence = useCallback(async () => {
+    const sentence = await getListeningQuizAction({ level });
 
-      sentenceObjectRef.current.sentence = sentence;
-      sentenceObjectRef.current.userId = userId!;
+    sentenceObjectRef.current.sentence = sentence;
+    sentenceObjectRef.current.userId = userId!;
 
-      setItems((prev) => {
-        const newItem = [
-          ...prev,
-          {
-            userId: userId!,
-            level,
-            grade: "",
-            sentence: sentence,
-            answer: "",
-          },
-        ];
-        return newItem;
-      });
-
-      if (isModalClose) {
-        if (slideIndexRef.current === items.length) {
-          slideIndexRef.current += 1;
-        } else {
-          slideIndexRef.current = items.length + 1;
-        }
-      }
-    },
-    [getListeningQuizAction, level, userId, setItems, sentenceObjectRef]
-  );
+    setItems((prev) => {
+      const newItem = [
+        ...prev,
+        {
+          userId: userId!,
+          level,
+          grade: "",
+          sentence: sentence,
+          answer: "",
+          disabled: false,
+        },
+      ];
+      return newItem;
+    });
+  }, [getListeningQuizAction, level, userId, setItems, sentenceObjectRef]);
 
   useEffect(() => {
     if (!open && hasMount.current) {
-      fetchSentence({ isModalClose: true }); // fetch sentence when modal closed
       setAnswer("");
-      window.speechSynthesis.cancel();
+      setItems((prev) => {
+        const updated = [...prev];
+        updated[slideIndexRef.current] = {
+          ...updated[slideIndexRef.current],
+          disabled: true,
+        };
+        return updated;
+      });
     }
   }, [open]);
 
@@ -176,12 +178,13 @@ const page = () => {
       >
         <ListeningCarouselSlide
           handleIconClick={debouncedSpeek}
-          level={items[slideIndex]?.level || "pre_school"}
+          level={items[slideIndexRef.current]?.level || "pre_school"}
           setLevel={setLevel}
           onSubmit={handleSubmit}
           setAnswer={setAnswer}
           loading={loading}
           answer={answer}
+          disabled={items[slideIndex]?.disabled || false}
         />
       </Carousel>
       <Modal open={open} onOpenChange={setOpen}>

@@ -7,8 +7,8 @@ export const createListeningQuizMutation = mutation({
     level: v.string(),
     grade : v.optional(v.string()),
     sentence: v.string(),
-    answer: v.optional(v.string())
-
+    answer: v.optional(v.string()),
+    disabled: v.optional(v.boolean())
   },
   
   handler: async (ctx, args) => {

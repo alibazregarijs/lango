@@ -17,6 +17,7 @@ const useFetchItems = ({
   itemsLength: number;
 }) => {
   useEffect(() => {
+    window.speechSynthesis.cancel();
     if (hasMount.current) {
       const run = async () => {
         try {
