@@ -1,17 +1,17 @@
 "use client";
 
+import { memo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { CheckboxItemProps } from "../app/(root)/quiz/words/page";
+import { CheckboxItemProps } from "@/types/index";
 import { v4 as uuidv4 } from "uuid";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -24,13 +24,15 @@ const FormSchema = z.object({
   }),
 });
 
-export function WordsBox({
+const WordsBoxComponent = ({
   items,
   onSubmitHandler,
+  disabled,
 }: {
   items: CheckboxItemProps[];
   onSubmitHandler: (choosedWord: string) => void;
-}) {
+  disabled: boolean;
+}) => {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -53,7 +55,7 @@ export function WordsBox({
             <FormItem>
               {items && (
                 <div className="grid">
-                  {items.map((item, index) => (
+                  {items.slice(0, 4).map((item) => (
                     <FormField
                       key={uuidv4()}
                       control={form.control}
@@ -62,7 +64,7 @@ export function WordsBox({
                         return (
                           <FormItem
                             key={uuidv4()}
-                            className="flex flex-row items-center space-x-2 space-y-0" // Adjusted spacing
+                            className="flex flex-row items-center space-x-2 space-y-0"
                           >
                             <FormControl>
                               <Checkbox
@@ -88,7 +90,6 @@ export function WordsBox({
                   ))}
                 </div>
               )}
-
               <FormMessage />
             </FormItem>
           )}
@@ -96,10 +97,14 @@ export function WordsBox({
         <Button
           className="bg-orange-1 text-white hover:bg-black-2 cursor-pointer"
           type="submit"
+          disabled={disabled}
         >
           Submit
         </Button>
       </form>
     </Form>
   );
-}
+};
+
+// Wrapped in memo to prevent unnecessary re-renders when props don't change
+export const WordsBox = memo(WordsBoxComponent);

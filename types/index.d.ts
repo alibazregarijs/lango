@@ -70,6 +70,7 @@ export type DialogProps = {
 export type CheckboxItemProps = {
   id: string;
   label: string;
+  disabled: boolean;
 };
 
 

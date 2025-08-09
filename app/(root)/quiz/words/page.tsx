@@ -1,5 +1,11 @@
 "use client";
-import { useState, useRef, useCallback, startTransition } from "react";
+import {
+  useState,
+  useRef,
+  useCallback,
+  startTransition,
+  useEffect,
+} from "react";
 import QuizWordCarouselSlide from "@/components/QuizWordCarouselSlide";
 import { useCarousel } from "@/hooks/useCarousel";
 import { CarouselDemo } from "@/components/Carousel";
@@ -10,10 +16,12 @@ import { toast } from "sonner";
 import { type CheckboxItemProps } from "@/types";
 
 const MAX_RETRIES = 3; // Prevent infinite retries
+const MAX_RESPONSE_RETRY = 2;
 
 const page = () => {
   const [level, setLevel] = useState("pre_school");
   const retryCountRef = useRef(0); // Track retry attempts
+  const retryResponseRef = useRef(0); // Reset retry count on successful fetch
 
   const {
     slideIndex,
@@ -68,7 +76,7 @@ const page = () => {
 
       // Success case
       retryCountRef.current = 0; // Reset on success
-      setWordItems((prev) => [...prev, [...parsedItems]]);
+      setWordItems((prev) => [...prev, [...parsedItems, { disabled: false }]]);
       setQuestion((prev) => [...prev, question]);
       setCorrectWord(correctWordResponse);
     } catch (error) {
@@ -82,10 +90,34 @@ const page = () => {
       if (choosedWord.toLocaleLowerCase() === correctWord.toLocaleLowerCase()) {
         toast.success("Correct Answer!");
       } else {
+        retryResponseRef.current += 1;
         toast.error("Wrong Answer!");
+        if (retryResponseRef.current >= MAX_RESPONSE_RETRY) {
+          setWordItems((prev) => {
+            // Create a new copy of the previous state
+            const newItems = [...prev];
+
+            // Get the current slide's items
+            const currentSlideItems = [...newItems[slideIndex]];
+
+            // Modify the last item's `disabled` property
+            const lastItemIndex = currentSlideItems.length - 1;
+            
+            currentSlideItems[lastItemIndex] = {
+              ...currentSlideItems[lastItemIndex],
+              disabled: true,
+            };
+
+            // Update the slide with the modified items
+            newItems[slideIndex] = currentSlideItems;
+
+            return newItems;
+          });
+          retryResponseRef.current = 0; // Reset counter
+        }
       }
     },
-    [correctWord]
+    [correctWord, slideIndex]
   );
 
   useFetchItems({
@@ -111,6 +143,10 @@ const page = () => {
         items={worditems[slideIndex]}
         loading={loading}
         handleSubmit={handleSubmit}
+        disabled={
+          worditems[slideIndex]?.[worditems[slideIndex]?.length - 1]
+            ?.disabled || false
+        }
       />
     </CarouselDemo>
   );

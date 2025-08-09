@@ -1,7 +1,7 @@
-import React,  { memo } from "react";
+import React, { memo } from "react";
 import { SelectDemo } from "@/components/Select";
 import { WordsBox } from "@/components/WordsBox";
-import { type CheckboxItemProps } from "../app/(root)/quiz/words/page";
+import { type CheckboxItemProps } from "@/types/index";
 import Spinner from "./Spinner";
 
 const QuizWordCarouselSlide = ({
@@ -11,6 +11,7 @@ const QuizWordCarouselSlide = ({
   items,
   loading,
   handleSubmit,
+  disabled,
 }: {
   level: string;
   setLevel: React.Dispatch<React.SetStateAction<string>>;
@@ -18,9 +19,8 @@ const QuizWordCarouselSlide = ({
   items: CheckboxItemProps[];
   loading: boolean;
   handleSubmit: (choosedWord: string) => void;
+  disabled: boolean;
 }) => {
-
-  
   return (
     <div className="flex-center bg-[#15171C] border-1 rounded-lg mt-2 p-2">
       {loading ? (
@@ -43,7 +43,7 @@ const QuizWordCarouselSlide = ({
           </div>
 
           <div className="">
-            <WordsBox items={items} onSubmitHandler={handleSubmit} />
+            <WordsBox items={items} onSubmitHandler={handleSubmit} disabled={disabled} />
           </div>
         </div>
       )}
