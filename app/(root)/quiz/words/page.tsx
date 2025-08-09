@@ -10,18 +10,26 @@ import QuizWordCarouselSlide from "@/components/QuizWordCarouselSlide";
 import { useCarousel } from "@/hooks/useCarousel";
 import { CarouselDemo } from "@/components/Carousel";
 import { api } from "@/convex/_generated/api";
-import { useAction } from "convex/react";
 import useFetchItems from "@/hooks/useFetchItems";
 import { toast } from "sonner";
 import { type CheckboxItemProps } from "@/types";
+import useDisableWordsSlide from "@/hooks/useDisableWordsSlide";
+import { useAction, useMutation } from "convex/react";
+import { useUser } from "@/context/UserContext";
 
 const MAX_RETRIES = 3; // Prevent infinite retries
 const MAX_RESPONSE_RETRY = 2;
 
 const page = () => {
-  const [level, setLevel] = useState("pre_school");
   const retryCountRef = useRef(0); // Track retry attempts
   const retryResponseRef = useRef(0); // Reset retry count on successful fetch
+  const hasMount = useRef(false);
+
+  const [question, setQuestion] = useState<string[]>([]);
+  const [level, setLevel] = useState("pre_school");
+  const [correctWord, setCorrectWord] = useState("");
+
+  const { userId } = useUser();
 
   const {
     slideIndex,
@@ -36,11 +44,9 @@ const page = () => {
     slideIndexRef,
   } = useCarousel<CheckboxItemProps[]>();
 
-  const [question, setQuestion] = useState<string[]>([]);
-  const [correctWord, setCorrectWord] = useState("");
-  const hasMount = useRef(false);
-
+  const disableItem = useDisableWordsSlide({ setWordItems, slideIndex });
   const getQuizWordAction = useAction(api.groqai.QuizWordAction);
+  const createWordsQuiz = useMutation(api.WordsQuiz.createWordsQuizMutation);
 
   const handleQuizWord = useCallback(async () => {
     startTransition(() => {
@@ -86,33 +92,26 @@ const page = () => {
   }, [level, getQuizWordAction]);
 
   const handleSubmit = useCallback(
-    (choosedWord: string) => {
+    async (choosedWord: string) => {
       if (choosedWord.toLocaleLowerCase() === correctWord.toLocaleLowerCase()) {
         toast.success("Correct Answer!");
+        disableItem();
+        try {
+          const res = await createWordsQuiz({
+            userId: userId!,
+            level: level,
+            grade: 5,
+            isCorrect: true,
+            question: question[slideIndex],
+          });
+        } catch (error) {
+          console.error("Failed to save quiz result:", error);
+        }
       } else {
         retryResponseRef.current += 1;
         toast.error("Wrong Answer!");
         if (retryResponseRef.current >= MAX_RESPONSE_RETRY) {
-          setWordItems((prev) => {
-            // Create a new copy of the previous state
-            const newItems = [...prev];
-
-            // Get the current slide's items
-            const currentSlideItems = [...newItems[slideIndex]];
-
-            // Modify the last item's `disabled` property
-            const lastItemIndex = currentSlideItems.length - 1;
-            
-            currentSlideItems[lastItemIndex] = {
-              ...currentSlideItems[lastItemIndex],
-              disabled: true,
-            };
-
-            // Update the slide with the modified items
-            newItems[slideIndex] = currentSlideItems;
-
-            return newItems;
-          });
+          disableItem();
           retryResponseRef.current = 0; // Reset counter
         }
       }

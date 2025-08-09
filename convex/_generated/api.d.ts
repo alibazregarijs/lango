@@ -14,6 +14,7 @@ import type {
   FunctionReference,
 } from "convex/server";
 import type * as ListeningQuiz from "../ListeningQuiz.js";
+import type * as WordsQuiz from "../WordsQuiz.js";
 import type * as essay from "../essay.js";
 import type * as groqai from "../groqai.js";
 import type * as http from "../http.js";
@@ -30,6 +31,7 @@ import type * as words from "../words.js";
  */
 declare const fullApi: ApiFromModules<{
   ListeningQuiz: typeof ListeningQuiz;
+  WordsQuiz: typeof WordsQuiz;
   essay: typeof essay;
   groqai: typeof groqai;
   http: typeof http;

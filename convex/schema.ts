@@ -53,4 +53,12 @@ export default defineSchema({
     answer: v.optional(v.string()),
     disabled: v.optional(v.boolean()),
   }),
+
+  WordsQuiz: defineTable({
+    level: v.string(),
+    userId: v.string(),
+    isCorrect: v.optional(v.boolean()),
+    grade: v.optional(v.number()),
+    question: v.optional(v.string()),
+  }),
 });

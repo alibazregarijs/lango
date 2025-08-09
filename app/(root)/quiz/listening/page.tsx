@@ -85,7 +85,6 @@ const page = () => {
           sentence: sentenceObjectRef.current.sentence,
         });
 
-        console.log(items[slideIndexRef.current]?.level, "level");
         sentenceObjectRef.current.answer = answer;
         sentenceObjectRef.current.grade = grade;
         sentenceObjectRef.current.level = items[slideIndexRef.current]?.level;
