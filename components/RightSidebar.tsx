@@ -3,7 +3,7 @@ import React from "react";
 import { useUser } from "@/context/UserContext";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { Trophy } from "lucide-react"; // Using Trophy instead of Cup for better visual
+import { Trophy, Headphones, BookText, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { getPlayerLevel } from "@/utils";
 
@@ -12,8 +12,43 @@ const RightSidebar = () => {
   const score = useQuery(api.users.getUserTotalScore, { userId: userId! });
   const playerLevel = getPlayerLevel(score!);
 
+  // Mock data - replace with your DB data later
+  const recentListeningQuizzes = [
+    {
+      id: 1,
+      sentence: "The quick brown fox jumps over the lazy dog",
+      level: "Intermediate",
+      grade: "B+",
+      date: "2023-11-15"
+    },
+    {
+      id: 2,
+      sentence: "She sells seashells by the seashore",
+      level: "Beginner",
+      grade: "A",
+      date: "2023-11-10"
+    }
+  ];
+
+  const recentWordQuizzes = [
+    {
+      id: 1,
+      question: "What is the past tense of 'run'?",
+      correctWord: "ran",
+      level: "Beginner",
+      date: "2023-11-14"
+    },
+    {
+      id: 2,
+      question: "Synonym for 'happy'",
+      correctWord: "joyful",
+      level: "Easy",
+      date: "2023-11-12"
+    }
+  ];
+
   return (
-    <div className="flex flex-col w-64 h-screen p-4 bg-black-1 fixed right-0 top-0 border-l border-black-5">
+    <div className="flex flex-col w-64 h-screen p-4 bg-black-1 fixed right-0 top-0 border-l border-black-5 overflow-y-auto custom-scrollbar">
       {/* User Profile Section */}
       <div className="flex items-center gap-3 p-3 rounded-lg bg-black-2 mb-6">
         {userImageUrl ? (
@@ -27,12 +62,12 @@ const RightSidebar = () => {
         ) : (
           <div className="w-10 h-10 rounded-full border-2 border-orange-1 bg-black-4 flex items-center justify-center">
             <span className="text-white-3 text-lg">
-              {username?.charAt(0).toUpperCase() || "U"}
+              {username?.charAt(0)?.toUpperCase() || "U"}
             </span>
           </div>
         )}
         <div>
-          <p className="text-white-5 font-medium">{username}</p>
+          <p className="text-white-5 font-medium">{username || "Anonymous"}</p>
           <p className="text-gray-1 text-sm">Level {playerLevel} Explorer</p>
         </div>
       </div>
@@ -55,8 +90,58 @@ const RightSidebar = () => {
         </div>
       </div>
 
-      {/* most recent quiz */}
-      <div>{/* here */}</div>
+      {/* Recent Quizzes Section */}
+      <div className="space-y-6">
+        {/* Listening Quizzes */}
+        <div className="bg-black-2 rounded-xl p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-white-5 font-semibold flex items-center gap-2">
+              <Headphones size={18} className="text-orange-1" />
+              Recent Listening
+            </h3>
+            <ChevronRight size={18} className="text-gray-1" />
+          </div>
+          <div className="space-y-3">
+            {recentListeningQuizzes.map((quiz) => (
+              <div key={quiz.id} className="p-3 rounded-lg bg-black-5 hover:bg-black-4 transition-colors">
+                <p className="text-white-4 text-sm line-clamp-2 mb-1">{quiz.sentence}</p>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-gray-1">{quiz.level}</span>
+                  <span className={`text-xs font-medium ${
+                    quiz.grade === 'A' ? 'text-orange-1' : 'text-white-3'
+                  }`}>
+                    Grade: {quiz.grade}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Word Quizzes */}
+        <div className="bg-black-2 rounded-xl p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-white-5 font-semibold flex items-center gap-2">
+              <BookText size={18} className="text-orange-1" />
+              Recent Word Quizzes
+            </h3>
+            <ChevronRight size={18} className="text-gray-1" />
+          </div>
+          <div className="space-y-3">
+            {recentWordQuizzes.map((quiz) => (
+              <div key={quiz.id} className="p-3 rounded-lg bg-black-5 hover:bg-black-4 transition-colors">
+                <p className="text-white-4 text-sm line-clamp-2 mb-1">{quiz.question}</p>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-gray-1">{quiz.level}</span>
+                  <span className="text-xs text-white-3 font-medium">
+                    Correct: <span className="text-orange-1">{quiz.correctWord}</span>
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
