@@ -68,3 +68,32 @@ export const updateUser = internalMutation({
     });
   },
 });
+
+export const getUserTotalScore = query({
+  args: { userId: v.string() },
+  handler: async (ctx, args) => {
+    // Sum grades from WordsQuiz
+    const wordsDocs = await ctx.db
+      .query("WordsQuiz")
+      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+      .collect();
+    const wordsGrade = wordsDocs.reduce((sum, doc) => {
+      const n = Number(doc.grade);
+      return sum + (isNaN(n) ? 0 : n);
+    }, 0);
+
+    // Sum grades from ListeningQuiz
+    const listeningDocs = await ctx.db
+      .query("ListeningQuiz")
+      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+      .collect();
+    // If grade is stored as string, convert to number
+    const listeningGrade = listeningDocs.reduce((sum, doc) => {
+      const n = Number(doc.grade);
+      return sum + (isNaN(n) ? 0 : n);
+    }, 0);
+
+    // Return the total score
+    return wordsGrade + listeningGrade;
+  },
+});

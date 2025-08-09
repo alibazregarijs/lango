@@ -5,12 +5,12 @@ export const createListeningQuizMutation = mutation({
   args: {
     userId: v.string(),
     level: v.string(),
-    grade : v.optional(v.string()),
+    grade: v.optional(v.string()),
     sentence: v.string(),
     answer: v.optional(v.string()),
-    disabled: v.optional(v.boolean())
+    disabled: v.optional(v.boolean()),
   },
-  
+
   handler: async (ctx, args) => {
     const listening_quiz = await ctx.db.insert("ListeningQuiz", args);
     return listening_quiz;

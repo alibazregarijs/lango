@@ -5,11 +5,11 @@ import { CarouselDemo as Carousel } from "@/components/Carousel";
 import { type WordObject } from "@/types";
 import { fetchRandomWord } from "@/index";
 import { api } from "@/convex/_generated/api";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { useUser } from "@/context/UserContext";
 import WordCarouselSlide from "@/components/WordCarouselSlide";
 import { useCarousel } from "@/hooks/useCarousel";
-import useThrottle from "@/hooks/useThrottle";
+
 
 const Word = () => {
   const {

@@ -6,7 +6,7 @@ export const createWordsQuizMutation = mutation({
     level: v.string(),
     userId: v.string(),
     isCorrect: v.optional(v.boolean()),
-    grade: v.optional(v.number()),
+    grade: v.optional(v.string()),
     question: v.optional(v.string()),
   },
 

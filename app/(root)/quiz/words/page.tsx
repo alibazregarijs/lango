@@ -100,7 +100,7 @@ const page = () => {
           const res = await createWordsQuiz({
             userId: userId!,
             level: level,
-            grade: 5,
+            grade: "5",
             isCorrect: true,
             question: question[slideIndex],
           });
