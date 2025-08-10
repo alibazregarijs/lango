@@ -6,6 +6,7 @@ import { api } from "@/convex/_generated/api";
 import { Trophy, Headphones, BookText, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { getPlayerLevel } from "@/utils";
+import RightSidebarSkeleton from "@/components/RightSidebarSkeleton";
 
 const LEVELS: Record<string, string> = {
   pre_school: "Pre-school",
@@ -61,6 +62,14 @@ const RightSidebar = () => {
   //     date: "2023-11-12"
   //   }
   // ];
+
+  if (
+    score === undefined ||
+    recentListeningQuizzes === undefined ||
+    recentWordQuizzes === undefined
+  ) {
+    return <RightSidebarSkeleton />;
+  }
 
   return (
     <div className="flex flex-col h-full p-4 bg-black-1 border-l border-black-5 md:overflow-y-auto custom-scrollbar">
