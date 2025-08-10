@@ -28,7 +28,7 @@ const LeftSidebar = () => {
           <div key={item.name} className="flex flex-1 items-center">
             <Link
               href={item.href}
-              className={`flex md:p-2 p-[6px] items-center space-x-2 transition-colors ${
+              className={`flex md:p-2 p-[6px] items-center justify-center space-x-2 transition-colors ${
                 isActive
                   ? "text-orange-600 bg-white rounded-lg"
                   : "text-gray-600  rounded-lg hover:opacity-80"

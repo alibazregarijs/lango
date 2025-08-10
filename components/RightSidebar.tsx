@@ -48,7 +48,7 @@ const RightSidebar = () => {
   ];
 
   return (
-    <div className="flex flex-col w-64 h-screen p-4 bg-black-1 fixed right-0 top-0 border-l border-black-5 overflow-y-auto custom-scrollbar">
+    <div className="flex flex-col p-4 bg-black-1 border-l border-black-5 md:overflow-y-auto custom-scrollbar">
       {/* User Profile Section */}
       <div className="flex items-center gap-3 p-3 rounded-lg bg-black-2 mb-6">
         {userImageUrl ? (
@@ -103,9 +103,9 @@ const RightSidebar = () => {
           </div>
           <div className="space-y-3">
             {recentListeningQuizzes.map((quiz) => (
-              <div key={quiz.id} className="p-3 rounded-lg bg-black-5 hover:bg-black-4 transition-colors">
+              <div key={quiz.id} className="p-3 rounded-lg bg-black-5 transition-colors">
                 <p className="text-white-4 text-sm line-clamp-2 mb-1">{quiz.sentence}</p>
-                <div className="flex justify-between items-center">
+                <div className="flex flex-col justify-between items-start md:items-center">
                   <span className="text-xs text-gray-1">{quiz.level}</span>
                   <span className={`text-xs font-medium ${
                     quiz.grade === 'A' ? 'text-orange-1' : 'text-white-3'
@@ -129,11 +129,11 @@ const RightSidebar = () => {
           </div>
           <div className="space-y-3">
             {recentWordQuizzes.map((quiz) => (
-              <div key={quiz.id} className="p-3 rounded-lg bg-black-5 hover:bg-black-4 transition-colors">
+              <div key={quiz.id} className="p-3 rounded-lg bg-black-5 transition-colors">
                 <p className="text-white-4 text-sm line-clamp-2 mb-1">{quiz.question}</p>
-                <div className="flex justify-between items-center">
+                <div className="flex flex-col justify-between items-start md:items-center">
                   <span className="text-xs text-gray-1">{quiz.level}</span>
-                  <span className="text-xs text-white-3 font-medium">
+                  <span className="flex flex-1 text-xs text-white-3 font-medium">
                     Correct: <span className="text-orange-1">{quiz.correctWord}</span>
                   </span>
                 </div>
