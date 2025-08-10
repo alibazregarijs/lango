@@ -7,48 +7,63 @@ import { Trophy, Headphones, BookText, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { getPlayerLevel } from "@/utils";
 
+const LEVELS: Record<string, string> = {
+  pre_school: "Pre-school",
+  elementary: "Elementary",
+  middle_school: "Middle School",
+  high_school: "High School",
+  college: "College",
+};
+
 const RightSidebar = () => {
   const { userId, userImageUrl, username } = useUser();
   const score = useQuery(api.users.getUserTotalScore, { userId: userId! });
+  const recentListeningQuizzes = useQuery(
+    api.ListeningQuiz.getRecentListeningQuizzes,
+    { userId: userId! }
+  );
+  const recentWordQuizzes = useQuery(api.WordsQuiz.getRecentListeningQuizzes, {
+    userId: userId!,
+  });
   const playerLevel = getPlayerLevel(score!);
 
   // Mock data - replace with your DB data later
-  const recentListeningQuizzes = [
-    {
-      id: 1,
-      sentence: "The quick brown fox jumps over the lazy dog",
-      level: "Intermediate",
-      grade: "B+",
-      date: "2023-11-15"
-    },
-    {
-      id: 2,
-      sentence: "She sells seashells by the seashore",
-      level: "Beginner",
-      grade: "A",
-      date: "2023-11-10"
-    }
-  ];
+  // const recentListeningQuizzes = [
+  //   {
+  //     id: 1,
+  //     sentence: "The quick brown fox jumps over the lazy dog",
+  //     level: "Intermediate",
+  //     grade: "B+",
+  //     date: "2023-11-15"
+  //   },
+  //   {
+  //     id: 2,
+  //     sentence: "She sells seashells by the seashore",
+  //     level: "Beginner",
+  //     grade: "A",
+  //     date: "2023-11-10"
+  //   }
+  // ];
 
-  const recentWordQuizzes = [
-    {
-      id: 1,
-      question: "What is the past tense of 'run'?",
-      correctWord: "ran",
-      level: "Beginner",
-      date: "2023-11-14"
-    },
-    {
-      id: 2,
-      question: "Synonym for 'happy'",
-      correctWord: "joyful",
-      level: "Easy",
-      date: "2023-11-12"
-    }
-  ];
+  // const recentWordQuizzes = [
+  //   {
+  //     id: 1,
+  //     question: "What is the past tense of 'run'?",
+  //     correctWord: "ran",
+  //     level: "Beginner",
+  //     date: "2023-11-14"
+  //   },
+  //   {
+  //     id: 2,
+  //     question: "Synonym for 'happy'",
+  //     correctWord: "joyful",
+  //     level: "Easy",
+  //     date: "2023-11-12"
+  //   }
+  // ];
 
   return (
-    <div className="flex flex-col p-4 bg-black-1 border-l border-black-5 md:overflow-y-auto custom-scrollbar">
+    <div className="flex flex-col h-full p-4 bg-black-1 border-l border-black-5 md:overflow-y-auto custom-scrollbar">
       {/* User Profile Section */}
       <div className="flex items-center gap-3 p-3 rounded-lg bg-black-2 mb-6">
         {userImageUrl ? (
@@ -102,19 +117,35 @@ const RightSidebar = () => {
             <ChevronRight size={18} className="text-gray-1" />
           </div>
           <div className="space-y-3">
-            {recentListeningQuizzes.map((quiz) => (
-              <div key={quiz.id} className="p-3 rounded-lg bg-black-5 transition-colors">
-                <p className="text-white-4 text-sm line-clamp-2 mb-1">{quiz.sentence}</p>
-                <div className="flex flex-col justify-between items-start md:items-center">
-                  <span className="text-xs text-gray-1">{quiz.level}</span>
-                  <span className={`text-xs font-medium ${
-                    quiz.grade === 'A' ? 'text-orange-1' : 'text-white-3'
-                  }`}>
-                    Grade: {quiz.grade}
-                  </span>
+            {recentListeningQuizzes!?.length > 0 ? (
+              recentListeningQuizzes!.map((quiz, index) => (
+                <div
+                  key={index}
+                  className="p-3 rounded-lg bg-black-5 transition-colors"
+                >
+                  <p className="text-white-4 text-sm line-clamp-2 mb-1">
+                    {quiz.sentence}
+                  </p>
+                  <div className="flex flex-col justify-between items-start md:items-center">
+                    <span key={index} className="text-xs text-gray-1">
+                      {LEVELS[quiz?.level]}
+                    </span>
+
+                    <span
+                      className={`text-xs font-medium ${
+                        quiz.grade === "A" ? "text-orange-1" : "text-white-3"
+                      }`}
+                    >
+                      Grade: {quiz.grade}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p className="text-white-4 text-sm line-clamp-2 mb-1">
+                No recent listening quizzes
+              </p>
+            )}
           </div>
         </div>
 
@@ -128,17 +159,31 @@ const RightSidebar = () => {
             <ChevronRight size={18} className="text-gray-1" />
           </div>
           <div className="space-y-3">
-            {recentWordQuizzes.map((quiz) => (
-              <div key={quiz.id} className="p-3 rounded-lg bg-black-5 transition-colors">
-                <p className="text-white-4 text-sm line-clamp-2 mb-1">{quiz.question}</p>
-                <div className="flex flex-col justify-between items-start md:items-center">
-                  <span className="text-xs text-gray-1">{quiz.level}</span>
-                  <span className="flex flex-1 text-xs text-white-3 font-medium">
-                    Correct: <span className="text-orange-1">{quiz.correctWord}</span>
-                  </span>
+            {recentWordQuizzes!?.length > 0 ? (
+              recentWordQuizzes!.map((quiz, index) => (
+                <div
+                  key={index}
+                  className="p-3 rounded-lg bg-black-5 transition-colors"
+                >
+                  <p className="text-white-4 text-sm line-clamp-2 mb-1">
+                    {quiz.question}
+                  </p>
+                  <div className="flex flex-col justify-between items-start md:items-center">
+                    <span className="text-xs text-gray-1">
+                      {LEVELS[quiz?.level]}
+                    </span>
+                    <span className="flex flex-1 text-xs text-white-3 font-medium">
+                      Correct:{" "}
+                      <span className="text-orange-1">{quiz.correctWord}</span>
+                    </span>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p className="text-white-4 text-sm line-clamp-2 mb-1">
+                No recent listening quizzes
+              </p>
+            )}
           </div>
         </div>
       </div>

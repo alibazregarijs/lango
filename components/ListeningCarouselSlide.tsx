@@ -21,7 +21,7 @@ const ListeningCarouselSlideComponent = ({
       {loading ? (
         <Spinner loading={loading} />
       ) : (
-        <div className="flex flex-col items-center w-[100%] h-full bg-[#15171C] border-1 p-2 rounded-lg">
+        <div className="flex flex-col items-center justify-center w-[100%] bg-[#15171C] border-1 p-2 rounded-lg mt-4">
           <span className="text-gray-400 max-sm:text-[14px] ml-2">
             Select your level then click the{" "}
             <span className="text-orange-1">icon</span> to start the quiz.

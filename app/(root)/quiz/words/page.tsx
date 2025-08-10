@@ -19,6 +19,7 @@ import { useUser } from "@/context/UserContext";
 
 const MAX_RETRIES = 3; // Prevent infinite retries
 const MAX_RESPONSE_RETRY = 2;
+const GRADE = 5
 
 const page = () => {
   const retryCountRef = useRef(0); // Track retry attempts
@@ -100,8 +101,9 @@ const page = () => {
           const res = await createWordsQuiz({
             userId: userId!,
             level: level,
-            grade: "5",
+            grade: GRADE.toString(),
             isCorrect: true,
+            correctWord: correctWord,
             question: question[slideIndex],
           });
         } catch (error) {

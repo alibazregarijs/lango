@@ -167,7 +167,7 @@ const page = () => {
   });
 
   return (
-    <div className="flex-center w-full h-full">
+    <div className="flex-center w-full">
       <Carousel
         onNextClick={() => handleNext(fetchSentence)}
         onPrevClick={() => handlePrev()}

@@ -60,6 +60,7 @@ export default defineSchema({
     level: v.string(),
     userId: v.string(),
     isCorrect: v.optional(v.boolean()),
+    correctWord: v.optional(v.string()),
     grade: v.optional(v.string()),
     question: v.optional(v.string()),
   })
