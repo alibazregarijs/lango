@@ -98,7 +98,7 @@ const page = () => {
         toast.success("Correct Answer!");
         disableItem();
         try {
-          const res = await createWordsQuiz({
+          await createWordsQuiz({
             userId: userId!,
             level: level,
             grade: GRADE.toString(),

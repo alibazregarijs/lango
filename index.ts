@@ -5,9 +5,11 @@ import essentialWords from "@/words.json";
 export const fetchRandomWord = async ({
   setWords,
   setLoading,
+  word,
 }: {
   setWords: React.Dispatch<React.SetStateAction<WordObject[]>>;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  word?: string;
 }) => {
   try {
     const randomWord =
@@ -15,7 +17,7 @@ export const fetchRandomWord = async ({
 
     const apiWord = randomWord;
     const randomWordObj = await axios.get(
-      `https://api.dictionaryapi.dev/api/v2/entries/en/${apiWord}`
+      `https://api.dictionaryapi.dev/api/v2/entries/en/${word ? word : apiWord}`
     );
 
     const apiData = randomWordObj.data[0];

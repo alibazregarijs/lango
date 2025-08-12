@@ -28,7 +28,10 @@ export default defineSchema({
       )
     ),
     meaningCount: v.number(),
-  }).searchIndex("search_word", { searchField: "word" }),
+  })
+    .index("by_userId_word", ["userId", "word"])
+    .index("by_word", ["word"]) // <-- Added this line
+    .searchIndex("search_word", { searchField: "word" }), // Only one search index
 
   users: defineTable({
     email: v.string(),
