@@ -20,6 +20,7 @@ import { useUser } from "@/context/UserContext";
 const MAX_RETRIES = 3; // Prevent infinite retries
 const MAX_RESPONSE_RETRY = 2;
 const GRADE = 5
+const MAX_WORDS_OPTION = 4
 
 const page = () => {
   const retryCountRef = useRef(0); // Track retry attempts
@@ -65,7 +66,7 @@ const page = () => {
       const correctWordResponse = res[2];
       const parsedItems = JSON.parse(res[1]);
 
-      if (parsedItems.length !== 4) {
+      if (parsedItems.length !== MAX_WORDS_OPTION) {
         retryCountRef.current += 1;
 
         if (retryCountRef.current < MAX_RETRIES) {

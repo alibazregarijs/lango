@@ -31,7 +31,7 @@ const useFetchWords = ({ setLoading, setWords, userId }: UseFetchWordsProps) => 
   const fetchWord = useCallback(async () => {
     startTransition(() => {
       setLoading(true);
-    });
+    }); 
 
     try {
       const newWord = await fetchRandomWord({ setWords, setLoading });

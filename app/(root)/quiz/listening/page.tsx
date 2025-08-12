@@ -12,6 +12,7 @@ import { type SentenceObjectProps } from "@/types/index";
 import { checkNull } from "@/utils/index";
 import useFetchItems from "@/hooks/useFetchItems";
 import useDebounce from "@/hooks/useDebounce";
+import useSpeek from "@/hooks/useSpeek";
 
 const page = () => {
   const {
@@ -55,13 +56,10 @@ const page = () => {
     return res;
   }; // function that handle saving quiz data into convex db
 
+  const { speak } = useSpeek({ text: items[slideIndex]?.sentence });
+
   const handleIconClick = useCallback(() => {
-    const synth = window.speechSynthesis;
-    synth.cancel();
-    const utterance = new SpeechSynthesisUtterance(
-      items[slideIndex]?.sentence || ""
-    );
-    synth.speak(utterance);
+    speak();
   }, [items, slideIndex]); // play current sentence
 
   const debouncedSpeek = useDebounce({

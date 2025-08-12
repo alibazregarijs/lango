@@ -16,6 +16,7 @@ import { useQuery } from "convex/react";
 import { type selectedWordProps } from "@/types";
 import { Modal } from "@/components/Modal";
 import { Play } from "iconsax-reactjs";
+import useSpeek from "@/hooks/useSpeek";
 
 const Searchbar = () => {
   const [selectedWordName, setSelectedWordName] = useState<string | null>(null);
@@ -78,13 +79,9 @@ const Searchbar = () => {
     setSelectedWordName(word);
   };
 
-  const speak = () => {
-    const synth = window.speechSynthesis;
-    synth.cancel();
-    const utterance = new SpeechSynthesisUtterance(selectedWord[0]?.word);
-    synth.speak(utterance);
-  };
+  const { speak } = useSpeek({ text: selectedWord[0]?.word });
 
+  
   return (
     <div className="mt-4">
       <Command className="rounded-lg border shadow-md">
@@ -115,8 +112,8 @@ const Searchbar = () => {
               title="You've seen this word before."
               loading={loading}
             >
-              <Modal.Body label="Word">{selectedWord[0]?.word}</Modal.Body>
-              <Modal.Body label="Definition">
+              <Modal.Body label="Word:">{selectedWord[0]?.word}</Modal.Body>
+              <Modal.Body label="Definition:">
                 {selectedWord[0]?.definition?.[0]?.definition ?? ""}
               </Modal.Body>
               <Modal.Body>

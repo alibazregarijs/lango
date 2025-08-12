@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useCallback, useEffect } from "react";
 import { CarouselDemo as Carousel } from "@/components/Carousel";
 import { type WordObject } from "@/types";
@@ -7,6 +6,7 @@ import { useUser } from "@/context/UserContext";
 import WordCarouselSlide from "@/components/WordCarouselSlide";
 import { useCarousel } from "@/hooks/useCarousel";
 import useFetchWords from "@/hooks/useFetchWords";
+import useSpeek from "@/hooks/useSpeek";
 
 const Word = () => {
   const {
@@ -21,6 +21,8 @@ const Word = () => {
     canGoPrev,
   } = useCarousel<WordObject>();
 
+  const { speak } = useSpeek({ text: words[slideIndex]?.word, slideIndex });
+
   const { userId } = useUser();
 
   const { fetchWord } = useFetchWords({
@@ -28,13 +30,6 @@ const Word = () => {
     setWords,
     userId: userId!,
   });
-
-  const speak = useCallback(() => {
-    const synth = window.speechSynthesis;
-    synth.cancel();
-    const utterance = new SpeechSynthesisUtterance(words[slideIndex]?.word);
-    synth.speak(utterance);
-  }, [words, slideIndex]);
 
   useEffect(() => {
     fetchWord();
