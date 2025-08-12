@@ -38,7 +38,7 @@ const MineDialogHeader = ({ children, title, loading }: DialogHeaderProps) => {
 const MineDialogBody = ({ label, children }: DialogBodyProps) => {
   return (
     <DialogDescription>
-      <span className="text-white text-[14px]">{label} :</span>
+      {label && <span className="text-gray-400 text-sm">{label}</span>}
       {children}
     </DialogDescription>
   );

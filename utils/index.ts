@@ -3,7 +3,6 @@ import { toast } from "sonner";
 const LEVEL_OF_PLAYERS = [10, 50, 100, 200];
 let PLAYER_LEVEL = 0;
 
-
 export const checkNull = (text: string, children: React.ReactNode): boolean => {
   if (!text.trim()) {
     toast("Text must not be empty", {

@@ -1,15 +1,12 @@
 "use client";
 
-import React, { useCallback, useEffect, startTransition } from "react";
+import React, { useCallback, useEffect } from "react";
 import { CarouselDemo as Carousel } from "@/components/Carousel";
 import { type WordObject } from "@/types";
-import { fetchRandomWord } from "@/index";
-import { api } from "@/convex/_generated/api";
-import { useMutation, useQuery } from "convex/react";
 import { useUser } from "@/context/UserContext";
 import WordCarouselSlide from "@/components/WordCarouselSlide";
 import { useCarousel } from "@/hooks/useCarousel";
-
+import useFetchWords from "@/hooks/useFetchWords";
 
 const Word = () => {
   const {
@@ -24,8 +21,13 @@ const Word = () => {
     canGoPrev,
   } = useCarousel<WordObject>();
 
-  const createWordsMutation = useMutation(api.words.createWordMutation);
   const { userId } = useUser();
+
+  const { fetchWord } = useFetchWords({
+    setLoading,
+    setWords,
+    userId: userId!,
+  });
 
   const speak = useCallback(() => {
     const synth = window.speechSynthesis;
@@ -33,36 +35,6 @@ const Word = () => {
     const utterance = new SpeechSynthesisUtterance(words[slideIndex]?.word);
     synth.speak(utterance);
   }, [words, slideIndex]);
-
-  const handleCreateWords = useCallback(
-    async ({ word }: { word: WordObject }) => {
-      if (!userId) return;
-      try {
-        await createWordsMutation({
-          ...word,
-          userId,
-        });
-      } catch (error) {
-        console.error("Failed to save word:", error);
-      }
-    },
-    [userId, createWordsMutation]
-  ); // save to db the words user have seen .
-
-  const fetchWord = useCallback(async () => {
-    startTransition(() => {
-      setLoading(true);
-    });
-    try {
-      const newWord = await fetchRandomWord({ setWords, setLoading });
-      if (newWord) {
-        await handleCreateWords({ word: newWord });
-      }
-    } catch (error) {
-      console.error("Failed to fetch word:", error);
-      setLoading(false);
-    }
-  }, [setWords, setLoading, handleCreateWords]);
 
   useEffect(() => {
     fetchWord();

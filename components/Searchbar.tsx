@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useMemo, startTransition, useEffect } from "react";
+import React, { useState, startTransition, useEffect } from "react";
 import {
   Command,
   CommandEmpty,
@@ -12,35 +12,18 @@ import {
 import useDebounce from "@/hooks/useDebounce";
 import { useUser } from "@/context/UserContext";
 import { api } from "@/convex/_generated/api";
-import { useQuery, useMutation } from "convex/react";
-import { type WordObject } from "@/types";
-import { Id } from "@/convex/_generated/dataModel";
-
-export type selectedWordProps = {
-  _id: Id<"words">;
-  _creationTime: number;
-  definition?: {
-    definition: string;
-    example: string;
-  }[];
-  type?: {
-    partOfSpeech: string;
-  }[];
-  audioWordUrl?: {
-    audio: string;
-  }[];
-  userId: string;
-  word: string;
-  meaningCount: number;
-};
-
-export type selectedWord = selectedWordProps[] | undefined;
+import { useQuery } from "convex/react";
+import { type selectedWordProps } from "@/types";
+import { Modal } from "@/components/Modal";
+import { Play } from "iconsax-reactjs";
 
 const Searchbar = () => {
   const [selectedWordName, setSelectedWordName] = useState<string | null>(null);
   const [searchDisplay, setSearchDisplay] = useState("");
   const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
-  const [selectedWord, setSelectedWord] = useState<selectedWord>([]);
+  const [selectedWord, setSelectedWord] = useState<selectedWordProps[]>([]);
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const { userId } = useUser();
 
@@ -83,16 +66,24 @@ const Searchbar = () => {
     debouncedFilter(searchDisplay);
   }, [searchDisplay]);
 
+  useEffect(() => {
+    if (selectedWordData) {
+      setSelectedWord(selectedWordData);
+      setOpen(true);
+    }
+  }, [selectedWordData]);
+
   const handleSuggestionClick = (word: string) => {
     setSearchDisplay(word);
     setSelectedWordName(word);
   };
 
-  useEffect(() => {
-    if (selectedWordData) {
-      setSelectedWord(selectedWordData);
-    }
-  }, [selectedWordData]);
+  const speak = () => {
+    const synth = window.speechSynthesis;
+    synth.cancel();
+    const utterance = new SpeechSynthesisUtterance(selectedWord[0]?.word);
+    synth.speak(utterance);
+  };
 
   return (
     <div className="mt-4">
@@ -117,6 +108,30 @@ const Searchbar = () => {
           <CommandSeparator />
         </CommandList>
       </Command>
+      {selectedWord && (
+        <Modal open={open} onOpenChange={setOpen}>
+          <Modal.Content>
+            <Modal.Section
+              title="You've seen this word before."
+              loading={loading}
+            >
+              <Modal.Body label="Word">{selectedWord[0]?.word}</Modal.Body>
+              <Modal.Body label="Definition">
+                {selectedWord[0]?.definition?.[0]?.definition ?? ""}
+              </Modal.Body>
+              <Modal.Body>
+                <Play
+                  className="cursor-pointer"
+                  size="34"
+                  color="#F97535"
+                  variant="Bulk"
+                  onClick={speak}
+                />
+              </Modal.Body>
+            </Modal.Section>
+          </Modal.Content>
+        </Modal>
+      )}
     </div>
   );
 };
