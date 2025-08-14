@@ -1,5 +1,5 @@
 "use client";
-import React, { useState , useCallback } from "react";
+import React, { useCallback } from "react";
 import { type CheckboxItemProps } from "@/types/index";
 
 const useDisableWordsSlide = ({

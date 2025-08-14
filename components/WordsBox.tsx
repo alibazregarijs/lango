@@ -3,7 +3,6 @@
 import { memo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import { z } from "zod";
 import { CheckboxItemProps } from "@/types/index";
 import { v4 as uuidv4 } from "uuid";

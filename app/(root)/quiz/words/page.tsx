@@ -16,9 +16,12 @@ import { type CheckboxItemProps } from "@/types";
 import useDisableWordsSlide from "@/hooks/useDisableWordsSlide";
 import { useAction, useMutation } from "convex/react";
 import { useUser } from "@/context/UserContext";
-
-const MAX_RETRIES = 3; // Prevent infinite retries
-const MAX_RESPONSE_RETRY = 2;
+import {
+  MAX_RETRIES,
+  MAX_RESPONSE_RETRY,
+  GRADE,
+  MAX_WORDS_OPTION,
+} from "@/constants";
 
 const page = () => {
   const retryCountRef = useRef(0); // Track retry attempts
@@ -64,7 +67,7 @@ const page = () => {
       const correctWordResponse = res[2];
       const parsedItems = JSON.parse(res[1]);
 
-      if (parsedItems.length !== 4) {
+      if (parsedItems.length !== MAX_WORDS_OPTION) {
         retryCountRef.current += 1;
 
         if (retryCountRef.current < MAX_RETRIES) {
@@ -97,11 +100,12 @@ const page = () => {
         toast.success("Correct Answer!");
         disableItem();
         try {
-          const res = await createWordsQuiz({
+          await createWordsQuiz({
             userId: userId!,
             level: level,
-            grade: 5,
+            grade: GRADE.toString(),
             isCorrect: true,
+            correctWord: correctWord,
             question: question[slideIndex],
           });
         } catch (error) {

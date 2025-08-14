@@ -15,13 +15,13 @@ export default async function RootLayout({
     <html lang="en">
       <body>
         <UserProvider userId={userId}>
-          <main className="md:grid md:grid-cols-12 h-screen pattern">
+          <main className="md:grid md:grid-cols-12 h-full pattern">
             <div className="md:col-span-2 col-span-12">
               <LeftSidebar />
             </div>
             <div className="md:col-span-8 w-full col-span-12">{children}</div>
-            <div className="md:col-span-2 col-span-12">
-              <RightSidebar />
+            <div className="lg:col-span-2 col-span-12">
+              <RightSidebar /> 
             </div>
           </main>
         </UserProvider>

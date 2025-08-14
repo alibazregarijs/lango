@@ -1,6 +1,6 @@
 "use client";
 
-import React , { memo } from "react";
+import React, { memo } from "react";
 import { WordObject } from "@/types";
 import Spinner from "./Spinner";
 import { CarouselItem } from "@/components/ui/carousel";
@@ -43,9 +43,12 @@ const WordCarouselSlide = ({
                     </span>
 
                     <div className="mt-2 space-y-2">
-                      <p>{words[slideIndex]?.definition[index]?.definition}</p>
+                      <p>
+                        {words[slideIndex]?.definition?.[index]?.definition ??
+                          ""}
+                      </p>
                       <p className="text-gray-400 text-[12px]">
-                        {words[slideIndex]?.definition[index]?.example}
+                        {words[slideIndex]?.definition?.[index]?.example ?? ""}
                       </p>
                     </div>
 

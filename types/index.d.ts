@@ -22,6 +22,23 @@ export type essayProps = {
   suggestion: string;
 };
 
+export type selectedWordProps = {
+  _id: Id<"words">;
+  _creationTime: number;
+  definition?: {
+    definition: string;
+    example: string;
+  }[];
+  word: string;
+  type?: {
+    partOfSpeech: string;
+  }[];
+  audioWordUrl?: {
+    audio: string;
+  }[];
+  userId: string;
+  meaningCount: number;
+};
 export interface WordCarouselSlideProps {
   words: WordObject[];
   slideIndex: number;
@@ -65,6 +82,7 @@ export type DialogProps = {
   open: boolean;
   onOpenChange: React.Dispatch<React.SetStateAction<boolean>>;
   children: React.ReactNode;
+  className?: string;
 };
 
 export type CheckboxItemProps = {
@@ -72,7 +90,6 @@ export type CheckboxItemProps = {
   label: string;
   disabled: boolean;
 };
-
 
 export type DialogContentProps = {
   children: React.ReactNode;
@@ -85,6 +102,8 @@ export type DialogHeaderProps = {
 };
 
 export type DialogBodyProps = {
-  label: string;
+  label?: string;
   children: React.ReactNode;
 };
+
+export type selectedWordProps = selectedWordProps[] | undefined;

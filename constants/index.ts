@@ -25,3 +25,16 @@ export const quizItems = [
     href: "/quiz/words",
   },
 ];
+
+export const LEVELS: Record<string, string> = {
+  pre_school: "Pre-school",
+  elementary: "Elementary",
+  middle_school: "Middle School",
+  high_school: "High School",
+  college: "College",
+};
+
+export const MAX_RETRIES = 3; // Prevent infinite retries
+export const MAX_RESPONSE_RETRY = 2;
+export const GRADE = 5
+export const MAX_WORDS_OPTION = 4

@@ -13,7 +13,6 @@ import {
   DialogBodyProps,
 } from "@/types/index";
 
-
 const MineDialogContent = ({ children }: DialogContentProps) => {
   return (
     <DialogContent className="sm:max-w-[425px] lsm:h-full sm:h-[80vh] overflow-y-scroll custom-scrollbar">
@@ -38,8 +37,10 @@ const MineDialogHeader = ({ children, title, loading }: DialogHeaderProps) => {
 const MineDialogBody = ({ label, children }: DialogBodyProps) => {
   return (
     <DialogDescription>
-      <span className="text-white text-[14px]">{label} :</span>
-      {children}
+      <div className="flex justify-start items-center gap-1">
+        {label && <span className="text-white text-sm">{label}</span>}
+        {children}
+      </div>
     </DialogDescription>
   );
 };

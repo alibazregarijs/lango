@@ -86,7 +86,7 @@ const Essay = () => {
   };
 
   return (
-    <div className="flex-center w-full h-full">
+    <div className="flex-center w-full h-screen">
       <div className="flex flex-col justify-center w-[100%] bg-[#15171C] border p-1 rounded-lg">
         <span className="flex-center text-gray-400 text-xl max-sm:text-[16px] md:font-semibold">
           Improve your writing skills with

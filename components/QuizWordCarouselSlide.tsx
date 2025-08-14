@@ -22,7 +22,7 @@ const QuizWordCarouselSlide = ({
   disabled: boolean;
 }) => {
   return (
-    <div className="flex-center bg-[#15171C] border-1 rounded-lg mt-2 p-2">
+    <div className="flex-center bg-[#15171C] border-1 rounded-lg mt-4 p-2">
       {loading ? (
         <Spinner loading={loading} />
       ) : (

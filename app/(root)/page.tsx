@@ -1,11 +1,12 @@
 "use client";
 import React from "react";
+import Searchbar from "@/components/Searchbar";
 
 const page = () => {
   return (
-    <div className="flex-center h-[100vh] w-full">
-      <span>LANGO IS HERE</span>
-    </div>  
+    <>
+      <Searchbar />
+    </>
   );
 };
 
