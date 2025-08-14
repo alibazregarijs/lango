@@ -1,11 +1,8 @@
 import type { Metadata } from "next";
-import { Manrope } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import ConvexClerkProvider from "@/app/providers/ConvexProviderWithClerk";
 import { Toaster } from "@/components/ui/sonner";
-
-const manrope = Manrope({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Lango",

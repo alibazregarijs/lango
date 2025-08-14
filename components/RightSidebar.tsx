@@ -7,14 +7,7 @@ import { Trophy, Headphones, BookText, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { getPlayerLevel } from "@/utils";
 import RightSidebarSkeleton from "@/components/RightSidebarSkeleton";
-
-const LEVELS: Record<string, string> = {
-  pre_school: "Pre-school",
-  elementary: "Elementary",
-  middle_school: "Middle School",
-  high_school: "High School",
-  college: "College",
-};
+import { LEVELS } from "@/constants";
 
 const RightSidebar = () => {
   const { userId, userImageUrl, username } = useUser();

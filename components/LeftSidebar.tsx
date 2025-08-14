@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { Book,Book1, PenAdd, Profile } from "iconsax-reactjs";
+import { Book,Book1, PenAdd } from "iconsax-reactjs";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { sidebarItems } from "@/constants";

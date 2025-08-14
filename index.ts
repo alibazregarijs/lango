@@ -2,6 +2,23 @@ import axios from "axios";
 import { WordObject } from "@/types";
 import essentialWords from "@/words.json";
 
+type ApiMeaning = {
+  partOfSpeech: string;
+  definitions: {
+    definition?: string;
+    example?: string;
+  }[];
+};
+
+type ApiPhonetic = {
+  audio?: string;
+};
+
+type ApiResponse = {
+  meanings: ApiMeaning[];
+  phonetics: ApiPhonetic[];
+};
+
 export const fetchRandomWord = async ({
   setWords,
   setLoading,
@@ -12,25 +29,28 @@ export const fetchRandomWord = async ({
   word?: string;
 }) => {
   try {
+    setLoading(true);
+
     const randomWord =
       essentialWords[Math.floor(Math.random() * essentialWords.length)];
 
-    const apiWord = randomWord;
-    const randomWordObj = await axios.get(
-      `https://api.dictionaryapi.dev/api/v2/entries/en/${word ? word : apiWord}`
+    const selectedWord = word || randomWord;
+
+    const { data } = await axios.get<ApiResponse[]>(
+      `https://api.dictionaryapi.dev/api/v2/entries/en/${selectedWord}`
     );
 
-    const apiData = randomWordObj.data[0];
+    const apiData = data[0];
 
     const newWord: WordObject = {
-      word: apiWord,
-      meaningCount: apiData.meanings.length || 0,
+      word: selectedWord,
+      meaningCount: apiData.meanings.length,
       definition: [],
       type: [],
       audioWordUrl: [],
     };
 
-    apiData.meanings.forEach((item: any) => {
+    apiData.meanings.forEach((item) => {
       newWord.type.push({ partOfSpeech: item.partOfSpeech });
       newWord.definition.push({
         definition: item.definitions[0]?.definition || "",
@@ -38,16 +58,17 @@ export const fetchRandomWord = async ({
       });
     });
 
-    apiData.phonetics.forEach((item: any) => {
+    apiData.phonetics.forEach((item) => {
       newWord.audioWordUrl.push({
         audio: item.audio || "",
       });
     });
 
     setWords((prev) => [...prev, newWord]);
-    setLoading(false);
     return newWord;
   } catch (error) {
     console.error("Failed to fetch random word:", error);
+  } finally {
+    setLoading(false);
   }
 };

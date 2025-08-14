@@ -16,11 +16,12 @@ import { type CheckboxItemProps } from "@/types";
 import useDisableWordsSlide from "@/hooks/useDisableWordsSlide";
 import { useAction, useMutation } from "convex/react";
 import { useUser } from "@/context/UserContext";
-
-const MAX_RETRIES = 3; // Prevent infinite retries
-const MAX_RESPONSE_RETRY = 2;
-const GRADE = 5
-const MAX_WORDS_OPTION = 4
+import {
+  MAX_RETRIES,
+  MAX_RESPONSE_RETRY,
+  GRADE,
+  MAX_WORDS_OPTION,
+} from "@/constants";
 
 const page = () => {
   const retryCountRef = useRef(0); // Track retry attempts
