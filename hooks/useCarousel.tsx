@@ -1,5 +1,4 @@
-// hooks/useCarousel.ts
-import { useRef, useState } from "react";
+import { useRef, useState, useCallback } from "react";
 
 export function useCarousel<T>(initialItems: T[] = []) {
   const slideIndexRef = useRef(0);
@@ -7,23 +6,26 @@ export function useCarousel<T>(initialItems: T[] = []) {
   const [items, setItems] = useState<T[]>(initialItems);
   const [loading, setLoading] = useState(false);
 
-  const handleNext = (fetchMore?: () => Promise<void>) => {
-    slideIndexRef.current += 1;
+  const handleNext = useCallback(
+    (fetchMore?: () => Promise<void>) => {
+      slideIndexRef.current += 1;
 
-    if (slideIndexRef.current === items.length && fetchMore) {
-      setLoading(true);
-      fetchMore().finally(() => setLoading(false));
-    } else {
-      forceUpdate((prev) => prev + 1);
-    }
-  };
+      if (slideIndexRef.current === items.length && fetchMore) {
+        setLoading(true);
+        fetchMore().finally(() => setLoading(false));
+      } else {
+        forceUpdate((prev) => prev + 1);
+      }
+    },
+    [items.length] // depends on item count for the length check
+  );
 
-  const handlePrev = () => {
+  const handlePrev = useCallback(() => {
     if (slideIndexRef.current > 0) {
       slideIndexRef.current -= 1;
       forceUpdate((prev) => prev + 1);
     }
-  };
+  }, []);
 
   return {
     slideIndex: slideIndexRef.current,
@@ -35,6 +37,6 @@ export function useCarousel<T>(initialItems: T[] = []) {
     handlePrev,
     canGoPrev: slideIndexRef.current > 0,
     canGoNext: !loading,
-    slideIndexRef: slideIndexRef,
+    slideIndexRef,
   };
 }

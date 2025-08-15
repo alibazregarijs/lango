@@ -34,13 +34,11 @@ const MineDialogHeader = ({ children, title, loading }: DialogHeaderProps) => {
   );
 };
 
-const MineDialogBody = ({ label, children }: DialogBodyProps) => {
+const MineDialogBody = ({ label, children , className }: DialogBodyProps) => {
   return (
-    <DialogDescription>
-      <div className="flex justify-start items-center gap-1">
-        {label && <span className="text-white text-sm">{label}</span>}
-        {children}
-      </div>
+    <DialogDescription className={`${className} gap-1`}>
+      {label && <span className="text-white text-sm">{label} :</span>}
+      <span className="text-center text-gray-400 text-sm">{children}</span>
     </DialogDescription>
   );
 };

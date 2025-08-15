@@ -4,6 +4,7 @@
 import { UserContext } from "@/context/UserContext";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import Spinner from "./Spinner";
 
 export function UserProvider({
   userId,
@@ -17,8 +18,12 @@ export function UserProvider({
     clerkId: userId!,
   });
 
-  const userImageUrl = user?.imageUrl!;
-  const username = user?.name!;
+  if (!user) {
+    return <Spinner loading={true} />; // or null, or a loading state
+  }
+
+  const userImageUrl = user!.imageUrl;
+  const username = user!.name;
 
   return (
     <UserContext.Provider value={{ userId, userImageUrl, username }}>

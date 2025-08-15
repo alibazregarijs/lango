@@ -20,42 +20,7 @@ const RightSidebar = () => {
     userId: userId!,
   });
   const playerLevel = getPlayerLevel(score!);
-
-  // Mock data - replace with your DB data later
-  // const recentListeningQuizzes = [
-  //   {
-  //     id: 1,
-  //     sentence: "The quick brown fox jumps over the lazy dog",
-  //     level: "Intermediate",
-  //     grade: "B+",
-  //     date: "2023-11-15"
-  //   },
-  //   {
-  //     id: 2,
-  //     sentence: "She sells seashells by the seashore",
-  //     level: "Beginner",
-  //     grade: "A",
-  //     date: "2023-11-10"
-  //   }
-  // ];
-
-  // const recentWordQuizzes = [
-  //   {
-  //     id: 1,
-  //     question: "What is the past tense of 'run'?",
-  //     correctWord: "ran",
-  //     level: "Beginner",
-  //     date: "2023-11-14"
-  //   },
-  //   {
-  //     id: 2,
-  //     question: "Synonym for 'happy'",
-  //     correctWord: "joyful",
-  //     level: "Easy",
-  //     date: "2023-11-12"
-  //   }
-  // ];
-
+  
   if (
     score === undefined ||
     recentListeningQuizzes === undefined ||
@@ -119,8 +84,8 @@ const RightSidebar = () => {
             <ChevronRight size={18} className="text-gray-1" />
           </div>
           <div className="space-y-3">
-            {recentListeningQuizzes!?.length > 0 ? (
-              recentListeningQuizzes!.map((quiz, index) => (
+            {recentListeningQuizzes.length > 0 ? (
+              recentListeningQuizzes.map((quiz, index) => (
                 <div
                   key={index}
                   className="p-3 rounded-lg bg-black-5 transition-colors"
@@ -161,8 +126,8 @@ const RightSidebar = () => {
             <ChevronRight size={18} className="text-gray-1" />
           </div>
           <div className="space-y-3">
-            {recentWordQuizzes!?.length > 0 ? (
-              recentWordQuizzes!.map((quiz, index) => (
+            {recentWordQuizzes.length > 0 ? (
+              recentWordQuizzes.map((quiz, index) => (
                 <div
                   key={index}
                   className="p-3 rounded-lg bg-black-5 transition-colors"

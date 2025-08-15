@@ -10,7 +10,7 @@ type UseFetchWordsProps = {
   setWords: React.Dispatch<React.SetStateAction<WordObject[]>>;
 };
 
-const useFetchWords = ({ setLoading, setWords, userId }: UseFetchWordsProps) => {
+const useFetchWords = ({ setLoading, setWords, userId }: UseFetchWordsProps) => { 
   const createWordsMutation = useMutation(api.words.createWordMutation);
 
   const handleCreateWords = useCallback(

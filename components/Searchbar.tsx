@@ -24,13 +24,14 @@ const Searchbar = () => {
   const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
   const [selectedWord, setSelectedWord] = useState<selectedWordProps[]>([]);
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
 
   const { userId } = useUser();
 
   const recentWordQuizzes = useQuery(api.words.getUserWordsQuery, {
     userId: userId!,
   });
+
   const selectedWordData = useQuery(
     api.words.getWordObjectQuery,
     selectedWordName ? { userId: userId!, word: selectedWordName } : "skip" // Convex way to skip queries if no word selected
@@ -81,7 +82,6 @@ const Searchbar = () => {
 
   const { speak } = useSpeek({ text: selectedWord[0]?.word });
 
-  
   return (
     <div className="mt-4">
       <Command className="rounded-lg border shadow-md">
@@ -112,11 +112,19 @@ const Searchbar = () => {
               title="You've seen this word before."
               loading={loading}
             >
-              <Modal.Body label="Word:">{selectedWord[0]?.word}</Modal.Body>
-              <Modal.Body label="Definition:">
+              <Modal.Body
+                label="Word"
+                className="flex justify-center items-center"
+              >
+                {selectedWord[0]?.word}
+              </Modal.Body>
+              <Modal.Body
+                label="Definition"
+                className="flex flex-col justify-center items-center"
+              >
                 {selectedWord[0]?.definition?.[0]?.definition ?? ""}
               </Modal.Body>
-              <Modal.Body>
+              <Modal.Body className="flex justify-center items-center">
                 <Play
                   className="cursor-pointer"
                   size="34"

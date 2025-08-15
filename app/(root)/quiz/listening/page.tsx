@@ -14,7 +14,7 @@ import useFetchItems from "@/hooks/useFetchItems";
 import useDebounce from "@/hooks/useDebounce";
 import useSpeek from "@/hooks/useSpeek";
 
-const page = () => {
+const Page = () => {
   const {
     slideIndex,
     setItems,
@@ -60,7 +60,7 @@ const page = () => {
 
   const handleIconClick = useCallback(() => {
     speak();
-  }, [items, slideIndex]); // play current sentence
+  }, [items, slideIndex, speak]); // play current sentence
 
   const debouncedSpeek = useDebounce({
     callback: handleIconClick,
@@ -142,7 +142,7 @@ const page = () => {
   }, [getListeningQuizAction, level, userId, setItems, sentenceObjectRef]);
 
   useEffect(() => {
-    if (!open && hasMount.current) {
+    if (open && hasMount.current) {
       setAnswer("");
       setItems((prev) => {
         const updated = [...prev];
@@ -187,7 +187,10 @@ const page = () => {
       <Modal open={open} onOpenChange={setOpen}>
         <Modal.Content>
           <Modal.Section title="Pay attention to this point." loading={loading}>
-            <Modal.Body label="Sentence got played">
+            <Modal.Body
+              label="Sentence"
+              className="max-sm:flex max-sm:flex-col"
+            >
               {items[slideIndex]?.sentence}
             </Modal.Body>
             <Modal.Body label="Grade">{items[slideIndex]?.grade}</Modal.Body>
@@ -201,4 +204,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

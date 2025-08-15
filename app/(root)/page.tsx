@@ -2,7 +2,7 @@
 import React from "react";
 import Searchbar from "@/components/Searchbar";
 
-const page = () => {
+const Page = () => {
   return (
     <>
       <Searchbar />
@@ -10,4 +10,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;
