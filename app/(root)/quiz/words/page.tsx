@@ -19,16 +19,15 @@ import {
 } from "@/constants";
 
 const Page = () => {
-  const retryCountRef = useRef(0); // Track retry attempts
-  const retryResponseRef = useRef(0); // Reset retry count on successful fetch
+  const { userId } = useUser();
+  const retryCountRef = useRef(0);
+  const retryResponseRef = useRef(0);
   const hasMount = useRef(false);
 
   const [question, setQuestion] = useState<string[]>([]);
   const [level, setLevel] = useState("pre_school");
   const [correctWord, setCorrectWord] = useState<string[]>([]);
 
-  const { userId } = useUser();
-  if (!userId) return <Spinner loading={true} />;
   const {
     slideIndex,
     setItems: setWordItems,
@@ -58,7 +57,7 @@ const Page = () => {
       let question: number | string = res[0];
       const index = question.indexOf("A)");
       question = res[0].slice(0, index);
-  
+
       const correctWordResponse = res[2];
       const parsedItems = JSON.parse(res[1]);
 
@@ -67,18 +66,18 @@ const Page = () => {
 
         if (retryCountRef.current < MAX_RETRIES) {
           toast.warning("Invalid data, retrying...");
-          await handleQuizWord(); // Recursive retry
+          await handleQuizWord();
           return;
         } else {
           toast.error(
             "Failed after multiple attempts. Please try again later."
           );
-          retryCountRef.current = 0; // Reset counter
+          retryCountRef.current = 0;
           return;
         }
       }
-      // Success case
-      retryCountRef.current = 0; // Reset on success
+
+      retryCountRef.current = 0;
       setWordItems((prev) => [...prev, [...parsedItems, { disabled: false }]]);
       setQuestion((prev) => [...prev, question]);
       setCorrectWord((prev) => [...prev, correctWordResponse]);
@@ -91,7 +90,10 @@ const Page = () => {
 
   const handleSubmit = useCallback(
     async (choosedWord: string) => {
-      if (choosedWord.toLocaleLowerCase() === correctWord[slideIndex].toLocaleLowerCase()) {
+      if (
+        choosedWord.toLocaleLowerCase() ===
+        correctWord[slideIndex].toLocaleLowerCase()
+      ) {
         toast.success("Correct Answer!");
         disableItem();
         try {
@@ -111,11 +113,11 @@ const Page = () => {
         toast.error("Wrong Answer!");
         if (retryResponseRef.current >= MAX_RESPONSE_RETRY) {
           disableItem();
-          retryResponseRef.current = 0; // Reset counter
+          retryResponseRef.current = 0;
         }
       }
     },
-    [correctWord, slideIndex, disableItem, level, question, userId]
+    [correctWord, slideIndex, disableItem, level, question, userId, createWordsQuiz]
   );
 
   useFetchItems({
@@ -126,6 +128,8 @@ const Page = () => {
     hasMount,
     itemsLength: worditems.length,
   });
+
+  if (!userId) return <Spinner loading={true} />;
 
   return (
     <CarouselDemo
@@ -141,7 +145,7 @@ const Page = () => {
         items={worditems[slideIndex]}
         loading={loading}
         handleSubmit={handleSubmit}
-        slideIndex={slideIndex}
+   
         disabled={
           worditems[slideIndex]?.[worditems[slideIndex]?.length - 1]
             ?.disabled || false

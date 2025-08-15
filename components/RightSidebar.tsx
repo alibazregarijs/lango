@@ -24,7 +24,8 @@ const RightSidebar = () => {
   if (
     score === undefined ||
     recentListeningQuizzes === undefined ||
-    recentWordQuizzes === undefined
+    recentWordQuizzes === undefined ||
+    !userId
   ) {
     return <RightSidebarSkeleton />;
   }

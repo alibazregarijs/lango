@@ -12,7 +12,6 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const { userId } = await auth();
-
   if (!userId) return <Spinner loading={true} />;
 
   return (

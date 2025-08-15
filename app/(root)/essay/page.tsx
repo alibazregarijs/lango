@@ -13,6 +13,7 @@ import { checkNull } from "@/utils/index";
 import Spinner from "@/components/Spinner";
 
 const Essay = () => {
+  const { userId } = useUser();
   const [essay, setEssay] = useState("");
   const [level, setLevel] = useState("pre_school");
   const [open, setOpen] = useState(false);
@@ -22,9 +23,6 @@ const Essay = () => {
     grammer: "",
     suggestion: "",
   });
-
-  const { userId } = useUser();
-  if (!userId) return <Spinner loading={true} />;
 
   const getEssayEvaluation = useAction(api.groqai.EvaluateEssayAction);
   const createEssayMutation = useMutation(api.essay.createEssayMutation);
@@ -36,19 +34,21 @@ const Essay = () => {
       userId,
     });
   };
+
   const submit = () => {
     setLoading(true);
 
     const isTextNull = checkNull(
       essay,
       <span className="text-gray-400">Please write something.</span>
-    ); // check if answer not to be null.
+    );
     if (!isTextNull) {
+      setLoading(false);
       return;
     }
 
-    try {
-      const fetchEssayEvaluation = async () => {
+    const fetchEssayEvaluation = async () => {
+      try {
         const response = await getEssayEvaluation({
           essay,
           level,
@@ -78,14 +78,18 @@ const Essay = () => {
           grammer,
           suggestion,
         };
-        handleCreateEssay({ essay: essayObj });
-      };
-      fetchEssayEvaluation();
-    } catch (error) {
-      console.error(error);
-    }
-    setOpen(true);
+        await handleCreateEssay({ essay: essayObj });
+        setOpen(true);
+      } catch (error) {
+        console.error(error);
+        setLoading(false);
+      }
+    };
+    
+    fetchEssayEvaluation();
   };
+
+  if (!userId) return <Spinner loading={true} />;
 
   return (
     <div className="flex-center w-full mt-4">
@@ -110,8 +114,9 @@ const Essay = () => {
               <Button
                 onClick={submit}
                 className="bg-orange-1 text-white hover:bg-black-2 cursor-pointer"
+                disabled={loading}
               >
-                Submit
+                {loading ? "Processing..." : "Submit"}
               </Button>
             </div>
           </div>

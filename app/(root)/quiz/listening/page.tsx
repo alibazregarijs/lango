@@ -16,6 +16,7 @@ import useSpeek from "@/hooks/useSpeek";
 import Spinner from "@/components/Spinner";
 
 const Page = () => {
+  const { userId } = useUser();
   const {
     slideIndex,
     setItems,
@@ -34,8 +35,6 @@ const Page = () => {
   const hasMount = useRef(false);
   const [open, setOpen] = useState(false);
 
-  const { userId } = useUser();
-    if (!userId) return <Spinner loading={true} />;
   const sentenceObjectRef = React.useRef<SentenceObjectProps>({
     userId: "",
     level: "",
@@ -45,24 +44,23 @@ const Page = () => {
     disabled: false,
   });
 
-  const getListeningQuizAction = useAction(api.groqai.ListeningQuizAction); // get sentence
-  const getGradeQuizAction = useAction(api.groqai.GiveGradeListeningAction); // get grade based on sentence
+  const getListeningQuizAction = useAction(api.groqai.ListeningQuizAction);
+  const getGradeQuizAction = useAction(api.groqai.GiveGradeListeningAction);
   const createListeningQuiz = useMutation(
     api.ListeningQuiz.createListeningQuizMutation
-  ); // save our data to listening quiz table
+  );
+  const { speak } = useSpeek({ text: items[slideIndex]?.sentence });
 
   const handleCreateListeningQuiz = async (
     listeningQuizObj: SentenceObjectProps
   ) => {
     const res = await createListeningQuiz(listeningQuizObj);
     return res;
-  }; // function that handle saving quiz data into convex db
-
-  const { speak } = useSpeek({ text: items[slideIndex]?.sentence });
+  };
 
   const handleIconClick = useCallback(() => {
     speak();
-  }, [items, slideIndex, speak]); // play current sentence
+  }, [speak]);
 
   const debouncedSpeek = useDebounce({
     callback: handleIconClick,
@@ -75,7 +73,7 @@ const Page = () => {
       const isTextNull = checkNull(
         answer,
         <span className="text-gray-400">Please write something.</span>
-      ); // check if answer not to be null.
+      );
       if (!isTextNull) {
         return;
       }
@@ -108,7 +106,7 @@ const Page = () => {
           level: items[slideIndexRef.current]?.level,
           sentence: currentItem.sentence,
           disabled: false,
-        }; // this object will be saved in convex db
+        };
 
         const openModal = handleCreateListeningQuiz(listeningQuizObj);
         if ((await openModal) && openModal instanceof Promise) {
@@ -119,7 +117,7 @@ const Page = () => {
     } catch (error) {
       console.error("Failed to save quiz result:", error);
     }
-  }; // get current item and save in convex db
+  };
 
   const fetchSentence = useCallback(async () => {
     const sentence = await getListeningQuizAction({ level });
@@ -141,7 +139,7 @@ const Page = () => {
       ];
       return newItem;
     });
-  }, [getListeningQuizAction, level, userId, setItems, sentenceObjectRef]);
+  }, [getListeningQuizAction, level, userId, setItems]);
 
   useEffect(() => {
     if (open && hasMount.current) {
@@ -165,6 +163,8 @@ const Page = () => {
     hasMount,
     itemsLength: items.length,
   });
+
+  if (!userId) return <Spinner loading={true} />;
 
   return (
     <div className="flex-center w-full">

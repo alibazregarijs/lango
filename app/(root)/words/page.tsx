@@ -10,6 +10,9 @@ import useSpeek from "@/hooks/useSpeek";
 import Spinner from "@/components/Spinner";
 
 const Word = () => {
+  const { userId } = useUser();
+  const hasFetchedRef = useRef(false);
+
   const {
     slideIndex,
     items: words,
@@ -23,10 +26,6 @@ const Word = () => {
   } = useCarousel<WordObject>();
 
   const { speak } = useSpeek({ text: words[slideIndex]?.word, slideIndex });
-  const hasFetchedRef = useRef(false);
-  const { userId } = useUser();
-  if (!userId) return <Spinner loading={true} />;
-
   const { fetchWord } = useFetchWords({
     setLoading,
     setWords,
@@ -34,14 +33,16 @@ const Word = () => {
   });
 
   useEffect(() => {
-    if (!hasFetchedRef.current) {
+    if (!hasFetchedRef.current && userId) {
       fetchWord();
       hasFetchedRef.current = true;
     }
     return () => {
       window.speechSynthesis.cancel();
     };
-  }, [fetchWord]);
+  }, [fetchWord, userId]);
+
+  if (!userId) return <Spinner loading={true} />;
 
   return (
     <div className="flex-center w-full">
