@@ -10,6 +10,7 @@ import { type CheckboxItemProps } from "@/types";
 import useDisableWordsSlide from "@/hooks/useDisableWordsSlide";
 import { useAction, useMutation } from "convex/react";
 import { useUser } from "@/context/UserContext";
+import Spinner from "@/components/Spinner";
 import {
   MAX_RETRIES,
   MAX_RESPONSE_RETRY,
@@ -27,7 +28,7 @@ const Page = () => {
   const [correctWord, setCorrectWord] = useState<string[]>([]);
 
   const { userId } = useUser();
-
+  if (!userId) return <Spinner loading={true} />;
   const {
     slideIndex,
     setItems: setWordItems,

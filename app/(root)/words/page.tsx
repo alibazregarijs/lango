@@ -7,6 +7,7 @@ import WordCarouselSlide from "@/components/WordCarouselSlide";
 import { useCarousel } from "@/hooks/useCarousel";
 import useFetchWords from "@/hooks/useFetchWords";
 import useSpeek from "@/hooks/useSpeek";
+import Spinner from "@/components/Spinner";
 
 const Word = () => {
   const {
@@ -24,6 +25,7 @@ const Word = () => {
   const { speak } = useSpeek({ text: words[slideIndex]?.word, slideIndex });
   const hasFetchedRef = useRef(false);
   const { userId } = useUser();
+  if (!userId) return <Spinner loading={true} />;
 
   const { fetchWord } = useFetchWords({
     setLoading,

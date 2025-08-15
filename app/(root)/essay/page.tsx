@@ -10,6 +10,7 @@ import { Modal } from "@/components/Modal";
 import { useUser } from "@/context/UserContext";
 import { essayProps } from "@/types";
 import { checkNull } from "@/utils/index";
+import Spinner from "@/components/Spinner";
 
 const Essay = () => {
   const [essay, setEssay] = useState("");
@@ -23,6 +24,7 @@ const Essay = () => {
   });
 
   const { userId } = useUser();
+  if (!userId) return <Spinner loading={true} />;
 
   const getEssayEvaluation = useAction(api.groqai.EvaluateEssayAction);
   const createEssayMutation = useMutation(api.essay.createEssayMutation);

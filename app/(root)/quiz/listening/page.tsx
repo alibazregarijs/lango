@@ -13,6 +13,7 @@ import { checkNull } from "@/utils/index";
 import useFetchItems from "@/hooks/useFetchItems";
 import useDebounce from "@/hooks/useDebounce";
 import useSpeek from "@/hooks/useSpeek";
+import Spinner from "@/components/Spinner";
 
 const Page = () => {
   const {
@@ -34,6 +35,7 @@ const Page = () => {
   const [open, setOpen] = useState(false);
 
   const { userId } = useUser();
+    if (!userId) return <Spinner loading={true} />;
   const sentenceObjectRef = React.useRef<SentenceObjectProps>({
     userId: "",
     level: "",

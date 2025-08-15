@@ -14,12 +14,16 @@ export function UserProvider({
 
   children: React.ReactNode;
 }) {
+  if (!userId) {
+    return <Spinner loading={true} />; // or null, or a loading state
+  }
+
   const user = useQuery(api.users.getUserById, {
     clerkId: userId!,
   });
 
   if (!user) {
-    return <Spinner loading={true} />; // or null, or a loading state
+    return <Spinner loading={true} />;
   }
 
   const userImageUrl = user!.imageUrl;
