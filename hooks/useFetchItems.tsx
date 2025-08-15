@@ -22,8 +22,11 @@ const useFetchItems = ({
       const run = async () => {
         try {
           setLoading(true);
-
-          if (slideIndexRef.current === itemsLength) {
+          if (
+            slideIndexRef.current === itemsLength &&
+            slideIndexRef.current !== 0 &&
+            itemsLength !== 0
+          ) {
             slideIndexRef.current += 1;
           } else {
             slideIndexRef.current = itemsLength;
@@ -37,24 +40,20 @@ const useFetchItems = ({
           setLoading(false);
         }
       };
-
       run();
-    } else {
-      hasMount.current = true;
     }
   }, [level]); // for getting new question and word items if user change level
 
   useEffect(() => {
     const fetchInitialItems = async () => {
       try {
-        hasMount.current = true;
         await handleFetchItems();
+        hasMount.current = true;
       } catch (error) {
         console.error("Error fetching initial items:", error);
         // Handle initial fetch error if needed
       }
     };
-
     fetchInitialItems();
   }, []); // fetch question and word items on first mount up
 };

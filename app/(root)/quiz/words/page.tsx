@@ -1,11 +1,5 @@
 "use client";
-import {
-  useState,
-  useRef,
-  useCallback,
-  startTransition,
-  useEffect,
-} from "react";
+import { useState, useRef, useCallback, startTransition } from "react";
 import QuizWordCarouselSlide from "@/components/QuizWordCarouselSlide";
 import { useCarousel } from "@/hooks/useCarousel";
 import { CarouselDemo } from "@/components/Carousel";
@@ -23,14 +17,14 @@ import {
   MAX_WORDS_OPTION,
 } from "@/constants";
 
-const page = () => {
+const Page = () => {
   const retryCountRef = useRef(0); // Track retry attempts
   const retryResponseRef = useRef(0); // Reset retry count on successful fetch
   const hasMount = useRef(false);
 
   const [question, setQuestion] = useState<string[]>([]);
   const [level, setLevel] = useState("pre_school");
-  const [correctWord, setCorrectWord] = useState("");
+  const [correctWord, setCorrectWord] = useState<string[]>([]);
 
   const { userId } = useUser();
 
@@ -63,7 +57,7 @@ const page = () => {
       let question: number | string = res[0];
       const index = question.indexOf("A)");
       question = res[0].slice(0, index);
-
+  
       const correctWordResponse = res[2];
       const parsedItems = JSON.parse(res[1]);
 
@@ -82,21 +76,21 @@ const page = () => {
           return;
         }
       }
-
       // Success case
       retryCountRef.current = 0; // Reset on success
       setWordItems((prev) => [...prev, [...parsedItems, { disabled: false }]]);
       setQuestion((prev) => [...prev, question]);
-      setCorrectWord(correctWordResponse);
+      setCorrectWord((prev) => [...prev, correctWordResponse]);
     } catch (error) {
       toast.error("An error occurred. Please try again.");
+      console.error("Failed to fetch quiz word:", error);
       setLoading(false);
     }
-  }, [level, getQuizWordAction]);
+  }, [level, getQuizWordAction, setLoading, setWordItems]);
 
   const handleSubmit = useCallback(
     async (choosedWord: string) => {
-      if (choosedWord.toLocaleLowerCase() === correctWord.toLocaleLowerCase()) {
+      if (choosedWord.toLocaleLowerCase() === correctWord[slideIndex].toLocaleLowerCase()) {
         toast.success("Correct Answer!");
         disableItem();
         try {
@@ -105,7 +99,7 @@ const page = () => {
             level: level,
             grade: GRADE.toString(),
             isCorrect: true,
-            correctWord: correctWord,
+            correctWord: correctWord[slideIndex],
             question: question[slideIndex],
           });
         } catch (error) {
@@ -120,7 +114,7 @@ const page = () => {
         }
       }
     },
-    [correctWord, slideIndex]
+    [correctWord, slideIndex, disableItem, level, question, userId]
   );
 
   useFetchItems({
@@ -146,6 +140,7 @@ const page = () => {
         items={worditems[slideIndex]}
         loading={loading}
         handleSubmit={handleSubmit}
+        slideIndex={slideIndex}
         disabled={
           worditems[slideIndex]?.[worditems[slideIndex]?.length - 1]
             ?.disabled || false
@@ -155,4 +150,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

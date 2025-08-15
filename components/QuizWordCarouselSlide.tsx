@@ -12,6 +12,7 @@ const QuizWordCarouselSlide = ({
   loading,
   handleSubmit,
   disabled,
+  slideIndex
 }: {
   level: string;
   setLevel: React.Dispatch<React.SetStateAction<string>>;
@@ -20,6 +21,7 @@ const QuizWordCarouselSlide = ({
   loading: boolean;
   handleSubmit: (choosedWord: string) => void;
   disabled: boolean;
+  slideIndex: number;
 }) => {
   return (
     <div className="flex-center bg-[#15171C] border-1 rounded-lg mt-4 p-2">
@@ -43,7 +45,7 @@ const QuizWordCarouselSlide = ({
           </div>
 
           <div className="">
-            <WordsBox items={items} onSubmitHandler={handleSubmit} disabled={disabled} />
+            <WordsBox slideIndex={slideIndex} items={items} onSubmitHandler={handleSubmit} disabled={disabled} />
           </div>
         </div>
       )}

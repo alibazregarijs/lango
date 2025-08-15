@@ -27,10 +27,12 @@ const WordsBoxComponent = ({
   items,
   onSubmitHandler,
   disabled,
+  slideIndex,
 }: {
   items: CheckboxItemProps[];
   onSubmitHandler: (choosedWord: string) => void;
   disabled: boolean;
+  slideIndex: number;
 }) => {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),

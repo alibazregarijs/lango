@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { quizItems } from "@/constants";
 import Link from "next/link";
 
-const page = () => {
+const Page = () => {
   return (
     <div className="flex-center flex-col w-full h-screen">
       <div>
@@ -27,4 +27,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

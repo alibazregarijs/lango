@@ -86,7 +86,7 @@ const Essay = () => {
   };
 
   return (
-    <div className="flex-center w-full h-screen">
+    <div className="flex-center w-full mt-4">
       <div className="flex flex-col justify-center w-[100%] bg-[#15171C] border p-1 rounded-lg">
         <span className="flex-center text-gray-400 text-xl max-sm:text-[16px] md:font-semibold">
           Improve your writing skills with
@@ -97,10 +97,10 @@ const Essay = () => {
           <div className="mb-4 mt-4">
             <SelectDemo setLevel={setLevel} level={level} />
           </div>
-          <div className="flex-center flex-col h-full w-full">
+          <div className="flex flex-col justify-start w-[70%] h-[100%] space-y-4">
             <Textarea
               placeholder="Enter your essay here"
-              className="w-[70%] bg-transparent max-sm:text-[14px] custom-scrollbar  text-white p-4 rounded-lg"
+              className="text-white p-4 rounded-lg md:text-[14px] text-[12px] lsm:h-[50px] overflow-y-auto resize-none custom-scrollbar"
               onChange={(e) => setEssay(e.target.value)}
               value={essay}
             />

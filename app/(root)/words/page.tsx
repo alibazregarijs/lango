@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { CarouselDemo as Carousel } from "@/components/Carousel";
 import { type WordObject } from "@/types";
 import { useUser } from "@/context/UserContext";
@@ -22,7 +22,7 @@ const Word = () => {
   } = useCarousel<WordObject>();
 
   const { speak } = useSpeek({ text: words[slideIndex]?.word, slideIndex });
-
+  const hasFetchedRef = useRef(false);
   const { userId } = useUser();
 
   const { fetchWord } = useFetchWords({
@@ -32,7 +32,10 @@ const Word = () => {
   });
 
   useEffect(() => {
-    fetchWord();
+    if (!hasFetchedRef.current) {
+      fetchWord();
+      hasFetchedRef.current = true;
+    }
     return () => {
       window.speechSynthesis.cancel();
     };

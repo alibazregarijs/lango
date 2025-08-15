@@ -31,16 +31,24 @@ export const createWordMutation = mutation({
 });
 
 export const getUserWordsQuery = query({
-  args: {
-    userId: v.string(),
-  },
+  args: { userId: v.string() },
   handler: async (ctx, args) => {
-    const words = await ctx.db
+    const words = [];
+    let doc = await ctx.db
       .query("words")
-      .withIndex("by_userId_word", (q) => q.eq("userId", args.userId))
+      .withIndex("by_userId_word", q => q.eq("userId", args.userId))
       .order("desc")
-      .collect();
-
+      .first();
+    while (doc !== null) {
+      words.push(doc); // Push the whole document
+      doc = await ctx.db
+        .query("words")
+        .withIndex("by_userId_word", q =>
+          q.eq("userId", args.userId).lt("word", doc!.word)
+        )
+        .order("desc")
+        .first();
+    }
     return words;
   },
 });

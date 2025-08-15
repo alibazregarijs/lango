@@ -65,6 +65,7 @@ export interface CarouselDemoProps {
   children: React.ReactNode;
   className?: string;
   contentClassName?: string;
+  hasSendRequest?: React.MutableRefObject<boolean>;
 }
 
 interface ListeningCarouselSlideProps {
@@ -104,6 +105,7 @@ export type DialogHeaderProps = {
 export type DialogBodyProps = {
   label?: string;
   children: React.ReactNode;
+  className?: string;
 };
 
 export type selectedWordProps = selectedWordProps[] | undefined;
