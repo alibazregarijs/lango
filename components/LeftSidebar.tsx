@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { Book,Book1, PenAdd } from "iconsax-reactjs";
+import { Book, Book1, PenAdd } from "iconsax-reactjs";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { sidebarItems } from "@/constants";
@@ -12,14 +12,16 @@ const LeftSidebar = () => {
   return (
     <div className="flex md:flex-col h-full md:ml-4 space-x-2">
       <div className="flex items-start justify-start">
-        <Image
-          className="md:w-24 md:h-24 h-20 w-20"
-          src={"/icons/logo.png"}
-          priority
-          width={500}
-          height={500}
-          alt="logo"
-        />
+        <Link href="/">
+          <Image
+            className="md:w-24 md:h-24 h-20 w-20"
+            src={"/icons/logo.png"}
+            priority
+            width={500}
+            height={500}
+            alt="logo"
+          />
+        </Link>
       </div>
       {sidebarItems.map((item) => {
         const isActive = pathname === item.href;
@@ -35,14 +37,25 @@ const LeftSidebar = () => {
               }`}
             >
               {item.name === "Words" && (
-                <Book  className="w-4 h-4 md:w-6 md:h-6" size="24" color={isActive ? "#F97535" : "#6B7280"} />
+                <Book
+                  className="w-4 h-4 md:w-6 md:h-6"
+                  size="24"
+                  color={isActive ? "#F97535" : "#6B7280"}
+                />
               )}
               {item.name === "Quiz" && (
                 // <PenAdd size="24"  />
-                <Book1  className="w-4 h-4 md:w-6 md:h-6" size="24" color={isActive ? "#F97535" : "#6B7280"}/>
+                <Book1
+                  className="w-4 h-4 md:w-6 md:h-6"
+                  size="24"
+                  color={isActive ? "#F97535" : "#6B7280"}
+                />
               )}
               {item.name === "Essay" && (
-                <PenAdd className="w-4 h-4 md:w-6 md:h-6" color={isActive ? "#F97535" : "#6B7280"} />
+                <PenAdd
+                  className="w-4 h-4 md:w-6 md:h-6"
+                  color={isActive ? "#F97535" : "#6B7280"}
+                />
               )}
               <span
                 className={`text-sm font-medium ${

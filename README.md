@@ -1,3 +1,4 @@
+Created by alibazregarijs or alibazregariintel@gmail.com, © 2025
 // before anything you should know there is no SSR rendering , and it is intentional.
 
 cat << 'EOF' > README.md

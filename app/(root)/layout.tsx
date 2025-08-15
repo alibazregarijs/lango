@@ -3,6 +3,7 @@ import RightSidebar from "@/components/RightSidebar";
 import "../globals.css";
 import { auth } from "@clerk/nextjs/server";
 import { UserProvider } from "@/components/UserProvider";
+import Footer from "@/components/Footer";
 
 export default async function RootLayout({
   children,
@@ -22,6 +23,9 @@ export default async function RootLayout({
             <div className="md:col-span-8 w-full col-span-12">{children}</div>
             <div className="lg:col-span-2 col-span-12">
               <RightSidebar /> 
+            </div>
+            <div className="col-span-12">
+              <Footer />
             </div>
           </main>
         </UserProvider>

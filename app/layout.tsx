@@ -10,6 +10,10 @@ const manrope = Manrope({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Lango",
   description: "Improve your language skills with Lango",
+  authors: [{ name: "Alibazregarijs", url: "https://github.com/alibazregarijs" }],
+  other: {
+    copyright: "© 2025 Alibazregarijs",
+  },
 };
 
 export default function RootLayout({
@@ -23,6 +27,8 @@ export default function RootLayout({
         <ThemeProvider />
         <ConvexClerkProvider>
           {children}
+          <meta name="author" content="alibazregarijs" />
+          <meta name="copyright" content="© 2025 alibazregarijs" />
           <Toaster />
         </ConvexClerkProvider>
       </body>
