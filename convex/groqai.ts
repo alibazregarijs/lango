@@ -86,7 +86,6 @@ compare this two sentence word to word and give grade to it's similarity from on
 export const QuizWordAction = action({
   args: { level: v.string() },
   handler: async (_, args) => {
-    console.log("salammmmmmmmmm");
     const QuizQuestionCompletion = await getGroqChatCompletion({
       prompt: `Create a fill-in-the-blank question designed for ${args.level} level to test grammar and vocabulary, with exactly one blank space in the sentence. Provide the question followed by four word options, where only one option is correct. Ensure the question is unique by focusing on a different grammatical concept (e.g., verb tense, prepositions, adjectives, adverbs, modals) or theme (e.g., travel, work, nature, education) than previous questions. Make it random and creative.`,
     });

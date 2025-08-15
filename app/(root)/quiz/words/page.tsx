@@ -51,16 +51,13 @@ const Page = () => {
     });
 
     try {
-      console.log("request")
       const res = await getQuizWordAction({ level });
       if (res) setLoading(false);
 
       let question: number | string = res[0];
       const index = question.indexOf("A)");
       question = res[0].slice(0, index);
-
-      console.log(res, "response");
-      console.log(slideIndexRef.current, "slideIndex");
+  
       const correctWordResponse = res[2];
       const parsedItems = JSON.parse(res[1]);
 
@@ -93,8 +90,6 @@ const Page = () => {
 
   const handleSubmit = useCallback(
     async (choosedWord: string) => {
-      console.log(choosedWord);
-      console.log(correctWord[slideIndex]);
       if (choosedWord.toLocaleLowerCase() === correctWord[slideIndex].toLocaleLowerCase()) {
         toast.success("Correct Answer!");
         disableItem();

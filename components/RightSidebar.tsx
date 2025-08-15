@@ -67,7 +67,7 @@ const RightSidebar = () => {
         <div className="w-full bg-black-5 rounded-full h-2 mt-3">
           <div
             className="bg-orange-1 h-2 rounded-full"
-            style={{ width: `${Math.min(((score ?? 0) / 100) * 100, 100)}%` }}
+            style={{ width: `${Math.min(((score ?? 0) / 200) * 100, 200)}%` }}
           ></div>
         </div>
       </div>

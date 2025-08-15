@@ -42,7 +42,6 @@ const WordsBoxComponent = ({
   });
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
-    console.log(data.items,"data check words ")
     const choosedWord = data.items[0];
     onSubmitHandler(choosedWord);
   }
