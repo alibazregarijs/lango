@@ -1,35 +1,37 @@
 import { internalMutation, query } from "./_generated/server";
 import { ConvexError, v } from "convex/values";
 
-export const getUserById = query({
-  args: { clerkId: v.string() },
-  handler: async (ctx, args) => {
+export const getCurrentUserRecord = query({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (identity === null) {
+      throw new Error("Not authenticated");
+    }
     const user = await ctx.db
       .query("users")
-      .filter((q) => q.eq(q.field("clerkId"), args.clerkId))
+      .filter((q) => q.eq(q.field("clerkId"), identity.subject))
       .unique();
-
-    if (!user) {
-      throw new ConvexError("User not found");
-    }
-
     return user;
   },
 });
 
 export const createUser = internalMutation({
   args: {
+    clerkId: v.string(),
     email: v.string(),
     imageUrl: v.string(),
-    clerkId: v.string(),
     name: v.string(),
   },
   handler: async (ctx, args) => {
-    const { email, imageUrl, clerkId, name } = args;
-    return await ctx.db.insert("users", { email, imageUrl, clerkId, name });
+    await ctx.db.insert("users", {
+      clerkId: args.clerkId,
+      email: args.email,
+      imageUrl: args.imageUrl,
+      name: args.name,
+    });
   },
 });
-
 export const deleteUser = internalMutation({
   args: { clerkId: v.string() },
   async handler(ctx, args) {

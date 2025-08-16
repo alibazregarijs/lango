@@ -1,33 +1,28 @@
-// src/components/UserProvider.tsx
 "use client";
 
-import { UserContext } from "@/context/UserContext";
-import { useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
 import Spinner from "./Spinner";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { useUser } from "@clerk/nextjs";
+import { UserContext } from "@/context/UserContext";
 
 export function UserProvider({
   userId,
+  userImageUrl,
+  username,
   children,
 }: {
   userId: string | null;
-
+  userImageUrl: string | null;
+  username: string | null;
   children: React.ReactNode;
 }) {
-  const user = useQuery(api.users.getUserById, {
-    clerkId: userId!,
-  });
-
-  if (!user || !userId) {
-    return <Spinner loading={true} />;
-  }
-
-  const userImageUrl = user!.imageUrl;
-  const username = user!.name;
-
+  if (!userId) return <Spinner loading={true} />;
   return (
-    <UserContext.Provider value={{ userId, userImageUrl, username }}>
-      {children}
-    </UserContext.Provider>
+    <>
+      <UserContext.Provider value={{ userId, userImageUrl, username }}>
+        {children}
+      </UserContext.Provider>
+    </>
   );
 }

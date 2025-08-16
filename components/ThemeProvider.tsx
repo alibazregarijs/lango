@@ -5,11 +5,17 @@ import { useEffect } from "react";
 
 export function ThemeProvider() {
   useEffect(() => {
-    document.documentElement.classList.add("dark");
-    document.documentElement.classList.add("custom-scrollbar");
+    const html = document.documentElement;
+    
+    // Only add classes if they don't exist
+    if (!html.classList.contains("dark")) {
+      html.classList.add("dark");
+    }
+    
+    if (!html.classList.contains("custom-scrollbar")) {
+      html.classList.add("custom-scrollbar");
+    }
   }, []);
 
   return null;
 }
-
-// app/layout.tsx

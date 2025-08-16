@@ -86,6 +86,8 @@ body {
   font-family: var(--font-manrope);
 }
 
+
+
 .dark {
   --background: #15171c;
   --foreground: oklch(0.984 0.003 247.858);
@@ -216,4 +218,8 @@ body {
 }
 .cl-internal-wkkub3 {
   color: #f97535;
+}
+
+body.dark {
+  /* dark mode styles */
 }

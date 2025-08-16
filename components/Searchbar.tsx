@@ -28,6 +28,8 @@ const Searchbar = () => {
 
   const { userId } = useUser();
 
+  
+
   const recentWordQuizzes = useQuery(api.words.getUserWordsQuery, {
     userId: userId!,
   });

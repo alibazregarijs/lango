@@ -5,6 +5,9 @@ const nextConfig = {
   },
   allowedDevOrigins: ["local-origin.dev", "*.local-origin.dev"],
 
+  compiler: {
+    styledComponents: true,
+  },
   images: {
     remotePatterns: [
       {
