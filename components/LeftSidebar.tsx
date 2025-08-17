@@ -10,7 +10,7 @@ const LeftSidebar = () => {
   const pathname = usePathname();
 
   return (
-    <div className="flex md:flex-col h-full md:ml-4 space-x-2">
+    <div className="flex lg:flex-col md:h-full md:ml-4 space-x-2">
       <div className="flex items-start justify-start">
         <Link href="/">
           <Image
@@ -27,7 +27,7 @@ const LeftSidebar = () => {
         const isActive = pathname === item.href;
 
         return (
-          <div key={item.name} className="flex flex-1 items-center">
+          <div key={item.name} className="flex flex-1 items-center max-lg:justify-end">
             <Link
               href={item.href}
               className={`flex md:p-2 p-[6px] items-center justify-center space-x-2 transition-colors ${

@@ -3,5 +3,5 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return <main className="flex-center">{children}</main>;
+  return <main className="flex-center h-full">{children}</main>;
 }

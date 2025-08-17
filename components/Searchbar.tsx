@@ -1,3 +1,8 @@
+
+
+
+
+
 "use client";
 import React, { useState, startTransition, useEffect } from "react";
 import {
@@ -27,8 +32,6 @@ const Searchbar = () => {
   const [loading] = useState(false);
 
   const { userId } = useUser();
-
-  
 
   const recentWordQuizzes = useQuery(api.words.getUserWordsQuery, {
     userId: userId!,
@@ -78,6 +81,7 @@ const Searchbar = () => {
   }, [selectedWordData]);
 
   const handleSuggestionClick = (word: string) => {
+    console.log("boro dash");
     setSearchDisplay(word);
     setSelectedWordName(word);
   };
@@ -85,62 +89,65 @@ const Searchbar = () => {
   const { speak } = useSpeek({ text: selectedWord[0]?.word });
 
   return (
-    <div className="mt-4">
-      <Command className="rounded-lg border shadow-md">
-        <CommandInput
-          placeholder="Type a command or search..."
-          value={searchDisplay}
-          onValueChange={setSearchDisplay}
-        />
-        <CommandList>
-          <CommandEmpty>No results found.</CommandEmpty>
-          <CommandGroup heading="Suggestions">
-            {filteredSuggestions.map((suggestion, index) => (
-              <CommandItem
-                key={index}
-                onSelect={() => handleSuggestionClick(suggestion)}
+    <div className="h-full flex justify-center items-center">
+      <div className="lg:w-[90%]   w-full mt-4">
+        <Command className="rounded-lg border shadow-md">
+          <CommandInput
+            placeholder="Type a command or search..."
+            value={searchDisplay}
+            onValueChange={setSearchDisplay}
+          />
+          <CommandList>
+            <CommandEmpty>You haven't seen any words yet.</CommandEmpty>
+            <CommandGroup heading="Suggestions">
+              {filteredSuggestions.map((suggestion, index) => (
+                <CommandItem
+                  key={index}
+                  onSelect={() => handleSuggestionClick(suggestion)}
+                >
+                  {suggestion}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+            <CommandSeparator />
+          </CommandList>
+        </Command>
+        {selectedWord && (
+          <Modal open={open} onOpenChange={setOpen}>
+            <Modal.Content>
+              <Modal.Section
+                title="You've seen this word before."
+                loading={loading}
               >
-                {suggestion}
-              </CommandItem>
-            ))}
-          </CommandGroup>
-          <CommandSeparator />
-        </CommandList>
-      </Command>
-      {selectedWord && (
-        <Modal open={open} onOpenChange={setOpen}>
-          <Modal.Content>
-            <Modal.Section
-              title="You've seen this word before."
-              loading={loading}
-            >
-              <Modal.Body
-                label="Word"
-                className="flex justify-center items-center"
-              >
-                {selectedWord[0]?.word}
-              </Modal.Body>
-              <Modal.Body
-                label="Definition"
-                className="flex flex-col justify-center items-center"
-              >
-                {selectedWord[0]?.definition?.[0]?.definition ?? ""}
-              </Modal.Body>
-              <Modal.Body className="flex justify-center items-center">
-                <Play
-                  className="cursor-pointer"
-                  size="34"
-                  color="#F97535"
-                  variant="Bulk"
-                  onClick={speak}
-                />
-              </Modal.Body>
-            </Modal.Section>
-          </Modal.Content>
-        </Modal>
-      )}
+                <Modal.Body
+                  label="Word"
+                  className="flex justify-center items-center"
+                >
+                  {selectedWord[0]?.word}
+                </Modal.Body>
+                <Modal.Body
+                  label="Definition"
+                  className="flex flex-col justify-center items-center"
+                >
+                  {selectedWord[0]?.definition?.[0]?.definition ?? ""}
+                </Modal.Body>
+                <Modal.Body className="flex justify-center items-center">
+                  <Play
+                    className="cursor-pointer"
+                    size="34"
+                    color="#F97535"
+                    variant="Bulk"
+                    onClick={speak}
+                  />
+                </Modal.Body>
+              </Modal.Section>
+            </Modal.Content>
+          </Modal>
+        )}
+      </div>
     </div>
   );
 };
 
 export default Searchbar;
+

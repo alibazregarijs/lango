@@ -24,7 +24,7 @@ export default function RootLayout({
   }, [isLoaded, isSignedIn, router]);
 
   if (!isLoaded) return <Spinner loading={true} />;
-  if (!isSignedIn) return <Spinner loading={true} />; // Show spinner while redirecting
+  if (!isSignedIn) return <Spinner loading={true} />;
 
   return (
     <UserProvider
@@ -32,18 +32,37 @@ export default function RootLayout({
       userImageUrl={user.imageUrl}
       username={user.firstName}
     >
-      <main className="md:grid md:grid-cols-12 h-full pattern">
-        <div className="md:col-span-2 col-span-12">
+      <main className="grid grid-cols-1 lg:grid-cols-12 auto-rows-auto min-h-screen pattern">
+        {/* Left Sidebar */}
+        <div className="col-span-1 lg:col-span-1">
           <LeftSidebar />
         </div>
-        <div className="md:col-span-8 w-full col-span-12">{children}</div>
-        <div className="lg:col-span-2 col-span-12">
-          <RightSidebar /> 
+
+        {/* Main Content */}
+        <div className="col-span-1 lg:col-span-9">
+          {children}
         </div>
-        <div className="col-span-12">
+
+        {/* Right Sidebar */}
+        <div className="col-span-1 lg:col-span-2">
+          <RightSidebar />
+        </div>
+
+        {/* Footer */}
+        <div className="col-span-1 lg:col-span-12 max-h-6!">
           <Footer />
         </div>
       </main>
     </UserProvider>
   );
 }
+
+
+
+
+
+
+
+
+
+
