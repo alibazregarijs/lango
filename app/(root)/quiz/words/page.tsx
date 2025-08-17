@@ -113,11 +113,31 @@ const Page = () => {
         toast.error("Wrong Answer!");
         if (retryResponseRef.current >= MAX_RESPONSE_RETRY) {
           disableItem();
+          try {
+            await createWordsQuiz({
+              userId: userId!,
+              level: level,
+              grade: "-5",
+              isCorrect: true,
+              correctWord: correctWord[slideIndex],
+              question: question[slideIndex],
+            });
+          } catch (error) {
+            console.error("Failed to save quiz result:", error);
+          }
           retryResponseRef.current = 0;
         }
       }
     },
-    [correctWord, slideIndex, disableItem, level, question, userId, createWordsQuiz]
+    [
+      correctWord,
+      slideIndex,
+      disableItem,
+      level,
+      question,
+      userId,
+      createWordsQuiz,
+    ]
   );
 
   useFetchItems({
@@ -145,7 +165,6 @@ const Page = () => {
         items={worditems[slideIndex]}
         loading={loading}
         handleSubmit={handleSubmit}
-   
         disabled={
           worditems[slideIndex]?.[worditems[slideIndex]?.length - 1]
             ?.disabled || false
