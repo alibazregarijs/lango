@@ -81,6 +81,7 @@ export const getUserTotalScore = query({
       .collect();
     const wordsGrade = wordsDocs.reduce((sum, doc) => {
       const n = Number(doc.grade);
+      console.log(n,"score")
       return sum + (isNaN(n) ? 0 : n);
     }, 0);
 
