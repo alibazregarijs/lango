@@ -36,5 +36,6 @@ export const LEVELS: Record<string, string> = {
 
 export const MAX_RETRIES = 3; // Prevent infinite retries
 export const MAX_RESPONSE_RETRY = 2;
-export const GRADE = 5
+export const POSITIVE_GRADE = "5"
+export const NEGATIVE_GRADE = "-5"
 export const MAX_WORDS_OPTION = 4

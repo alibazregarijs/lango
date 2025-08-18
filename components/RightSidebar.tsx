@@ -12,6 +12,9 @@ import { LEVELS } from "@/constants";
 const RightSidebar = () => {
   const { userId, userImageUrl, username } = useUser();
   const score = useQuery(api.users.getUserTotalScore, { userId: userId! });
+  // const topPlayers = useQuery(api.users.getTopPlayers);
+  const topPlayers = useQuery(api.users.getUsers);
+  console.log(topPlayers,"players");
   const recentListeningQuizzes = useQuery(
     api.ListeningQuiz.getRecentListeningQuizzes,
     { userId: userId! }

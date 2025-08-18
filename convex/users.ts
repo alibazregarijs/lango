@@ -16,12 +16,22 @@ export const getCurrentUserRecord = query({
   },
 });
 
+export const getUserByClerkId = internalMutation({
+  args: { clerkId: v.string() },
+  handler: async (ctx, { clerkId }) => {
+    return await ctx.db
+      .query("users")
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", clerkId))
+      .unique();
+  },
+});
+
 export const createUser = internalMutation({
   args: {
     clerkId: v.string(),
     email: v.string(),
     imageUrl: v.string(),
-    name: v.string(),
+    name: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     await ctx.db.insert("users", {
@@ -81,7 +91,7 @@ export const getUserTotalScore = query({
       .collect();
     const wordsGrade = wordsDocs.reduce((sum, doc) => {
       const n = Number(doc.grade);
-      console.log(n,"score")
+      console.log(n, "score");
       return sum + (isNaN(n) ? 0 : n);
     }, 0);
 
@@ -100,3 +110,18 @@ export const getUserTotalScore = query({
     return wordsGrade + listeningGrade;
   },
 });
+
+// convex/topPlayers.ts
+
+// convex/users.ts
+
+export const getUsers = query({
+  args: {},
+  handler: async (ctx) => {
+    // Simply collect and return all users
+    const users = await ctx.db.query("users").collect();
+    return users;
+  },
+});
+
+
