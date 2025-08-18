@@ -21,7 +21,7 @@ export default function RootLayout({
   const { user, isLoaded, isSignedIn } = useUser();
   const imageRef = useRef("");
 
-  console.log(user,"user")
+  console.log(user, "user");
   const updateUserImage = useMutation(api.users.updateUserImage);
 
   const handleUpdate = async () => {
@@ -71,11 +71,7 @@ export default function RootLayout({
     <UserProvider
       userId={user.id}
       userImageUrl={imageRef.current ? imageRef.current : user.imageUrl}
-      username={
-        user.firstName === "Anonymous" || user.firstName == null
-          ? getGmailUsername(user?.emailAddresses[0].emailAddress)
-          : user.firstName
-      }
+      username={getGmailUsername(user?.emailAddresses[0].emailAddress)}
     >
       <main className="grid grid-cols-1 lg:grid-cols-12 auto-rows-auto min-h-screen pattern">
         {/* Left Sidebar */}
