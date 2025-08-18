@@ -33,7 +33,7 @@ const handleClerkWebhook = httpAction(async (ctx, request) => {
           clerkId: event.data.id,
           email: primaryEmail,
           imageUrl: event.data.image_url,
-          name: `${event.data.first_name || ""} ${event.data.last_name || ""}`.trim() || "Anonymous",
+          name: event.data.username || "Anonymous",
         });
       } else {
         // Update existing user

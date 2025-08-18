@@ -37,3 +37,9 @@ export const getPlayerLevel = (score: number): number => {
   }
   return PLAYER_LEVEL;
 };
+
+export function getGmailUsername(email: string): string | null {
+  const gmailRegex = /^([^@]+)@gmail\.com$/i;
+  const match = email.match(gmailRegex);
+  return match ? match[1] : null;
+}

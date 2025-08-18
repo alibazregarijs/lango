@@ -1,4 +1,4 @@
-import { internalMutation, query } from "./_generated/server";
+import { internalMutation, mutation, query } from "./_generated/server";
 import { ConvexError, v } from "convex/values";
 
 export const getCurrentUserRecord = query({
@@ -91,7 +91,6 @@ export const getUserTotalScore = query({
       .collect();
     const wordsGrade = wordsDocs.reduce((sum, doc) => {
       const n = Number(doc.grade);
-      console.log(n, "score");
       return sum + (isNaN(n) ? 0 : n);
     }, 0);
 
@@ -124,4 +123,30 @@ export const getUsers = query({
   },
 });
 
+// In your convex/users.ts file (or similar)
 
+
+export const updateUserImage = mutation({
+  args: {
+    clerkId: v.string(),
+    newImageUrl: v.string(),
+  },
+  async handler(ctx, args) {
+    // Find the user by clerkId using the index
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", args.clerkId))
+      .unique();
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    // Update only the imageUrl field
+    await ctx.db.patch(user._id, {
+      imageUrl: args.newImageUrl,
+    });
+
+    return { success: true };
+  },
+});

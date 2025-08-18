@@ -11,10 +11,10 @@ import { LEVELS } from "@/constants";
 
 const RightSidebar = () => {
   const { userId, userImageUrl, username } = useUser();
+
   const score = useQuery(api.users.getUserTotalScore, { userId: userId! });
   // const topPlayers = useQuery(api.users.getTopPlayers);
   const topPlayers = useQuery(api.users.getUsers);
-  console.log(topPlayers,"players");
   const recentListeningQuizzes = useQuery(
     api.ListeningQuiz.getRecentListeningQuizzes,
     { userId: userId! }
@@ -23,10 +23,11 @@ const RightSidebar = () => {
     userId: userId!,
   });
   const playerLevel = getPlayerLevel(score!);
-  
+
   if (
     score === undefined ||
     recentListeningQuizzes === undefined ||
+    userImageUrl === undefined ||
     recentWordQuizzes === undefined ||
     !userId
   ) {
@@ -35,6 +36,8 @@ const RightSidebar = () => {
 
   return (
     <div className="flex flex-col h-full p-4 bg-black-1 border-l border-black-5 md:overflow-y-auto custom-scrollbar">
+      {/* User Profile Section */}
+
       {/* User Profile Section */}
       <div className="flex items-center gap-3 p-3 rounded-lg bg-black-2 mb-6">
         {userImageUrl ? (
@@ -47,17 +50,20 @@ const RightSidebar = () => {
           />
         ) : (
           <div className="w-10 h-10 rounded-full border-2 border-orange-1 bg-black-4 flex items-center justify-center">
-            <span className="text-white-3 text-lg">
+            <span className="text-white-3 text-lg line-clamp-2">
               {username?.charAt(0)?.toUpperCase() || "U"}
             </span>
           </div>
         )}
-        <div>
-          <p className="text-white-5 font-medium">{username || "Anonymous"}</p>
+        <div className="min-w-0">
+          {/* Add this container with min-width 0 to enable text truncation */}
+          <p className="text-white-5 font-medium truncate">
+            {/* Add truncate class here */}
+            {username || "Anonymous"}
+          </p>
           <p className="text-gray-1 text-sm">Level {playerLevel} Explorer</p>
         </div>
       </div>
-
       {/* Score Card */}
       <div className="bg-black-6 rounded-xl p-4 mb-6">
         <div className="flex justify-between items-center mb-2">
@@ -75,7 +81,6 @@ const RightSidebar = () => {
           ></div>
         </div>
       </div>
-
       {/* Recent Quizzes Section */}
       <div className="space-y-6">
         {/* Listening Quizzes */}
