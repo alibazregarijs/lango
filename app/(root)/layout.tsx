@@ -20,8 +20,7 @@ export default function RootLayout({
   const router = useRouter();
   const { user, isLoaded, isSignedIn } = useUser();
   const imageRef = useRef("");
-
-  console.log(user, "user");
+  
   const updateUserImage = useMutation(api.users.updateUserImage);
 
   const handleUpdate = async () => {

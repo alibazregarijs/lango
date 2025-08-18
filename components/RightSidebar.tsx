@@ -13,8 +13,7 @@ const RightSidebar = () => {
   const { userId, userImageUrl, username } = useUser();
 
   const score = useQuery(api.users.getUserTotalScore, { userId: userId! });
-  // const topPlayers = useQuery(api.users.getTopPlayers);
-  const topPlayers = useQuery(api.users.getUsers);
+  const topPlayers = useQuery(api.users.getTopPlayers);
   const recentListeningQuizzes = useQuery(
     api.ListeningQuiz.getRecentListeningQuizzes,
     { userId: userId! }
@@ -22,6 +21,7 @@ const RightSidebar = () => {
   const recentWordQuizzes = useQuery(api.WordsQuiz.getRecentListeningQuizzes, {
     userId: userId!,
   });
+  
   const playerLevel = getPlayerLevel(score!);
 
   if (

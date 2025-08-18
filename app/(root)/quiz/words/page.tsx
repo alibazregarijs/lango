@@ -160,6 +160,7 @@ const Page = () => {
       canGoPrev={canGoPrev}
     >
       <QuizWordCarouselSlide
+        key={worditems.length}
         level={level}
         setLevel={setLevel}
         question={question[slideIndex]}

@@ -110,21 +110,6 @@ export const getUserTotalScore = query({
   },
 });
 
-// convex/topPlayers.ts
-
-// convex/users.ts
-
-export const getUsers = query({
-  args: {},
-  handler: async (ctx) => {
-    // Simply collect and return all users
-    const users = await ctx.db.query("users").collect();
-    return users;
-  },
-});
-
-// In your convex/users.ts file (or similar)
-
 
 export const updateUserImage = mutation({
   args: {
@@ -148,5 +133,53 @@ export const updateUserImage = mutation({
     });
 
     return { success: true };
+  },
+});
+
+
+export const getTopPlayers = query({
+  args: {},
+  handler: async (ctx) => {
+    // Get all users (or you might want to query only active users)
+    const allUsers = await ctx.db.query("users").collect();
+
+    // Calculate scores for each user
+    const usersWithScores = await Promise.all(
+      allUsers.map(async (user) => {
+        // Sum grades from WordsQuiz for this user
+        const wordsDocs = await ctx.db
+          .query("WordsQuiz")
+          .withIndex("by_userId", (q) => q.eq("userId", user.clerkId))
+          .collect();
+        const wordsScore = wordsDocs.reduce((sum, doc) => {
+          const n = Number(doc.grade);
+          return sum + (isNaN(n) ? 0 : n);
+        }, 0);
+
+        // Sum grades from ListeningQuiz for this user
+        const listeningDocs = await ctx.db
+          .query("ListeningQuiz")
+          .withIndex("by_userId", (q) => q.eq("userId", user.clerkId))
+          .collect();
+        const listeningScore = listeningDocs.reduce((sum, doc) => {
+          const n = Number(doc.grade);
+          return sum + (isNaN(n) ? 0 : n);
+        }, 0);
+
+        return {
+          userId: user.clerkId,
+          username: user.name || "Anonymous",
+          imageUrl: user.imageUrl,
+          totalScore: wordsScore + listeningScore
+        };
+      })
+    );
+
+    // Sort by totalScore in descending order and take top 3
+    const topPlayers = usersWithScores
+      .sort((a, b) => b.totalScore - a.totalScore)
+      .slice(0, 3);
+
+    return topPlayers;
   },
 });

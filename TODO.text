@@ -1,5 +1,3 @@
 TODO:
-1-if firstName is null then show fullName of user
-2-test search bar with pressing enter
-3-change the message of search bar (the suggestion message)
-4-chat with ai
+1-wordsBox doesn't clear it's value ( i should put key in the state)
+2-chat with ai
