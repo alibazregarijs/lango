@@ -93,7 +93,7 @@ const Essay = () => {
 
   return (
     <div className="flex h-full flex-center">
-      <div className="lg:w-[90%]   w-full mt-4">
+      <div className="lg:w-[90%] w-full mt-4">
         <div className="flex flex-col justify-center w-[100%] bg-[#15171C] border p-1 rounded-lg">
           <span className="flex-center text-gray-400 text-xl max-sm:text-[16px] md:font-semibold">
             Improve your writing skills with

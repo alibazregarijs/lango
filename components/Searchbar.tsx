@@ -81,7 +81,6 @@ const Searchbar = () => {
   }, [selectedWordData]);
 
   const handleSuggestionClick = (word: string) => {
-    console.log("boro dash");
     setSearchDisplay(word);
     setSelectedWordName(word);
   };
@@ -89,7 +88,7 @@ const Searchbar = () => {
   const { speak } = useSpeek({ text: selectedWord[0]?.word });
 
   return (
-    <div className="h-full flex justify-center items-center">
+    <div className="h-full flex justify-center items-start">
       <div className="lg:w-[90%]   w-full mt-4">
         <Command className="rounded-lg border shadow-md">
           <CommandInput

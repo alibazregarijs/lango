@@ -6,15 +6,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <main className="relative h-screen w-full overflow-hidden"> {/* Added overflow-hidden */}
-      <div className="absolute size-full">
-        <Image 
-          src="/images/bg-img.png" 
-          alt="background" 
-          fill 
-          className="size-full object-cover" // Added object-cover
-        />
-      </div>
+    <main className="relative h-screen justify-center items-center w-full overflow-hidden">
       {children}
     </main>
   );

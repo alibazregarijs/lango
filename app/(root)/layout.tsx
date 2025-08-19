@@ -3,11 +3,14 @@ import LeftSidebar from "@/components/LeftSidebar";
 import RightSidebar from "@/components/RightSidebar";
 import "../globals.css";
 import Footer from "@/components/Footer";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import Spinner from "@/components/Spinner";
 import { UserProvider } from "@/components/UserProvider";
+import { getGmailUsername } from "@/utils";
+import { useMutation, useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 
 export default function RootLayout({
   children,
@@ -16,6 +19,34 @@ export default function RootLayout({
 }>) {
   const router = useRouter();
   const { user, isLoaded, isSignedIn } = useUser();
+  const imageRef = useRef("");
+  
+  const updateUserImage = useMutation(api.users.updateUserImage);
+
+  const handleUpdate = async () => {
+    try {
+      await updateUserImage({
+        clerkId: user?.id || "",
+        newImageUrl: imageRef.current,
+      });
+    } catch (error) {
+      console.error("Update failed:", error);
+    }
+  };
+
+  const updateProfileImage = async ({ imageUrl }: { imageUrl: string }) => {
+    if (user) {
+      try {
+        await user.setProfileImage({ file: imageUrl });
+        handleUpdate();
+        localStorage.removeItem("profileImageUrl");
+        imageRef.current = "";
+        // Image updated successfully
+      } catch (error) {
+        console.error("Error updating profile image:", error);
+      }
+    }
+  };
 
   useEffect(() => {
     if (isLoaded && !isSignedIn) {
@@ -23,25 +54,32 @@ export default function RootLayout({
     }
   }, [isLoaded, isSignedIn, router]);
 
+  if (user?.username === null || user?.username === "Anonymous") {
+    const imageUrl = localStorage.getItem("profileImageUrl"); // it fix username and imageUrl
+
+    if (imageUrl) {
+      imageRef.current = imageUrl;
+      updateProfileImage({ imageUrl });
+    }
+  }
+
   if (!isLoaded) return <Spinner loading={true} />;
   if (!isSignedIn) return <Spinner loading={true} />;
 
   return (
     <UserProvider
       userId={user.id}
-      userImageUrl={user.imageUrl}
-      username={user.firstName}
+      userImageUrl={imageRef.current ? imageRef.current : user.imageUrl}
+      username={getGmailUsername(user?.emailAddresses[0].emailAddress)}
     >
-      <main className="grid grid-cols-1 lg:grid-cols-12 auto-rows-auto min-h-screen pattern">
+      <main className="grid grid-cols-1 lg:grid-cols-12 auto-rows-auto max-h-screen pattern no-scrollbar">
         {/* Left Sidebar */}
         <div className="col-span-1 lg:col-span-1">
           <LeftSidebar />
         </div>
 
         {/* Main Content */}
-        <div className="col-span-1 lg:col-span-9">
-          {children}
-        </div>
+        <div className="col-span-1 lg:col-span-9">{children}</div>
 
         {/* Right Sidebar */}
         <div className="col-span-1 lg:col-span-2">
@@ -56,13 +94,3 @@ export default function RootLayout({
     </UserProvider>
   );
 }
-
-
-
-
-
-
-
-
-
-

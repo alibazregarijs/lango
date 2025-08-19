@@ -37,8 +37,9 @@ export default defineSchema({
     email: v.string(),
     imageUrl: v.string(),
     clerkId: v.string(),
-    name: v.string(),
-  }),
+    name: v.optional(v.string()),
+  }).index("by_clerkId", ["clerkId"]), // Add this if missing
+
   essay: defineTable({
     essay: v.string(),
     level: v.string(),
@@ -68,5 +69,7 @@ export default defineSchema({
     question: v.optional(v.string()),
   })
     .index("by_userId", ["userId"])
+    .index("by_grade", ["grade"])
     .searchIndex("search_question", { searchField: "question" }),
+    
 });

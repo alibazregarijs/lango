@@ -7,34 +7,51 @@ import { httpAction } from "./_generated/server";
 
 const handleClerkWebhook = httpAction(async (ctx, request) => {
   const event = await validateRequest(request);
-  if (!event) {
-    return new Response("Invalid request", { status: 400 });
-  }
+  if (!event) return new Response("Invalid request", { status: 400 });
+
   switch (event.type) {
     case "user.created":
-      await ctx.runMutation(internal.users.createUser, {
+    // Handle both OAuth and email/password sign-ups
+    case "user.updated": {
+      const primaryEmail = event.data.email_addresses.find(
+        (email: any) => email.id === event.data.primary_email_address_id
+      )?.email_address;
+
+      if (!primaryEmail) {
+        console.warn("No primary email found for user:", event.data.id);
+        break;
+      }
+
+      // Check if user exists in Convex
+      const existingUser = await ctx.runMutation(internal.users.getUserByClerkId, {
         clerkId: event.data.id,
-        email: event.data.email_addresses[0].email_address,
-        imageUrl: event.data.image_url,
-        name: event.data.first_name!,
       });
+
+      if (!existingUser) {
+        // Create new user if they don't exist
+        await ctx.runMutation(internal.users.createUser, {
+          clerkId: event.data.id,
+          email: primaryEmail,
+          imageUrl: event.data.image_url,
+          name: event.data.username || "Anonymous",
+        });
+      } else {
+        // Update existing user
+        await ctx.runMutation(internal.users.updateUser, {
+          clerkId: event.data.id,
+          email: primaryEmail,
+          imageUrl: event.data.image_url,
+        });
+      }
       break;
-    case "user.updated":
-      await ctx.runMutation(internal.users.updateUser, {
-        clerkId: event.data.id,
-        imageUrl: event.data.image_url,
-        email: event.data.email_addresses[0].email_address,
-      });
-      break;
+    }
     case "user.deleted":
       await ctx.runMutation(internal.users.deleteUser, {
-        clerkId: event.data.id as string,
+        clerkId: event.data.id!,
       });
       break;
   }
-  return new Response(null, {
-    status: 200,
-  });
+  return new Response(null, { status: 200 });
 });
 
 const http = httpRouter();

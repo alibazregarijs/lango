@@ -14,7 +14,8 @@ import Spinner from "@/components/Spinner";
 import {
   MAX_RETRIES,
   MAX_RESPONSE_RETRY,
-  GRADE,
+  POSITIVE_GRADE,
+  NEGATIVE_GRADE,
   MAX_WORDS_OPTION,
 } from "@/constants";
 
@@ -100,7 +101,7 @@ const Page = () => {
           await createWordsQuiz({
             userId: userId!,
             level: level,
-            grade: GRADE.toString(),
+            grade: POSITIVE_GRADE,
             isCorrect: true,
             correctWord: correctWord[slideIndex],
             question: question[slideIndex],
@@ -117,7 +118,7 @@ const Page = () => {
             await createWordsQuiz({
               userId: userId!,
               level: level,
-              grade: "-5",
+              grade: NEGATIVE_GRADE,
               isCorrect: true,
               correctWord: correctWord[slideIndex],
               question: question[slideIndex],
@@ -159,6 +160,7 @@ const Page = () => {
       canGoPrev={canGoPrev}
     >
       <QuizWordCarouselSlide
+        key={worditems.length}
         level={level}
         setLevel={setLevel}
         question={question[slideIndex]}
