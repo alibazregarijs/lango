@@ -110,7 +110,6 @@ export const getUserTotalScore = query({
   },
 });
 
-
 export const updateUserImage = mutation({
   args: {
     clerkId: v.string(),
@@ -132,12 +131,11 @@ export const updateUserImage = mutation({
       imageUrl: args.newImageUrl,
     });
 
-    console.log("updated ok")
+    console.log("updated ok");
 
     return { success: true };
   },
 });
-
 
 export const getTopPlayers = query({
   args: {},
@@ -170,10 +168,10 @@ export const getTopPlayers = query({
 
         return {
           userId: user.clerkId,
-          gmail:user.email,
+          gmail: user.email,
           username: user.name || "Anonymous",
           imageUrl: user.imageUrl,
-          totalScore: wordsScore + listeningScore
+          totalScore: wordsScore + listeningScore,
         };
       })
     );
@@ -186,3 +184,4 @@ export const getTopPlayers = query({
     return topPlayers;
   },
 });
+

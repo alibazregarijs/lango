@@ -39,3 +39,4 @@ export const MAX_RESPONSE_RETRY = 2;
 export const POSITIVE_GRADE = "5"
 export const NEGATIVE_GRADE = "-5"
 export const MAX_WORDS_OPTION = 4
+export const ZERO_GRADE = "0"

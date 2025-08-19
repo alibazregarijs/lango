@@ -8,15 +8,17 @@ import useFetchItems from "@/hooks/useFetchItems";
 import { toast } from "sonner";
 import { type CheckboxItemProps } from "@/types";
 import useDisableWordsSlide from "@/hooks/useDisableWordsSlide";
-import { useAction, useMutation } from "convex/react";
+import { useAction, useMutation , useQuery } from "convex/react";
 import { useUser } from "@/context/UserContext";
 import Spinner from "@/components/Spinner";
+
 import {
   MAX_RETRIES,
   MAX_RESPONSE_RETRY,
   POSITIVE_GRADE,
   NEGATIVE_GRADE,
   MAX_WORDS_OPTION,
+  ZERO_GRADE,
 } from "@/constants";
 
 const Page = () => {
@@ -45,6 +47,7 @@ const Page = () => {
   const disableItem = useDisableWordsSlide({ setWordItems, slideIndex });
   const getQuizWordAction = useAction(api.groqai.QuizWordAction);
   const createWordsQuiz = useMutation(api.WordsQuiz.createWordsQuizMutation);
+  const totalScore = useQuery(api.users.getUserTotalScore, { userId: userId! });
 
   const handleQuizWord = useCallback(async () => {
     startTransition(() => {
@@ -114,11 +117,12 @@ const Page = () => {
         toast.error("Wrong Answer!");
         if (retryResponseRef.current >= MAX_RESPONSE_RETRY) {
           disableItem();
+          
           try {
             await createWordsQuiz({
               userId: userId!,
               level: level,
-              grade: NEGATIVE_GRADE,
+              grade: totalScore! > 0 ? NEGATIVE_GRADE : ZERO_GRADE,
               isCorrect: true,
               correctWord: correctWord[slideIndex],
               question: question[slideIndex],
@@ -150,7 +154,7 @@ const Page = () => {
     itemsLength: worditems.length,
   });
 
-  if (!userId) return <Spinner loading={true} />;
+  if (!userId || totalScore === undefined) return <Spinner loading={true} />;
 
   return (
     <CarouselDemo
