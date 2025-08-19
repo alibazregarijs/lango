@@ -72,7 +72,7 @@ export default function RootLayout({
       userImageUrl={imageRef.current ? imageRef.current : user.imageUrl}
       username={getGmailUsername(user?.emailAddresses[0].emailAddress)}
     >
-      <main className="grid grid-cols-1 lg:grid-cols-12 auto-rows-auto min-h-screen pattern">
+      <main className="grid grid-cols-1 lg:grid-cols-12 auto-rows-auto max-h-screen pattern no-scrollbar">
         {/* Left Sidebar */}
         <div className="col-span-1 lg:col-span-1">
           <LeftSidebar />

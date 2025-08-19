@@ -168,6 +168,7 @@ export const getTopPlayers = query({
 
         return {
           userId: user.clerkId,
+          gmail:user.email,
           username: user.name || "Anonymous",
           imageUrl: user.imageUrl,
           totalScore: wordsScore + listeningScore

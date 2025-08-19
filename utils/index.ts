@@ -1,6 +1,6 @@
 import { toast } from "sonner";
 
-const LEVEL_OF_PLAYERS = [10, 50, 100, 200];
+const LEVEL_OF_PLAYERS = [10, 50, 100, 200,300,400,500,600,700,800,900];
 let PLAYER_LEVEL = 0;
 
 export const checkNull = (text: string, children: React.ReactNode): boolean => {

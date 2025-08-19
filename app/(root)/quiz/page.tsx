@@ -5,7 +5,7 @@ import Link from "next/link";
 
 const Page = () => {
   return (
-    <div className="flex-center flex-col w-full h-full justify-center items-center mt-4">
+    <div className="flex-center flex-col w-full h-full justify-center items-center mt-4 mb-2">
       <div>
         <span className="flex-center text-gray-400 text-xl">
           We are here to <span className="text-orange-1 mx-1">quiz</span> you.
