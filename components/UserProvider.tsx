@@ -1,9 +1,6 @@
 "use client";
 
 import Spinner from "./Spinner";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { useUser } from "@clerk/nextjs";
 import { UserContext } from "@/context/UserContext";
 
 export function UserProvider({

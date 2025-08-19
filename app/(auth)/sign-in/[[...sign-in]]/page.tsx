@@ -24,7 +24,7 @@ export default function SignInPage() {
               <SignIn.Step name="start">
                 <Card className="w-full sm:w-96 bg-dark-100">
                   <CardHeader>
-                    <CardTitle>Sign in to Acme Co</CardTitle>
+                    <CardTitle>Sign in to <span className="text-orange-1">Lango</span></CardTitle>
                     <CardDescription>
                       Welcome back! Please sign in to continue
                     </CardDescription>

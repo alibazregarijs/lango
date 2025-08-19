@@ -1,8 +1,3 @@
-
-
-
-
-
 "use client";
 import React, { useState, startTransition, useEffect } from "react";
 import {
@@ -97,7 +92,9 @@ const Searchbar = () => {
             onValueChange={setSearchDisplay}
           />
           <CommandList>
-            <CommandEmpty>You haven't seen any words yet.</CommandEmpty>
+            <CommandEmpty>
+              <span>{`You haven't seen any words yet.`}</span>
+            </CommandEmpty>
             <CommandGroup heading="Suggestions">
               {filteredSuggestions.map((suggestion, index) => (
                 <CommandItem
@@ -149,4 +146,3 @@ const Searchbar = () => {
 };
 
 export default Searchbar;
-
