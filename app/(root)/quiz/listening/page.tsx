@@ -34,6 +34,7 @@ const Page = () => {
   const [answer, setAnswer] = useState("");
   const hasMount = useRef(false);
   const [open, setOpen] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false)
 
   const sentenceObjectRef = React.useRef<SentenceObjectProps>({
     userId: "",
@@ -67,17 +68,21 @@ const Page = () => {
     delay: 300,
   });
 
-  const handleSubmit = () => {
+  const handleSubmit = useCallback(() => {
     window.speechSynthesis.cancel();
-    try {
-      const isTextNull = checkNull(
-        answer,
-        <span className="text-gray-400">Please write something.</span>
-      );
-      if (!isTextNull) {
-        return;
-      }
-      const handleGetGradeQuizAction = async () => {
+    setIsProcessing(true);
+
+    const executeSubmit = async () => {
+      try {
+        const isTextNull = checkNull(
+          answer,
+          <span className="text-gray-400">Please write something.</span>
+        );
+
+        if (!isTextNull) {
+          return;
+        }
+
         const grade = await getGradeQuizAction({
           answer: answer,
           sentence: sentenceObjectRef.current.sentence,
@@ -108,16 +113,27 @@ const Page = () => {
           disabled: false,
         };
 
-        const openModal = handleCreateListeningQuiz(listeningQuizObj);
-        if ((await openModal) && openModal instanceof Promise) {
+        const openModal = await handleCreateListeningQuiz(listeningQuizObj);
+        if (openModal) {
           setOpen(true);
         }
-      };
-      handleGetGradeQuizAction();
-    } catch (error) {
-      console.error("Failed to save quiz result:", error);
-    }
-  };
+      } catch (error) {
+        console.error("Failed to save quiz result:", error);
+      } finally {
+        setIsProcessing(false);
+      }
+    };
+
+    executeSubmit();
+  }, [
+    answer,
+    items,
+    slideIndex,
+    userId,
+    getGradeQuizAction,
+    handleCreateListeningQuiz,
+    checkNull,
+  ]);
 
   const fetchSentence = useCallback(async () => {
     const sentence = await getListeningQuizAction({ level });
@@ -183,6 +199,7 @@ const Page = () => {
           setAnswer={setAnswer}
           loading={loading}
           answer={answer}
+          isProcessing={isProcessing}
           disabled={items[slideIndex]?.disabled || false}
         />
       </Carousel>

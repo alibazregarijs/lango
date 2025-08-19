@@ -77,6 +77,7 @@ interface ListeningCarouselSlideProps {
   loading: boolean;
   answer: string;
   disabled: boolean;
+  isProcessing: boolean;
 }
 
 export type DialogProps = {

@@ -1,3 +1,5 @@
 TODO:
-1-wordsBox doesn't clear it's value ( i should put key in the state)
-2-chat with ai
+1-set loading state for listening quiz button
+2-don't use negative word for score in searchbar
+3-suggestion in search bar doesn't work 
+3-chat with ai

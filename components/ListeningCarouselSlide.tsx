@@ -15,7 +15,9 @@ const ListeningCarouselSlideComponent = ({
   loading,
   answer,
   disabled,
+  isProcessing
 }: ListeningCarouselSlideProps) => {
+  console.log(isProcessing,"process");
   return (
     <>
       {loading ? (
@@ -56,7 +58,7 @@ const ListeningCarouselSlideComponent = ({
                     onClick={onSubmit}
                     disabled={disabled}
                   >
-                    Submit
+                    {isProcessing ? "Processing..." : "Submit"}
                   </Button>
                 </div>
               </div>
