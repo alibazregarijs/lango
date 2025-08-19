@@ -16,40 +16,6 @@ import RightSidebarSkeleton from "@/components/RightSidebarSkeleton";
 import { LEVELS } from "@/constants";
 import { getGmailUsername } from "@/utils";
 
-// Mock data for top players (will be used if real data is loading or not available)
-// const MOCK_TOP_PLAYERS = [
-//   {
-//     _id: "1",
-//     score: 1250,
-//     username: "LanguageMaster",
-//     imageUrl: "/avatars/avatar1.png",
-//   },
-//   {
-//     _id: "2",
-//     score: 980,
-//     username: "WordWizard",
-//     imageUrl: "/avatars/avatar2.png",
-//   },
-//   {
-//     _id: "3",
-//     score: 750,
-//     username: "GrammarKing",
-//     imageUrl: "/avatars/avatar3.png",
-//   },
-//   {
-//     _id: "4",
-//     score: 620,
-//     username: "VocabViking",
-//     imageUrl: "/avatars/avatar4.png",
-//   },
-//   {
-//     _id: "5",
-//     score: 540,
-//     username: "LinguaLegend",
-//     imageUrl: "/avatars/avatar5.png",
-//   },
-// ];
-
 const RightSidebar = () => {
   const { userId, userImageUrl, username } = useUser();
 
@@ -65,9 +31,6 @@ const RightSidebar = () => {
   });
 
   const playerLevel = getPlayerLevel(score!);
-
-  // Use real data if available, otherwise use mock data
-
 
   if (
     score === undefined ||

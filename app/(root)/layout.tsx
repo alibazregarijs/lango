@@ -3,13 +3,13 @@ import LeftSidebar from "@/components/LeftSidebar";
 import RightSidebar from "@/components/RightSidebar";
 import "../globals.css";
 import Footer from "@/components/Footer";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import Spinner from "@/components/Spinner";
 import { UserProvider } from "@/components/UserProvider";
 import { getGmailUsername } from "@/utils";
-import { useMutation, useQuery } from "convex/react";
+import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 
 export default function RootLayout({
@@ -20,31 +20,25 @@ export default function RootLayout({
   const router = useRouter();
   const { user, isLoaded, isSignedIn } = useUser();
   const imageRef = useRef("");
-  
+
   const updateUserImage = useMutation(api.users.updateUserImage);
 
-  const handleUpdate = async () => {
+  const updateProfileImage = async (imageUrl: string) => {
+    if (!user) return;
     try {
-      await updateUserImage({
-        clerkId: user?.id || "",
-        newImageUrl: imageRef.current,
-      });
-    } catch (error) {
-      console.error("Update failed:", error);
-    }
-  };
+      // First update Clerk profile image
+      await user.setProfileImage({ file: imageUrl });
 
-  const updateProfileImage = async ({ imageUrl }: { imageUrl: string }) => {
-    if (user) {
-      try {
-        await user.setProfileImage({ file: imageUrl });
-        handleUpdate();
-        localStorage.removeItem("profileImageUrl");
-        imageRef.current = "";
-        // Image updated successfully
-      } catch (error) {
-        console.error("Error updating profile image:", error);
-      }
+      // Then update Convex with the new image URL
+      await updateUserImage({
+        clerkId: user.id,
+        newImageUrl: imageUrl, // Use the actual image URL
+      });
+
+      localStorage.removeItem("profileImageUrl");
+      imageRef.current = "";
+    } catch (error) {
+      console.error("Error updating profile image:", error);
     }
   };
 
@@ -54,17 +48,17 @@ export default function RootLayout({
     }
   }, [isLoaded, isSignedIn, router]);
 
-  if (user?.username === null || user?.username === "Anonymous") {
-    const imageUrl = localStorage.getItem("profileImageUrl"); // it fix username and imageUrl
-
-    if (imageUrl) {
-      imageRef.current = imageUrl;
-      updateProfileImage({ imageUrl });
+  useEffect(() => {
+    if (user && (user.username === null || user.username === "Anonymous")) {
+      const imageUrl = localStorage.getItem("profileImageUrl");
+      if (imageUrl) {
+        imageRef.current = imageUrl;
+        updateProfileImage(imageUrl);
+      }
     }
-  }
+  }, [user]); // Run this effect when user changes
 
-  if (!isLoaded) return <Spinner loading={true} />;
-  if (!isSignedIn) return <Spinner loading={true} />;
+  if (!isLoaded || !isSignedIn) return <Spinner loading={true} />;
 
   return (
     <UserProvider

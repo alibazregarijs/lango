@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Icons } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 
 export default function SignUpPage() {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
@@ -147,8 +147,12 @@ export default function SignUpPage() {
                   <CardFooter>
                     <div className="grid w-full gap-y-4">
                       <SignUp.Captcha className="empty:hidden" />
+                      <div id="clerk-captcha"></div>
                       <SignUp.Action submit asChild>
-                        <Button className="cursor-pointer" disabled={isGlobalLoading}>
+                        <Button
+                          className="cursor-pointer"
+                          disabled={isGlobalLoading}
+                        >
                           <Clerk.Loading>
                             {(isLoading) => {
                               return isLoading ? (
@@ -239,7 +243,10 @@ export default function SignUpPage() {
                     <CardFooter>
                       <div className="grid w-full gap-y-4">
                         <SignUp.Action submit asChild>
-                          <Button className="cursor-pointer" disabled={isGlobalLoading}>
+                          <Button
+                            className="cursor-pointer"
+                            disabled={isGlobalLoading}
+                          >
                             <Clerk.Loading>
                               {(isLoading) => {
                                 return isLoading ? (

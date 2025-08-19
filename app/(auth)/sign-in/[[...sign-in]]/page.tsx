@@ -150,7 +150,10 @@ export default function SignInPage() {
                   <CardFooter>
                     <div className="grid w-full gap-y-4">
                       <SignIn.Action navigate="previous" asChild>
-                        <Button className="cursor-pointer" disabled={isGlobalLoading}>
+                        <Button
+                          className="cursor-pointer"
+                          disabled={isGlobalLoading}
+                        >
                           <Clerk.Loading>
                             {(isLoading) => {
                               return isLoading ? (
@@ -166,7 +169,10 @@ export default function SignInPage() {
                   </CardFooter>
                 </Card>
               </SignIn.Step>
-
+              <SignIn.Step name="sso-callback">
+                <SignIn.Captcha className="empty:hidden" />
+                <div id="clerk-captcha"></div>
+              </SignIn.Step>
               <SignIn.Step name="verifications">
                 <SignIn.Strategy name="password">
                   <Card className="w-full sm:w-96 bg-dark-100">
@@ -190,7 +196,10 @@ export default function SignInPage() {
                     <CardFooter>
                       <div className="grid w-full gap-y-4">
                         <SignIn.Action submit asChild>
-                          <Button className="cursor-pointer" disabled={isGlobalLoading}>
+                          <Button
+                            className="cursor-pointer"
+                            disabled={isGlobalLoading}
+                          >
                             <Clerk.Loading>
                               {(isLoading) => {
                                 return isLoading ? (
@@ -271,7 +280,10 @@ export default function SignInPage() {
                     <CardFooter>
                       <div className="grid w-full gap-y-4 bg-dark-100">
                         <SignIn.Action submit asChild>
-                          <Button className="cursor-pointer" disabled={isGlobalLoading}>
+                          <Button
+                            className="cursor-pointer"
+                            disabled={isGlobalLoading}
+                          >
                             <Clerk.Loading>
                               {(isLoading) => {
                                 return isLoading ? (
@@ -283,7 +295,11 @@ export default function SignInPage() {
                             </Clerk.Loading>
                           </Button>
                         </SignIn.Action>
-                        <SignIn.Action navigate="choose-strategy" className="bg-dark-100" asChild>
+                        <SignIn.Action
+                          navigate="choose-strategy"
+                          className="bg-dark-100"
+                          asChild
+                        >
                           <Button size="sm" variant="link">
                             Use another method
                           </Button>

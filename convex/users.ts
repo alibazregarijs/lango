@@ -124,13 +124,15 @@ export const updateUserImage = mutation({
       .unique();
 
     if (!user) {
-      throw new Error("User not found");
+      throw new Error("User not found for updating profile image");
     }
 
     // Update only the imageUrl field
     await ctx.db.patch(user._id, {
       imageUrl: args.newImageUrl,
     });
+
+    console.log("updated ok")
 
     return { success: true };
   },

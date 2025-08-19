@@ -21,7 +21,7 @@ const WordCarouselSlide = ({
   ),
 }: WordCarouselSlideProps) => {
   return (
-    <div className="bg-[#15171C] w-full flex flex-col">
+    <div className="bg-[#15171C] w-full flex flex-col overflow-y-auto max-h-[100vh] custom-scrollbar">
       {title}
 
       {loading ? (
