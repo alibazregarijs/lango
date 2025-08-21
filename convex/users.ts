@@ -185,3 +185,12 @@ export const getTopPlayers = query({
   },
 });
 
+export const getAllUsers = query({
+  args: {}, // No arguments needed
+  handler: async (ctx) => {
+    // Get all users from the database
+    const users = await ctx.db.query("users").collect();
+    
+    return users;
+  },
+});

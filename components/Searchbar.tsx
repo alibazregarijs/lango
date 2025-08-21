@@ -17,8 +17,9 @@ import { type selectedWordProps } from "@/types";
 import { Modal } from "@/components/Modal";
 import { Play } from "iconsax-reactjs";
 import useSpeek from "@/hooks/useSpeek";
+import { getGmailUsername } from "@/utils";
 
-const Searchbar = () => {
+const Searchbar = ({ users }: { users?: boolean }) => {
   const [selectedWordName, setSelectedWordName] = useState<string | null>(null);
   const [searchDisplay, setSearchDisplay] = useState("");
   const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
@@ -28,6 +29,8 @@ const Searchbar = () => {
 
   const { userId } = useUser();
 
+  const allUsers = users ? useQuery(api.users.getAllUsers) : [];
+  console.log(allUsers, "all users");
   const recentWordQuizzes = useQuery(api.words.getUserWordsQuery, {
     userId: userId!,
   });
@@ -49,12 +52,29 @@ const Searchbar = () => {
     startTransition(() => {
       if (handleEmptySearch(value)) return;
 
-      const matched =
-        recentWordQuizzes
-          ?.filter((suggestion) =>
-            suggestion.word.toLowerCase().includes(value.toLowerCase())
-          )
-          .map((s) => s.word) ?? [];
+      let matched: string[] = []; // Explicitly type as string[]
+
+      if (!users) {
+        matched =
+          recentWordQuizzes
+            ?.filter((suggestion) =>
+              suggestion.word.toLowerCase().includes(value.toLowerCase())
+            )
+            .map((s) => s.word)
+            .filter((word): word is string => word !== undefined) ?? []; // Ensure no undefined values
+      } else {
+        matched =
+          allUsers
+            ?.filter((user: any) => {
+              let username = getGmailUsername(user.email);
+              return (
+                user && username?.toLowerCase().includes(value.toLowerCase())
+              );
+            })
+            .map((user: any) => getGmailUsername(user.email))
+            .filter((username): username is string => username !== null) ?? []; // Filter out null values
+      }
+
       setFilteredSuggestions(matched);
     });
   };
@@ -78,6 +98,9 @@ const Searchbar = () => {
   const handleSuggestionClick = (word: string) => {
     setSearchDisplay(word);
     setSelectedWordName(word);
+    if(users){
+      console.log(word, "word");
+    }
   };
 
   const { speak } = useSpeek({ text: selectedWord[0]?.word });
@@ -108,7 +131,7 @@ const Searchbar = () => {
             <CommandSeparator />
           </CommandList>
         </Command>
-        {selectedWord && (
+        {selectedWord && !users && (
           <Modal open={open} onOpenChange={setOpen}>
             <Modal.Content>
               <Modal.Section

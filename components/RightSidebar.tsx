@@ -1,8 +1,10 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { useUser } from "@/context/UserContext";
 import { useQuery } from "convex/react";
+import { Message } from "iconsax-reactjs";
 import { api } from "@/convex/_generated/api";
+import { Button } from "@/components/ui/button";
 import {
   Trophy,
   Headphones,
@@ -15,9 +17,12 @@ import { getPlayerLevel } from "@/utils";
 import RightSidebarSkeleton from "@/components/RightSidebarSkeleton";
 import { LEVELS } from "@/constants";
 import { getGmailUsername } from "@/utils";
+import { Modal } from "@/components/Modal";
+import Searchbar from "@/components/Searchbar";
 
 const RightSidebar = () => {
   const { userId, userImageUrl, username } = useUser();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const score = useQuery(api.users.getUserTotalScore, { userId: userId! });
   const topPlayers = useQuery(api.users.getTopPlayers);
@@ -30,6 +35,8 @@ const RightSidebar = () => {
     userId: userId!,
   });
 
+  const users = useQuery(api.users.getAllUsers);
+
   const playerLevel = getPlayerLevel(score!);
 
   if (
@@ -37,7 +44,8 @@ const RightSidebar = () => {
     recentListeningQuizzes === undefined ||
     userImageUrl === undefined ||
     recentWordQuizzes === undefined ||
-    !userId || topPlayers === undefined
+    !userId ||
+    topPlayers === undefined
   ) {
     return <RightSidebarSkeleton />;
   }
@@ -87,6 +95,18 @@ const RightSidebar = () => {
         </div>
       </div>
 
+      {/* chat */}
+      <div className="flex justify-center items-center space-x-2 bg-black-2 rounded-xl p-4 mb-6">
+        <Button
+          variant="outline"
+          onClick={() => setIsModalOpen(true)}
+          className="bg-transparent"
+        >
+          <Message size="24" color="#F97535" />
+          Chat with someone
+        </Button>
+      </div>
+
       {/* Top Players Section */}
       <div className="bg-black-2 rounded-xl p-4 mb-6">
         <div className="flex items-center justify-between mb-4 truncate">
@@ -115,7 +135,6 @@ const RightSidebar = () => {
                 <div className="w-10 h-10 rounded-full border-2 border-orange-1 bg-black-4 flex items-center justify-center">
                   <span className="text-white-3 text-lg">
                     {getGmailUsername(player.gmail)}
-                     
                   </span>
                 </div>
               )}
@@ -140,7 +159,9 @@ const RightSidebar = () => {
             <div className="flex flex-col items-end lg:items-center lg:max-w-[120px] lg:w-full">
               <div className="flex justify-center items-center gap-1">
                 <Trophy size={16} className="text-orange-1" />
-                <span className="text-white-3 font-medium">{player.totalScore}</span>
+                <span className="text-white-3 font-medium">
+                  {player.totalScore}
+                </span>
               </div>
               <p className="text-gray-1 text-xs hidden lg:block lg:text-center truncate w-full">
                 Level {getPlayerLevel(player.totalScore)} Explorer
@@ -231,6 +252,15 @@ const RightSidebar = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal */}
+      <Modal open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <Modal.Content>
+          <Modal.Section title="Search for people and chat with them">
+            <Searchbar users={true} />
+          </Modal.Section>
+        </Modal.Content>
+      </Modal>
     </div>
   );
 };
