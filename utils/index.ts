@@ -1,6 +1,6 @@
 import { toast } from "sonner";
 
-const LEVEL_OF_PLAYERS = [10, 50, 100, 200,300,400,500,600,700,800,900];
+const LEVEL_OF_PLAYERS = [10, 50, 100, 200, 300, 400, 500, 600, 700, 800, 900];
 let PLAYER_LEVEL = 0;
 
 export const checkNull = (text: string, children: React.ReactNode): boolean => {
@@ -43,3 +43,4 @@ export function getGmailUsername(email: string): string | null {
   const match = email.match(gmailRegex);
   return match ? match[1] : null;
 }
+

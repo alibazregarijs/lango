@@ -11,6 +11,7 @@ import { UserProvider } from "@/components/UserProvider";
 import { getGmailUsername } from "@/utils";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { useUserStatus } from "@/hooks/useUserStatus";
 
 export default function RootLayout({
   children,
@@ -20,6 +21,7 @@ export default function RootLayout({
   const router = useRouter();
   const { user, isLoaded, isSignedIn } = useUser();
   const imageRef = useRef("");
+  useUserStatus();
 
   const updateUserImage = useMutation(api.users.updateUserImage);
 

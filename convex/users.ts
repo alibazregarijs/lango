@@ -39,6 +39,8 @@ export const createUser = internalMutation({
       email: args.email,
       imageUrl: args.imageUrl,
       name: args.name,
+      lastSeen: Date.now(),
+      online: true,
     });
   },
 });
@@ -194,3 +196,56 @@ export const getAllUsers = query({
     return users;
   },
 });
+
+
+export const updateUserStatus = mutation({
+  args: {
+    clerkId: v.string(),
+    email: v.string(),
+    name: v.optional(v.string()),
+    imageUrl: v.string(),
+    online: v.boolean(),
+  },
+  handler: async (ctx, args) => {
+    // Check if user exists
+    const existingUser = await ctx.db
+      .query("users")
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", args.clerkId))
+      .first();
+
+    if (existingUser) {
+      // Update existing user
+      await ctx.db.patch(existingUser._id, {
+        online: args.online,
+        lastSeen: Date.now(),
+        name: args.name,
+        imageUrl: args.imageUrl,
+      });
+    } else {
+      // Create new user
+      await ctx.db.insert("users", {
+        clerkId: args.clerkId,
+        email: args.email,
+        name: args.name,
+        imageUrl: args.imageUrl,
+        online: args.online,
+        lastSeen: Date.now(),
+      });
+    }
+  },
+});
+
+// Get all online users
+export const getOnlineUsers = query({
+  args: {},
+  handler: async (ctx) => {
+    const onlineUsers = await ctx.db
+      .query("users")
+      .withIndex("by_online", (q) => q.eq("online", true))
+      .collect();
+
+    return onlineUsers;
+  },
+});
+
+// Get user by clerkId

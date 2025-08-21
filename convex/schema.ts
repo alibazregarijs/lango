@@ -38,7 +38,11 @@ export default defineSchema({
     imageUrl: v.string(),
     clerkId: v.string(),
     name: v.optional(v.string()),
-  }).index("by_clerkId", ["clerkId"]), // Add this if missing
+    lastSeen: v.number(), // Unix timestamp
+    online: v.boolean(),
+  })
+    .index("by_clerkId", ["clerkId"])
+    .index("by_online", ["online"]), // Add index for online status
 
   essay: defineTable({
     essay: v.string(),
@@ -71,5 +75,4 @@ export default defineSchema({
     .index("by_userId", ["userId"])
     .index("by_grade", ["grade"])
     .searchIndex("search_question", { searchField: "question" }),
-    
 });

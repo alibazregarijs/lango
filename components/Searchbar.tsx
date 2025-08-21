@@ -19,7 +19,7 @@ import { Play } from "iconsax-reactjs";
 import useSpeek from "@/hooks/useSpeek";
 import { getGmailUsername } from "@/utils";
 
-const Searchbar = ({ users }: { users?: boolean }) => {
+const Searchbar = ({ users = false }: { users?: boolean }) => {
   const [selectedWordName, setSelectedWordName] = useState<string | null>(null);
   const [searchDisplay, setSearchDisplay] = useState("");
   const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
@@ -29,12 +29,10 @@ const Searchbar = ({ users }: { users?: boolean }) => {
 
   const { userId } = useUser();
 
-  const allUsers = users ? useQuery(api.users.getAllUsers) : [];
-  console.log(allUsers, "all users");
+  const allUsers = users ? useQuery(api.users.getOnlineUsers) : [];
   const recentWordQuizzes = useQuery(api.words.getUserWordsQuery, {
     userId: userId!,
   });
-
   const selectedWordData = useQuery(
     api.words.getWordObjectQuery,
     selectedWordName ? { userId: userId!, word: selectedWordName } : "skip" // Convex way to skip queries if no word selected
@@ -48,33 +46,50 @@ const Searchbar = ({ users }: { users?: boolean }) => {
     return false;
   };
 
+  const handleWordFilter = (value: string) => {
+    try {
+      return (
+        recentWordQuizzes
+          ?.filter((suggestion) =>
+            suggestion.word.toLowerCase().includes(value.toLowerCase())
+          )
+          .map((s) => s.word)
+          .filter((word): word is string => word !== undefined) ?? []
+      );
+    } catch (error) {
+      console.error("Error filtering words:", error);
+      return [];
+    }
+  };
+
+  const handleUserFilter = (value: string) => {
+    try {
+      return (
+        allUsers
+          ?.filter((user: any) => {
+            let username = getGmailUsername(user.email);
+            return (
+              user &&
+              username?.toLowerCase().includes(value.toLowerCase()) &&
+              userId !== user.clerkId
+            );
+          })
+          .map((user: any) => getGmailUsername(user.email))
+          .filter((username): username is string => username !== null) ?? [] // Filter out null values
+      );
+    } catch (error) {
+      console.error("Error filtering users:", error);
+      return []; // Return empty array instead of undefined
+    }
+  };
+
   const handleFilter = (value: string) => {
     startTransition(() => {
       if (handleEmptySearch(value)) return;
-
       let matched: string[] = []; // Explicitly type as string[]
-
-      if (!users) {
-        matched =
-          recentWordQuizzes
-            ?.filter((suggestion) =>
-              suggestion.word.toLowerCase().includes(value.toLowerCase())
-            )
-            .map((s) => s.word)
-            .filter((word): word is string => word !== undefined) ?? []; // Ensure no undefined values
-      } else {
-        matched =
-          allUsers
-            ?.filter((user: any) => {
-              let username = getGmailUsername(user.email);
-              return (
-                user && username?.toLowerCase().includes(value.toLowerCase())
-              );
-            })
-            .map((user: any) => getGmailUsername(user.email))
-            .filter((username): username is string => username !== null) ?? []; // Filter out null values
-      }
-
+      !users
+        ? (matched = handleWordFilter(value))
+        : (matched = handleUserFilter(value));
       setFilteredSuggestions(matched);
     });
   };
@@ -98,7 +113,7 @@ const Searchbar = ({ users }: { users?: boolean }) => {
   const handleSuggestionClick = (word: string) => {
     setSearchDisplay(word);
     setSelectedWordName(word);
-    if(users){
+    if (users) {
       console.log(word, "word");
     }
   };
