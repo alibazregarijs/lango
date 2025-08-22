@@ -60,6 +60,7 @@ const Searchbar = ({
       username: usernameOfNotifTaker!,
       text: "Lets have a chat",
       read: false,
+      accept: false,
     });
 
     if(res){

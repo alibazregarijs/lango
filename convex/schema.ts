@@ -83,10 +83,11 @@ export default defineSchema({
     username: v.optional(v.string()),
     text: v.string(),
     read: v.optional(v.boolean()),
+    accept: v.optional(v.boolean()),
   })
     .index("by_userId", ["userId"])
     .index("by_userSenderName", ["userSenderName"])
-    // Add this compound index for the query to work
+    .index("by_accept", ["accept"])
     .index("by_user_sender", ["userId", "userSenderName"])
     .searchIndex("search_text", { searchField: "text" }),
 });
