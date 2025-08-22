@@ -109,4 +109,34 @@ export type DialogBodyProps = {
   className?: string;
 };
 
+export type TopPlayerProps = {
+    userId: string;
+    gmail: string;
+    username: string;
+    imageUrl: string;
+    totalScore: number;
+}
+
+export type ListeningQuizProps = {
+  _id: Id<"ListeningQuiz">;
+  _creationTime: number;
+  grade?: string;
+  answer?: string;
+  disabled?: boolean;
+  sentence: string;
+  level: string;
+  userId: string;
+};
+
+export type WordQuizProps = {
+  _id: Id<"WordsQuiz">;
+  _creationTime: number;
+  grade?: string;
+  isCorrect?: boolean;
+  correctWord?: string;
+  question?: string;
+  userId: string;
+  level: string;
+};
+
 export type selectedWordProps = selectedWordProps[] | undefined;

@@ -75,4 +75,13 @@ export default defineSchema({
     .index("by_userId", ["userId"])
     .index("by_grade", ["grade"])
     .searchIndex("search_question", { searchField: "question" }),
+
+  notifications: defineTable({
+    userId: v.string(),
+    username: v.optional(v.string()),
+    text: v.string(), // Changed from "test" to "text" which makes more sense
+    read: v.optional(v.boolean()),
+  })
+    .index("by_userId", ["userId"])
+    .searchIndex("search_text", { searchField: "text" }), // Fixed search index
 });
