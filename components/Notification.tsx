@@ -1,114 +1,130 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { useUser } from "@/context/UserContext";
 import { api } from "@/convex/_generated/api";
-import { useQuery } from "convex/react";
-import { useMutation } from "convex/react";
+import { useQuery, useMutation } from "convex/react";
 import Spinner from "./Spinner";
 import { Button } from "./ui/button";
 import { Id } from "@/convex/_generated/dataModel";
 import { toast } from "sonner";
+import { NotificationIcon } from "@/components/ui/NotificationIcon";
 
 const Notification = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { userId } = useUser();
 
-  const [_, setForceUpdate] = useState(0);
-  const unreadNotifications = useQuery(api.Notifications.getUnreadByUser, {
-    userId: userId!,
-  });
+  const unreadNotifications = useQuery(
+    api.Notifications.getUnreadByUser,
+    userId ? { userId } : "skip"
+  );
+
+  if (!userId) return <Spinner loading={true} />;
+
   const markNotificationsAsRead = useMutation(
     api.Notifications.markNotificationsAsRead
   );
   const acceptNotificationByUser = useMutation(
     api.Notifications.acceptNotificationById
   );
-  const markNotificationsAsReadById = useMutation(api.Notifications.markAsRead);
+  const markNotificationAsReadById = useMutation(api.Notifications.markAsRead);
 
-  const [notificationCount, setNotificationCount] = useState(0);
-
-  const markAllAsRead = async () => {
-    if (userId && notificationCount > 0) {
-      const count = await markNotificationsAsRead({ userId });
-      setNotificationCount(count);
-    }
-  };
-
-  const closeModal = () => {
-    setIsOpen(false);
-  };
-
-  useEffect(() => {
-    if (unreadNotifications && unreadNotifications.length > 0) {
-      setNotificationCount(unreadNotifications.length);
-    } else {
-      setNotificationCount(0);
-    }
-  }, [unreadNotifications]);
-
-  const NotificationIcon = () => (
-    <svg
-      width="32"
-      height="32"
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M12 22C13.1 22 14 21.1 14 20H10C10 21.1 10.9 22 12 22ZM18 16V11C18 7.93 16.37 5.36 13.5 4.68V4C13.5 3.17 12.83 2.5 12 2.5C11.17 2.5 10.5 3.17 10.5 4V4.68C7.64 5.36 6 7.92 6 11V16L4 18V19H20V18L18 16Z"
-        fill="#F97535"
-      />
-    </svg>
+  // Derived state
+  const notificationCount = useMemo(
+    () => unreadNotifications?.length || 0,
+    [unreadNotifications]
   );
 
-  const handleAcceptRequest = (notificationId: Id<"notifications">) => {
+  const hasUnreadNotifications = notificationCount > 0;
+
+  const markAllAsRead = async () => {
+    if (!hasUnreadNotifications) return;
+
     try {
-      acceptNotificationByUser({ notificationId });
-      userId && markNotificationsAsRead({ userId });
-      setForceUpdate((prev) => prev + 1);
-      toast("You have accepted the request.");  
+      await markNotificationsAsRead({ userId });
+      toast.success("All notifications marked as read");
     } catch (error) {
-      console.error("Error accepting notification:", error);
+      console.error("Error marking all notifications as read:", error);
+      toast.error("Failed to mark notifications as read");
     }
-    
   };
 
-  const handleReadNotification = (notificationId: Id<"notifications">) => {
-    markNotificationsAsReadById({ notificationId });
+  const toggleModal = useCallback(() => {
+    setIsOpen((prev) => !prev);
+  }, []);
+
+  const closeModal = useCallback(() => {
+    setIsOpen(false);
+  }, []);
+
+  const handleAcceptRequest = async (notificationId: Id<"notifications">) => {
+    try {
+      await acceptNotificationByUser({ notificationId });
+      toast.success("You have accepted the request.");
+    } catch (error) {
+      console.error("Error accepting notification:", error);
+      toast.error("Failed to accept request");
+    }
   };
-  if (!userId) return <Spinner loading={true} />;
+
+  const handleReadNotification = async (
+    notificationId: Id<"notifications">
+  ) => {
+    try {
+      await markNotificationAsReadById({ notificationId });
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+      toast.error("Failed to mark as read");
+    }
+  };
+
+  const formatDate = useCallback((timestamp: number) => {
+    return new Date(timestamp).toLocaleString();
+  }, []);
 
   return (
     <>
       {/* Notification Icon with Badge */}
       <div
         className="relative p-2 rounded-full cursor-pointer hover:bg-black-5 transition-colors duration-200"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={toggleModal}
+        role="button"
+        aria-label="Notifications"
+        aria-expanded={isOpen}
       >
         <NotificationIcon />
-        {notificationCount > 0 && (
+        {hasUnreadNotifications && (
           <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-            {notificationCount}
+            {notificationCount > 99 ? "99+" : notificationCount}
           </span>
         )}
       </div>
 
       {/* Notification Modal */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black-3 bg-opacity-80">
-          <div className="relative w-full max-w-md bg-black-2 rounded-xl shadow-lg border border-black-5">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black-3 bg-opacity-80"
+          onClick={closeModal}
+        >
+          <div
+            className="relative w-full max-w-md bg-black-2 rounded-xl shadow-lg border border-black-5 max-h-96"
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-black-5">
               <h3 className="font-semibold text-white">Notifications</h3>
               <div className="flex items-center gap-2">
-                <button
-                  className="text-sm text-orange-1 hover:text-orange-300 transition-colors"
-                  onClick={markAllAsRead}
-                >
-                  Mark all as read
-                </button>
+                {hasUnreadNotifications && (
+                  <button
+                    className="text-sm text-orange-1 hover:text-orange-300 transition-colors"
+                    onClick={markAllAsRead}
+                    disabled={!hasUnreadNotifications}
+                  >
+                    Mark all as read
+                  </button>
+                )}
                 <button
                   onClick={closeModal}
                   className="ml-2 text-gray-400 hover:text-white transition-colors"
+                  aria-label="Close notifications"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -127,54 +143,62 @@ const Notification = () => {
             </div>
 
             {/* Notification List */}
-            <div className="max-h-96 overflow-y-auto">
+            <div className="overflow-y-auto max-h-64">
               {unreadNotifications && unreadNotifications.length > 0 ? (
-                unreadNotifications.map((notification) => (
-                  <div
-                    key={notification._id}
-                    className={`flex items-start p-4 border-b border-black-5 last:border-b-0 ${
-                      !notification.read ? "bg-black-6" : "hover:bg-black-5"
-                    } transition-colors duration-200`}
-                  >
-                    <div className="flex-1">
-                      <div>
-                        <p className="text-sm text-white">
-                          {notification.text}
-                        </p>
-                        <span className="text-xs text-gray-1">
-                          {new Date(
-                            notification._creationTime
-                          ).toLocaleString()}
-                        </span>
+                <div role="list">
+                  {unreadNotifications.map((notification) => (
+                    <div
+                      key={notification._id}
+                      role="listitem"
+                      className={`flex items-start p-4 border-b border-black-5 last:border-b-0 ${
+                        !notification.read ? "bg-black-6" : "hover:bg-black-5"
+                      } transition-colors duration-200`}
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div>
+                          <p className="text-sm text-white break-words">
+                            {notification.text}
+                          </p>
+                          <span className="text-xs text-gray-1">
+                            {formatDate(notification._creationTime)}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 mt-2 flex-wrap">
+                          {!notification.read && (
+                            <Button
+                              onClick={() =>
+                                handleReadNotification(notification._id)
+                              }
+                              variant="outline"
+                              size="sm"
+                              className="cursor-pointer"
+                            >
+                              Mark as read
+                            </Button>
+                          )}
+                          {notification.accept === false && (
+                            <Button
+                              onClick={() =>
+                                handleAcceptRequest(notification._id)
+                              }
+                              variant="default"
+                              size="sm"
+                              className="cursor-pointer bg-orange-1 hover:bg-orange-2"
+                            >
+                              Accept
+                            </Button>
+                          )}
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2 w-full">
-                        <Button
-                          onClick={() =>
-                            handleReadNotification(notification._id)
-                          }
-                          variant="outline"
-                          className="cursor-pointer mt-2"
-                        >
-                          Mark as read
-                        </Button>
-                        {!notification?.accept && (
-                          <Button
-                            onClick={() =>
-                              handleAcceptRequest(notification._id)
-                            }
-                            variant="outline"
-                            className="cursor-pointer mt-2"
-                          >
-                            Accept
-                          </Button>
-                        )}
-                      </div>
+                      {!notification.read && (
+                        <div
+                          className="w-2 h-2 bg-orange-1 rounded-full ml-2 mt-2 flex-shrink-0"
+                          aria-label="Unread notification"
+                        />
+                      )}
                     </div>
-                    {!notification.read && (
-                      <div className="w-2 h-2 bg-orange-1 rounded-full ml-2 mt-2"></div>
-                    )}
-                  </div>
-                ))
+                  ))}
+                </div>
               ) : (
                 <div className="p-6 text-center text-gray-1">
                   No notifications
@@ -183,7 +207,11 @@ const Notification = () => {
             </div>
 
             {/* Footer */}
-            <div className="p-3 border-t border-black-5 text-center"></div>
+            <div className="p-3 border-t border-black-5 text-center text-sm text-gray-1">
+              {hasUnreadNotifications && (
+                <span>{notificationCount} unread notification(s)</span>
+              )}
+            </div>
           </div>
         </div>
       )}
@@ -191,4 +219,4 @@ const Notification = () => {
   );
 };
 
-export default Notification;
+export default React.memo(Notification);
