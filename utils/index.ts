@@ -1,4 +1,6 @@
 import { toast } from "sonner";
+import { type selectedWordProps } from "@/types";
+import { type allUsersProps } from "@/types";
 
 const LEVEL_OF_PLAYERS = [10, 50, 100, 200, 300, 400, 500, 600, 700, 800, 900];
 let PLAYER_LEVEL = 0;
@@ -44,3 +46,53 @@ export function getGmailUsername(email: string): string | null {
   return match ? match[1] : null;
 }
 
+export const handleWordFilter = ({
+  value,
+  recentWordQuizzes,
+}: {
+  value: string;
+  recentWordQuizzes: selectedWordProps[];
+}) => {
+  try {
+    return (
+      recentWordQuizzes
+        ?.filter((suggestion) =>
+          suggestion.word.toLowerCase().includes(value.toLowerCase())
+        )
+        .map((s) => s.word)
+        .filter((word): word is string => word !== undefined) ?? []
+    );
+  } catch (error) {
+    console.error("Error filtering words:", error);
+    return [];
+  }
+};
+
+export const handleUserFilter = ({
+  allUsers,
+  userId,
+  value,
+}: {
+  allUsers: allUsersProps[];
+  userId: string;
+  value: string;
+}) => {
+  try {
+    return (
+      allUsers
+        ?.filter((user: any) => {
+          let username: string = user.email && getGmailUsername(user.email);
+          return (
+            user &&
+            username?.toLowerCase().includes(value.toLowerCase()) &&
+            userId !== user.clerkId
+          );
+        })
+        .map((user: any) => getGmailUsername(user.email))
+        .filter((username): username is string => username !== null) ?? []
+    );
+  } catch (error) {
+    console.error("Error filtering users:", error);
+    return [];
+  }
+};

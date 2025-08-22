@@ -6,11 +6,13 @@ import { useMutation } from "convex/react";
 import Spinner from "./Spinner";
 import { Button } from "./ui/button";
 import { Id } from "@/convex/_generated/dataModel";
+import { toast } from "sonner";
 
 const Notification = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { userId } = useUser();
 
+  const [_, setForceUpdate] = useState(0);
   const unreadNotifications = useQuery(api.Notifications.getUnreadByUser, {
     userId: userId!,
   });
@@ -59,7 +61,15 @@ const Notification = () => {
   );
 
   const handleAcceptRequest = (notificationId: Id<"notifications">) => {
-    acceptNotificationByUser({ notificationId });
+    try {
+      acceptNotificationByUser({ notificationId });
+      userId && markNotificationsAsRead({ userId });
+      setForceUpdate((prev) => prev + 1);
+      toast("You have accepted the request.");  
+    } catch (error) {
+      console.error("Error accepting notification:", error);
+    }
+    
   };
 
   const handleReadNotification = (notificationId: Id<"notifications">) => {
@@ -139,13 +149,6 @@ const Notification = () => {
                       </div>
                       <div className="flex items-center gap-2 w-full">
                         <Button
-                          onClick={() => handleAcceptRequest(notification._id)}
-                          variant="outline"
-                          className="cursor-pointer mt-2"
-                        >
-                          Accept
-                        </Button>
-                        <Button
                           onClick={() =>
                             handleReadNotification(notification._id)
                           }
@@ -154,6 +157,17 @@ const Notification = () => {
                         >
                           Mark as read
                         </Button>
+                        {!notification?.accept && (
+                          <Button
+                            onClick={() =>
+                              handleAcceptRequest(notification._id)
+                            }
+                            variant="outline"
+                            className="cursor-pointer mt-2"
+                          >
+                            Accept
+                          </Button>
+                        )}
                       </div>
                     </div>
                     {!notification.read && (

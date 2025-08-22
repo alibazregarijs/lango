@@ -110,12 +110,12 @@ export type DialogBodyProps = {
 };
 
 export type TopPlayerProps = {
-    userId: string;
-    gmail: string;
-    username: string;
-    imageUrl: string;
-    totalScore: number;
-}
+  userId: string;
+  gmail: string;
+  username: string;
+  imageUrl: string;
+  totalScore: number;
+};
 
 export type ListeningQuizProps = {
   _id: Id<"ListeningQuiz">;
@@ -137,6 +137,17 @@ export type WordQuizProps = {
   question?: string;
   userId: string;
   level: string;
+};
+
+export type allUsersProps = {
+  _id: Id<"users">;
+  _creationTime: number;
+  name?: string | undefined;
+  email: string;
+  imageUrl: string;
+  clerkId: string;
+  lastSeen: number;
+  online: boolean;
 };
 
 export type selectedWordProps = selectedWordProps[] | undefined;

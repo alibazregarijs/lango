@@ -11,6 +11,7 @@ import RightSidebarSkeleton from "@/components/RightSidebarSkeleton";
 import TopPlayerListing from "@/components/TopPlayerListing";
 import ListeningQuizListing from "@/components/ListeningQuizListing";
 import WordQuizListing from "./WordQuizListing";
+import { useMemo } from "react";
 
 const RightSidebar = () => {
   const { userId, userImageUrl, username } = useUser();
@@ -26,7 +27,7 @@ const RightSidebar = () => {
     userId: userId!,
   });
 
-  const playerLevel = getPlayerLevel(score!);
+  const playerLevel = useMemo(() => getPlayerLevel(score ?? 0), [score]);
 
   if (
     score === undefined ||
@@ -104,4 +105,4 @@ const RightSidebar = () => {
   );
 };
 
-export default RightSidebar;
+export default React.memo(RightSidebar);

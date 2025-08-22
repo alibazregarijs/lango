@@ -20,7 +20,7 @@ import useSpeek from "@/hooks/useSpeek";
 import { getGmailUsername } from "@/utils";
 import { useMutation } from "convex/react";
 import { toast } from "sonner";
-
+import { handleUserFilter, handleWordFilter } from "@/utils/index";
 const Searchbar = ({
   users = false,
   setIsModalOpen,
@@ -36,7 +36,6 @@ const Searchbar = ({
   const [loading] = useState(false);
   const [selectedUsername, setSelectedUsername] = useState<string | null>(null);
 
-  console.log("searchbar")
   const { userId, username } = useUser();
 
   const allUsers = users ? useQuery(api.users.getOnlineUsers) : [];
@@ -54,24 +53,27 @@ const Searchbar = ({
     userId: string,
     usernameOfNotifTaker: string
   ) => {
-    const res = await sendNotification({
-      userId: userId,
-      userSenderName: username!,
-      username: usernameOfNotifTaker!,
-      text: "Lets have a chat",
-      read: false,
-      accept: false,
-    });
+    try {
+      const res = await sendNotification({
+        userId: userId,
+        userSenderName: username!,
+        username: usernameOfNotifTaker!,
+        text: "Lets have a chat",
+        read: false,
+        accept: false,
+      });
 
-    if(res){
-      toast("Chat request sent to the user.");
+      if (res) {
+        toast("Chat request sent to the user.");
+        selectedUsername && setSelectedUsername("");
+        setIsModalOpen!(false);
+        return;
+      }
+      toast("You already have sent a chat request to this user.");
       selectedUsername && setSelectedUsername("");
-      setIsModalOpen!(false);
-      return;
+    } catch (error) {
+      console.error("Error sending notification:", error);
     }
-    toast("You already have sent a chat request to this user.");
-    selectedUsername && setSelectedUsername("");
-
   };
 
   // Fetch user data when a username is selected
@@ -88,50 +90,20 @@ const Searchbar = ({
     return false;
   };
 
-  const handleWordFilter = (value: string) => {
-    try {
-      return (
-        recentWordQuizzes
-          ?.filter((suggestion) =>
-            suggestion.word.toLowerCase().includes(value.toLowerCase())
-          )
-          .map((s) => s.word)
-          .filter((word): word is string => word !== undefined) ?? []
-      );
-    } catch (error) {
-      console.error("Error filtering words:", error);
-      return [];
-    }
-  };
-
-  const handleUserFilter = (value: string) => {
-    try {
-      return (
-        allUsers
-          ?.filter((user: any) => {
-            let username = getGmailUsername(user.email);
-            return (
-              user &&
-              username?.toLowerCase().includes(value.toLowerCase()) &&
-              userId !== user.clerkId
-            );
-          })
-          .map((user: any) => getGmailUsername(user.email))
-          .filter((username): username is string => username !== null) ?? []
-      );
-    } catch (error) {
-      console.error("Error filtering users:", error);
-      return [];
-    }
-  };
-
   const handleFilter = (value: string) => {
     startTransition(() => {
       if (handleEmptySearch(value)) return;
       let matched: string[] = [];
-      !users
-        ? (matched = handleWordFilter(value))
-        : (matched = handleUserFilter(value));
+
+      if (!users) {
+        // Add null check for recentWordQuizzes
+        matched = recentWordQuizzes
+          ? handleWordFilter({ value, recentWordQuizzes })
+          : [];
+      } else {
+        matched = allUsers && userId ? handleUserFilter({ allUsers, userId, value }) : [];
+      }
+
       setFilteredSuggestions(matched);
     });
   };
@@ -172,7 +144,7 @@ const Searchbar = ({
         getGmailUsername(selectedUserData.email) || ""
       );
     }
-  }, [selectedUserData, users , setSelectedUsername]);
+  }, [selectedUserData, users, setSelectedUsername]);
 
   return (
     <div className="h-full flex justify-center items-start">

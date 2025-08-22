@@ -37,19 +37,14 @@ export const createNotification = mutation({
 });
 
 export const getUnreadByUser = query({
-  args: { 
+  args: {
     userId: v.string(),
   },
   handler: async (ctx, args) => {
     return await ctx.db
       .query("notifications")
       .withIndex("by_userId", (q) => q.eq("userId", args.userId))
-      .filter((q) => 
-        q.and(
-          q.eq(q.field("read"), false),
-          q.eq(q.field("accept"), false)
-        )
-      )
+      .filter((q) => q.eq(q.field("read"), false))
       .order("desc")
       .collect();
   },
@@ -76,7 +71,6 @@ export const markNotificationsAsRead = mutation({
   },
 });
 
-
 export const acceptNotificationById = mutation({
   args: {
     notificationId: v.id("notifications"),
@@ -86,7 +80,7 @@ export const acceptNotificationById = mutation({
     await ctx.db.patch(args.notificationId, {
       accept: true,
     });
-    
+
     return { success: true };
   },
 });
@@ -100,7 +94,7 @@ export const markAsRead = mutation({
     await ctx.db.patch(args.notificationId, {
       read: true,
     });
-    
+
     return { success: true };
   },
 });
