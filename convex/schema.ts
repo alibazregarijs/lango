@@ -42,7 +42,8 @@ export default defineSchema({
     online: v.boolean(),
   })
     .index("by_clerkId", ["clerkId"])
-    .index("by_online", ["online"]), // Add index for online status
+    .index("by_online", ["online"]) // Add index for online status
+    .index("by_name", ["name"]), // Add index for username
 
   essay: defineTable({
     essay: v.string(),
@@ -78,10 +79,14 @@ export default defineSchema({
 
   notifications: defineTable({
     userId: v.string(),
+    userSenderName: v.string(),
     username: v.optional(v.string()),
-    text: v.string(), // Changed from "test" to "text" which makes more sense
+    text: v.string(),
     read: v.optional(v.boolean()),
   })
     .index("by_userId", ["userId"])
-    .searchIndex("search_text", { searchField: "text" }), // Fixed search index
+    .index("by_userSenderName", ["userSenderName"])
+    // Add this compound index for the query to work
+    .index("by_user_sender", ["userId", "userSenderName"])
+    .searchIndex("search_text", { searchField: "text" }),
 });

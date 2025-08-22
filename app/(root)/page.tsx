@@ -5,7 +5,7 @@ import Searchbar from "@/components/Searchbar";
 const Page = () => {
   return (
     <>
-      <Searchbar />
+      <Searchbar  />
     </>
   );
 };

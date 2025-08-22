@@ -25,7 +25,7 @@ const RightSidebar = () => {
   const recentWordQuizzes = useQuery(api.WordsQuiz.getRecentListeningQuizzes, {
     userId: userId!,
   });
-  
+
   const playerLevel = getPlayerLevel(score!);
 
   if (

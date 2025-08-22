@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import { useUser } from "@/context/UserContext";
+import { api } from "@/convex/_generated/api";
+import { useQuery } from "convex/react";
 
 const Notification = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -8,6 +11,10 @@ const Notification = () => {
     { id: 2, text: 'Your document is ready', time: '15 min ago', read: true },
     { id: 3, text: 'Meeting starts in 30 minutes', time: '1 hour ago', read: true },
   ]);
+  
+  const { userId } = useUser();
+
+  const unreadNotifications = useQuery(api.Notifications.getUnreadByUser, { userId: userId! });
 
   const toggleNotifications = () => {
     setIsOpen(!isOpen);

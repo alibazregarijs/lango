@@ -248,4 +248,18 @@ export const getOnlineUsers = query({
   },
 });
 
-// Get user by clerkId
+export const getByUsername = query({
+  args: {
+    username: v.string(),
+  },
+  handler: async (ctx, args) => {
+    // Find user by username (case-sensitive exact match)
+    const users = await ctx.db
+      .query("users")
+      .withIndex("by_name", (q) => q.eq("name", args.username))
+      .collect();
+
+    // Return the first user found (username should be unique)
+    return users.length > 0 ? users[0] : null;
+  },
+});

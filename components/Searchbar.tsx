@@ -18,16 +18,26 @@ import { Modal } from "@/components/Modal";
 import { Play } from "iconsax-reactjs";
 import useSpeek from "@/hooks/useSpeek";
 import { getGmailUsername } from "@/utils";
+import { useMutation } from "convex/react";
+import { toast } from "sonner";
 
-const Searchbar = ({ users = false }: { users?: boolean }) => {
+const Searchbar = ({
+  users = false,
+  setIsModalOpen,
+}: {
+  users?: boolean;
+  setIsModalOpen?: React.Dispatch<React.SetStateAction<boolean>>;
+}) => {
   const [selectedWordName, setSelectedWordName] = useState<string | null>(null);
   const [searchDisplay, setSearchDisplay] = useState("");
   const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
   const [selectedWord, setSelectedWord] = useState<selectedWordProps[]>([]);
   const [open, setOpen] = useState(false);
   const [loading] = useState(false);
+  const [selectedUsername, setSelectedUsername] = useState<string | null>(null);
 
-  const { userId } = useUser();
+  console.log("searchbar")
+  const { userId, username } = useUser();
 
   const allUsers = users ? useQuery(api.users.getOnlineUsers) : [];
   const recentWordQuizzes = useQuery(api.words.getUserWordsQuery, {
@@ -35,7 +45,38 @@ const Searchbar = ({ users = false }: { users?: boolean }) => {
   });
   const selectedWordData = useQuery(
     api.words.getWordObjectQuery,
-    selectedWordName ? { userId: userId!, word: selectedWordName } : "skip" // Convex way to skip queries if no word selected
+    selectedWordName ? { userId: userId!, word: selectedWordName } : "skip"
+  );
+
+  const sendNotification = useMutation(api.Notifications.createNotification);
+
+  const sendNotificationToUser = async (
+    userId: string,
+    usernameOfNotifTaker: string
+  ) => {
+    const res = await sendNotification({
+      userId: userId,
+      userSenderName: username!,
+      username: usernameOfNotifTaker!,
+      text: "Lets have a chat",
+      read: false,
+    });
+
+    if(res){
+      toast("Chat request sent to the user.");
+      selectedUsername && setSelectedUsername("");
+      setIsModalOpen!(false);
+      return;
+    }
+    toast("You already have sent a chat request to this user.");
+    selectedUsername && setSelectedUsername("");
+
+  };
+
+  // Fetch user data when a username is selected
+  const selectedUserData = useQuery(
+    api.users.getByUsername,
+    selectedUsername ? { username: selectedUsername } : "skip"
   );
 
   const handleEmptySearch = (value: string) => {
@@ -75,18 +116,18 @@ const Searchbar = ({ users = false }: { users?: boolean }) => {
             );
           })
           .map((user: any) => getGmailUsername(user.email))
-          .filter((username): username is string => username !== null) ?? [] // Filter out null values
+          .filter((username): username is string => username !== null) ?? []
       );
     } catch (error) {
       console.error("Error filtering users:", error);
-      return []; // Return empty array instead of undefined
+      return [];
     }
   };
 
   const handleFilter = (value: string) => {
     startTransition(() => {
       if (handleEmptySearch(value)) return;
-      let matched: string[] = []; // Explicitly type as string[]
+      let matched: string[] = [];
       !users
         ? (matched = handleWordFilter(value))
         : (matched = handleUserFilter(value));
@@ -110,19 +151,31 @@ const Searchbar = ({ users = false }: { users?: boolean }) => {
     }
   }, [selectedWordData]);
 
-  const handleSuggestionClick = (word: string) => {
-    setSearchDisplay(word);
-    setSelectedWordName(word);
+  const handleSuggestionClick = (selectedItem: string) => {
+    setSearchDisplay(selectedItem);
     if (users) {
-      console.log(word, "word");
+      setSelectedUsername(selectedItem);
+    } else {
+      setSelectedWordName(selectedItem);
     }
+    setSearchDisplay("");
   };
 
   const { speak } = useSpeek({ text: selectedWord[0]?.word });
 
+  // Handle user data when it becomes available
+  useEffect(() => {
+    if (selectedUserData && users) {
+      sendNotificationToUser(
+        selectedUserData.clerkId,
+        getGmailUsername(selectedUserData.email) || ""
+      );
+    }
+  }, [selectedUserData, users , setSelectedUsername]);
+
   return (
     <div className="h-full flex justify-center items-start">
-      <div className="lg:w-[90%]   w-full mt-4">
+      <div className="lg:w-[90%] w-full mt-4">
         <Command className="rounded-lg border shadow-md">
           <CommandInput
             placeholder="Type a command or search..."
@@ -131,7 +184,9 @@ const Searchbar = ({ users = false }: { users?: boolean }) => {
           />
           <CommandList>
             <CommandEmpty>
-              <span>{`You haven't seen any words yet.`}</span>
+              <span>
+                {users ? "No users found" : "You haven't seen any words yet."}
+              </span>
             </CommandEmpty>
             <CommandGroup heading="Suggestions">
               {filteredSuggestions.map((suggestion, index) => (
@@ -146,7 +201,9 @@ const Searchbar = ({ users = false }: { users?: boolean }) => {
             <CommandSeparator />
           </CommandList>
         </Command>
-        {selectedWord && !users && (
+
+        {/* Word Modal */}
+        {selectedWord.length > 0 && !users && (
           <Modal open={open} onOpenChange={setOpen}>
             <Modal.Content>
               <Modal.Section
