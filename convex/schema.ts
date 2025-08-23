@@ -78,16 +78,35 @@ export default defineSchema({
     .searchIndex("search_question", { searchField: "question" }),
 
   notifications: defineTable({
-    userId: v.string(),
-    userSenderName: v.string(),
-    username: v.optional(v.string()),
+    userTakerId: v.string(),
+    userSenderId: v.string(),
+    userSenderImageUrl: v.optional(v.string()),
+    userSenderName: v.optional(v.string()), // This is probably what you meant
     text: v.string(),
     read: v.optional(v.boolean()),
     accept: v.optional(v.boolean()),
+    routeUrl: v.optional(v.string()),
   })
-    .index("by_userId", ["userId"])
-    .index("by_userSenderName", ["userSenderName"])
+    .index("by_userTakerId", ["userTakerId"])
+    .index("by_userSenderId", ["userSenderId"])
     .index("by_accept", ["accept"])
-    .index("by_user_sender", ["userId", "userSenderName"])
+    .index("by_user_sender", ["userTakerId", "userSenderId"]) // Use userSenderId instead
     .searchIndex("search_text", { searchField: "text" }),
+
+  // Chat Rooms table
+  chatRooms: defineTable({
+    takerId: v.id("users"), // User who initiates/receives
+    giverId: v.id("users"), // User who provides/sends
+  }).index("by_participants", ["takerId", "giverId"]),
+
+  // Messages table
+  messages: defineTable({
+    roomId: v.id("chatRooms"),
+    senderId: v.id("users"), // Who sent the message
+    content: v.string(),
+    replyToId: v.optional(v.id("messages")), // Reference to message being replied to
+    read: v.boolean(),
+  })
+    .index("by_room", ["roomId"])
+    .index("by_sender", ["senderId"]),
 });

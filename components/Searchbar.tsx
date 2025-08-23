@@ -21,6 +21,8 @@ import { getGmailUsername } from "@/utils";
 import { useMutation } from "convex/react";
 import { toast } from "sonner";
 import { handleUserFilter, handleWordFilter } from "@/utils/index";
+import { useRouter } from "next/navigation";
+import { v4 as uuidv4 } from "uuid";
 const Searchbar = ({
   users = false,
   setIsModalOpen,
@@ -36,7 +38,8 @@ const Searchbar = ({
   const [loading] = useState(false);
   const [selectedUsername, setSelectedUsername] = useState<string | null>(null);
 
-  const { userId, username } = useUser();
+  const router = useRouter();
+  const { userId, username , userImageUrl } = useUser();
 
   const allUsers = users ? useQuery(api.users.getOnlineUsers) : [];
   const recentWordQuizzes = useQuery(api.words.getUserWordsQuery, {
@@ -51,22 +54,28 @@ const Searchbar = ({
 
   const sendNotificationToUser = async (
     userId: string,
-    usernameOfNotifTaker: string
+    userTakerId: string,
+    userSenderName: string,
+    userSenderImageUrl: string
   ) => {
     try {
+      let routeUrl = "/chat/" + uuidv4();
       const res = await sendNotification({
-        userId: userId,
-        userSenderName: username!,
-        username: usernameOfNotifTaker!,
+        userTakerId: userTakerId!,
+        userSenderId: userId,
+        userSenderImageUrl: userSenderImageUrl,
+        userSenderName: userSenderName!,
         text: "Lets have a chat",
         read: false,
         accept: false,
+        routeUrl: routeUrl,
       });
 
       if (res) {
         toast("Chat request sent to the user.");
         selectedUsername && setSelectedUsername("");
         setIsModalOpen!(false);
+        router.push(routeUrl);
         return;
       }
       toast("You already have sent a chat request to this user.");
@@ -101,7 +110,10 @@ const Searchbar = ({
           ? handleWordFilter({ value, recentWordQuizzes })
           : [];
       } else {
-        matched = allUsers && userId ? handleUserFilter({ allUsers, userId, value }) : [];
+        matched =
+          allUsers && userId
+            ? handleUserFilter({ allUsers, userId, value })
+            : [];
       }
 
       setFilteredSuggestions(matched);
@@ -138,13 +150,15 @@ const Searchbar = ({
 
   // Handle user data when it becomes available
   useEffect(() => {
-    if (selectedUserData && users) {
+    if (selectedUserData && users && userId) {
       sendNotificationToUser(
+        userId!,
         selectedUserData.clerkId,
-        getGmailUsername(selectedUserData.email) || ""
+        username!,
+        userImageUrl!
       );
     }
-  }, [selectedUserData, users, setSelectedUsername]);
+  }, [selectedUserData, users, setSelectedUsername , userId]);
 
   return (
     <div className="h-full flex justify-center items-start">

@@ -7,10 +7,13 @@ import { Button } from "./ui/button";
 import { Id } from "@/convex/_generated/dataModel";
 import { toast } from "sonner";
 import { NotificationIcon } from "@/components/ui/NotificationIcon";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const Notification = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { userId } = useUser();
+  const router = useRouter();
 
   const unreadNotifications = useQuery(
     api.Notifications.getUnreadByUser,
@@ -55,10 +58,12 @@ const Notification = () => {
     setIsOpen(false);
   }, []);
 
-  const handleAcceptRequest = async (notificationId: Id<"notifications">) => {
+  const handleAcceptRequest = async (notificationId: Id<"notifications">, routeUrl: string) => {
     try {
       await acceptNotificationByUser({ notificationId });
       toast.success("You have accepted the request.");
+      router.push(routeUrl);
+      setIsOpen(false);
     } catch (error) {
       console.error("Error accepting notification:", error);
       toast.error("Failed to accept request");
@@ -154,15 +159,37 @@ const Notification = () => {
                         !notification.read ? "bg-black-6" : "hover:bg-black-5"
                       } transition-colors duration-200`}
                     >
+                      {/* Sender Image */}
+                      {notification.userSenderImageUrl && (
+                        <div className="mr-3 flex-shrink-0">
+                          <Image
+                            src={notification.userSenderImageUrl}
+                            alt="Sender"
+                            width={40}
+                            height={40}
+                            className="rounded-full object-cover"
+                          />
+                        </div>
+                      )}
+                      
                       <div className="flex-1 min-w-0">
                         <div>
-                          <p className="text-sm text-white break-words">
+                          {/* Sender Name */}
+                          <p className="text-sm font-medium text-white">
+                            {notification.userSenderName || "Unknown User"}
+                          </p>
+                          
+                          {/* Notification Text */}
+                          <p className="text-sm text-white break-words mt-1">
                             {notification.text}
                           </p>
-                          <span className="text-xs text-gray-1">
+                          
+                          {/* Timestamp */}
+                          <span className="text-xs text-gray-1 block mt-1">
                             {formatDate(notification._creationTime)}
                           </span>
                         </div>
+                        
                         <div className="flex items-center gap-2 mt-2 flex-wrap">
                           {!notification.read && (
                             <Button
@@ -179,7 +206,7 @@ const Notification = () => {
                           {notification.accept === false && (
                             <Button
                               onClick={() =>
-                                handleAcceptRequest(notification._id)
+                                handleAcceptRequest(notification._id, notification.routeUrl!)
                               }
                               variant="default"
                               size="sm"
@@ -190,6 +217,7 @@ const Notification = () => {
                           )}
                         </div>
                       </div>
+                      
                       {!notification.read && (
                         <div
                           className="w-2 h-2 bg-orange-1 rounded-full ml-2 mt-2 flex-shrink-0"
