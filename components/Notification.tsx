@@ -29,6 +29,7 @@ const Notification = () => {
     api.Notifications.acceptNotificationById
   );
   const markNotificationAsReadById = useMutation(api.Notifications.markAsRead);
+  const createChatRoom = useMutation(api.ChatRooms.createChatRoom);
 
   // Derived state
   const notificationCount = useMemo(
@@ -58,11 +59,23 @@ const Notification = () => {
     setIsOpen(false);
   }, []);
 
-  const handleAcceptRequest = async (notificationId: Id<"notifications">, routeUrl: string) => {
+  const handleAcceptRequest = async (
+    notificationId: Id<"notifications">,
+    routeUrl: string,
+    userTakerId: string,
+    userSenderId: string
+  ) => {
     try {
+      console.log(userTakerId, userSenderId, "hereeeee");
       await acceptNotificationByUser({ notificationId });
+      await createChatRoom({
+        takerId: userTakerId as string,
+        giverId: userSenderId as string,
+      });
       toast.success("You have accepted the request.");
-      router.push(routeUrl);
+      router.push(
+        `${routeUrl}?userSenderId=${userSenderId}&userTakerId=${userTakerId}`
+      );
       setIsOpen(false);
     } catch (error) {
       console.error("Error accepting notification:", error);
@@ -171,25 +184,25 @@ const Notification = () => {
                           />
                         </div>
                       )}
-                      
+
                       <div className="flex-1 min-w-0">
                         <div>
                           {/* Sender Name */}
                           <p className="text-sm font-medium text-white">
                             {notification.userSenderName || "Unknown User"}
                           </p>
-                          
+
                           {/* Notification Text */}
                           <p className="text-sm text-white break-words mt-1">
                             {notification.text}
                           </p>
-                          
+
                           {/* Timestamp */}
                           <span className="text-xs text-gray-1 block mt-1">
                             {formatDate(notification._creationTime)}
                           </span>
                         </div>
-                        
+
                         <div className="flex items-center gap-2 mt-2 flex-wrap">
                           {!notification.read && (
                             <Button
@@ -206,18 +219,23 @@ const Notification = () => {
                           {notification.accept === false && (
                             <Button
                               onClick={() =>
-                                handleAcceptRequest(notification._id, notification.routeUrl!)
+                                handleAcceptRequest(
+                                  notification._id,
+                                  notification.routeUrl!,
+                                  notification.userTakerId,
+                                  notification.userSenderId
+                                )
                               }
                               variant="default"
                               size="sm"
-                              className="cursor-pointer bg-orange-1 hover:bg-orange-2"
+                              className="cursor-pointer bg-orange-1 hover:bg-orange-2 text-white"
                             >
                               Accept
                             </Button>
                           )}
                         </div>
                       </div>
-                      
+
                       {!notification.read && (
                         <div
                           className="w-2 h-2 bg-orange-1 rounded-full ml-2 mt-2 flex-shrink-0"

@@ -95,16 +95,16 @@ export default defineSchema({
 
   // Chat Rooms table
   chatRooms: defineTable({
-    takerId: v.id("users"), // User who initiates/receives
-    giverId: v.id("users"), // User who provides/sends
+    takerId: v.string(), // User who initiates/receives
+    giverId: v.string(), // User who provides/sends
   }).index("by_participants", ["takerId", "giverId"]),
 
   // Messages table
   messages: defineTable({
-    roomId: v.id("chatRooms"),
-    senderId: v.id("users"), // Who sent the message
+    roomId: v.string(),
+    senderId: v.string(), // Who sent the message
     content: v.string(),
-    replyToId: v.optional(v.id("messages")), // Reference to message being replied to
+    replyToId: v.optional(v.string()), // Reference to message being replied to
     read: v.boolean(),
   })
     .index("by_room", ["roomId"])

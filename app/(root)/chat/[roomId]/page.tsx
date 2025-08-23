@@ -1,8 +1,19 @@
+"use client";
 import React from "react";
+import { useSearchParams } from "next/navigation";
+import { useParams } from "next/navigation";
 
-const Page = async ({ params }: { params: Promise<{ roomId: string }> }) => {
-  const { roomId } = await params;
-  console.log(roomId, "room id");
+const Page = () => {
+  const searchParams = useSearchParams();
+  const params = useParams();
+
+  const userSenderId = searchParams.get("userSenderId");
+  const userTakerId = searchParams.get("userTakerId");
+  const roomId = params.roomId as string;
+
+  console.log(userSenderId, "userSenderId");
+  console.log(userTakerId, "userTakerId");
+
   return <div>Page</div>;
 };
 

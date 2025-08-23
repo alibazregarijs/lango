@@ -1,28 +1,15 @@
 import { mutation } from "./_generated/server";
 import { v } from "convex/values";
 
-export const getOrCreateChatRoom = mutation({
+export const createChatRoom = mutation({
   args: {
-    takerId: v.id("users"),
-    giverId: v.id("users"),
+    takerId: v.string(),
+    giverId: v.string(),
   },
   handler: async (ctx, args) => {
     const { takerId, giverId } = args;
 
-    // Check for existing chatrooms first
-    const existingRooms = await ctx.db
-      .query("chatRooms")
-      .withIndex("by_participants", (q) => 
-        q.eq("takerId", takerId).eq("giverId", giverId)
-      )
-      .order("desc")
-      .first();
-
-    if (existingRooms) {
-      return existingRooms;
-    }
-
-    // Create new chatroom if none exists
+    // Create new chatroom
     const newRoomId = await ctx.db.insert("chatRooms", {
       takerId,
       giverId,
