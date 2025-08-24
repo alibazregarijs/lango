@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, startTransition, useEffect } from "react";
+import React, { useState, startTransition, useEffect, useCallback } from "react";
 import {
   Command,
   CommandEmpty,
@@ -17,12 +17,12 @@ import { type selectedWordProps } from "@/types";
 import { Modal } from "@/components/Modal";
 import { Play } from "iconsax-reactjs";
 import useSpeek from "@/hooks/useSpeek";
-import { getGmailUsername } from "@/utils";
-import { useMutation } from "convex/react";
+import Spinner from "@/components/Spinner";
 import { toast } from "sonner";
 import { handleUserFilter, handleWordFilter } from "@/utils/index";
 import { useRouter } from "next/navigation";
-import { v4 as uuidv4 } from "uuid";
+import { useNotification } from "@/hooks/useNotification"; // Import the custom hook
+
 const Searchbar = ({
   users = false,
   setIsModalOpen,
@@ -39,7 +39,8 @@ const Searchbar = ({
   const [selectedUsername, setSelectedUsername] = useState<string | null>(null);
 
   const router = useRouter();
-  const { userId, username , userImageUrl } = useUser();
+  const { userId, username, userImageUrl } = useUser();
+  const { sendNotificationToUser } = useNotification(); // Use the custom hook
 
   const allUsers = users ? useQuery(api.users.getOnlineUsers) : [];
   const recentWordQuizzes = useQuery(api.words.getUserWordsQuery, {
@@ -50,49 +51,39 @@ const Searchbar = ({
     selectedWordName ? { userId: userId!, word: selectedWordName } : "skip"
   );
 
-  const sendNotification = useMutation(api.Notifications.createNotification);
-
-  const sendNotificationToUser = async (
-    userId: string,
-    userTakerId: string,
-    userSenderName: string,
-    userSenderImageUrl: string,
-    imageUrl:string
-  ) => {
-    try {
-      let routeUrl = "/chat/" + uuidv4();
-      const res = await sendNotification({
-        userTakerId: userTakerId!,
-        userSenderId: userId,
-        userSenderImageUrl: userSenderImageUrl,
-        userSenderName: userSenderName!,
-        text: "Lets have a chat",
-        read: false,
-        accept: false,
-        routeUrl: routeUrl,
-      });
-
-      if (res) {
-        toast("Chat request sent to the user.");
-        selectedUsername && setSelectedUsername("");
-        setIsModalOpen!(false);
-         router.push(
-        `${routeUrl}?userSenderId=${userId}&userTakerId=${userTakerId}&imageUrl=${imageUrl}`
-      );
-        return;
-      }
-      toast("You already have sent a chat request to this user.");
-      selectedUsername && setSelectedUsername("");
-    } catch (error) {
-      console.error("Error sending notification:", error);
-    }
-  };
-
   // Fetch user data when a username is selected
   const selectedUserData = useQuery(
     api.users.getByUsername,
     selectedUsername ? { username: selectedUsername } : "skip"
   );
+
+  // Handle user data when it becomes available
+  useEffect(() => {
+    const handleUserSelection = async () => {
+      if (selectedUserData && users && userId) {
+        const result = await sendNotificationToUser(
+          userId!,
+          selectedUserData.clerkId,
+          username!,
+          userImageUrl!,
+          selectedUserData.imageUrl
+        );
+        
+        if (result.success) {
+          setSelectedUsername("");
+          setIsModalOpen?.(false);
+          router.push(
+            `${result.routeUrl}?userSenderId=${userId}&userTakerId=${selectedUserData.clerkId}&imageUrl=${selectedUserData.imageUrl}`
+          );
+        } else {
+          toast(result.message);
+          setSelectedUsername("");
+        }
+      }
+    };
+
+    handleUserSelection();
+  }, [selectedUserData, users, userId, username, userImageUrl, sendNotificationToUser, setIsModalOpen, router]);
 
   const handleEmptySearch = (value: string) => {
     if (!value.trim()) {
@@ -130,7 +121,7 @@ const Searchbar = ({
 
   useEffect(() => {
     debouncedFilter(searchDisplay);
-  }, [searchDisplay]);
+  }, [searchDisplay, debouncedFilter]);
 
   useEffect(() => {
     if (selectedWordData) {
@@ -151,18 +142,7 @@ const Searchbar = ({
 
   const { speak } = useSpeek({ text: selectedWord[0]?.word });
 
-  // Handle user data when it becomes available
-  useEffect(() => {
-    if (selectedUserData && users && userId) {
-      sendNotificationToUser(
-        userId!,
-        selectedUserData.clerkId,
-        username!,
-        userImageUrl!,
-        selectedUserData.imageUrl
-      );
-    }
-  }, [selectedUserData, users, setSelectedUsername , userId]);
+  if (!userId) return <Spinner loading={true} />;
 
   return (
     <div className="h-full flex justify-center items-start">

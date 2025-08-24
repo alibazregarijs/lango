@@ -11,7 +11,6 @@ const ChatRequest = ({
   setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
   isModalOpen: boolean;
 }) => {
-  console.log("chat request")
   return (
     <div className="flex lg:flex-col flex-row justify-between lg:justify-center items-center bg-black-2 rounded-xl p-4 mb-6 space-y-0 lg:space-y-4">
       <div className="flex-center">
