@@ -56,7 +56,8 @@ const Searchbar = ({
     userId: string,
     userTakerId: string,
     userSenderName: string,
-    userSenderImageUrl: string
+    userSenderImageUrl: string,
+    imageUrl:string
   ) => {
     try {
       let routeUrl = "/chat/" + uuidv4();
@@ -75,7 +76,9 @@ const Searchbar = ({
         toast("Chat request sent to the user.");
         selectedUsername && setSelectedUsername("");
         setIsModalOpen!(false);
-        router.push(routeUrl);
+         router.push(
+        `${routeUrl}?userSenderId=${userId}&userTakerId=${userTakerId}&imageUrl=${imageUrl}`
+      );
         return;
       }
       toast("You already have sent a chat request to this user.");
@@ -155,7 +158,8 @@ const Searchbar = ({
         userId!,
         selectedUserData.clerkId,
         username!,
-        userImageUrl!
+        userImageUrl!,
+        selectedUserData.imageUrl
       );
     }
   }, [selectedUserData, users, setSelectedUsername , userId]);

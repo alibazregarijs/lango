@@ -63,7 +63,8 @@ const Notification = () => {
     notificationId: Id<"notifications">,
     routeUrl: string,
     userTakerId: string,
-    userSenderId: string
+    userSenderId: string,
+    imageUrl: string
   ) => {
     try {
       console.log(userTakerId, userSenderId, "hereeeee");
@@ -74,7 +75,7 @@ const Notification = () => {
       });
       toast.success("You have accepted the request.");
       router.push(
-        `${routeUrl}?userSenderId=${userSenderId}&userTakerId=${userTakerId}`
+        `${routeUrl}?userSenderId=${userSenderId}&userTakerId=${userTakerId}&imageUrl=${imageUrl}`
       );
       setIsOpen(false);
     } catch (error) {
@@ -223,7 +224,8 @@ const Notification = () => {
                                   notification._id,
                                   notification.routeUrl!,
                                   notification.userTakerId,
-                                  notification.userSenderId
+                                  notification.userSenderId,
+                                  notification.userSenderImageUrl!
                                 )
                               }
                               variant="default"

@@ -1,6 +1,7 @@
 import { toast } from "sonner";
 import { type selectedWordProps } from "@/types";
 import { type allUsersProps } from "@/types";
+import { useCallback } from "react";
 
 const LEVEL_OF_PLAYERS = [10, 50, 100, 200, 300, 400, 500, 600, 700, 800, 900];
 let PLAYER_LEVEL = 0;
@@ -45,6 +46,10 @@ export function getGmailUsername(email: string): string | null {
   const match = email.match(gmailRegex);
   return match ? match[1] : null;
 }
+
+export const formatDate = (timestamp: number) => {
+  return new Date(timestamp).toLocaleString();
+};
 
 export const handleWordFilter = ({
   value,

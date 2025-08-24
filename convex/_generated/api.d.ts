@@ -15,6 +15,7 @@ import type {
 } from "convex/server";
 import type * as ChatRooms from "../ChatRooms.js";
 import type * as ListeningQuiz from "../ListeningQuiz.js";
+import type * as Messages from "../Messages.js";
 import type * as Notifications from "../Notifications.js";
 import type * as WordsQuiz from "../WordsQuiz.js";
 import type * as essay from "../essay.js";
@@ -34,6 +35,7 @@ import type * as words from "../words.js";
 declare const fullApi: ApiFromModules<{
   ChatRooms: typeof ChatRooms;
   ListeningQuiz: typeof ListeningQuiz;
+  Messages: typeof Messages;
   Notifications: typeof Notifications;
   WordsQuiz: typeof WordsQuiz;
   essay: typeof essay;
