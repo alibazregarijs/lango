@@ -80,12 +80,10 @@ const Searchbar = ({
         if (result.success && flag) {
           setSelectedUsername("");
           setIsModalOpen?.(false);
-          toast.success(result.message);
           router.push(
             `${result.routeUrl}?userSenderId=${userId}&userTakerId=${selectedUserData.clerkId}&imageUrl=${selectedUserData.imageUrl}`
           );
         } else {
-          toast.error(result.message);
           setSelectedUsername("");
         }
       }
@@ -120,7 +118,6 @@ const Searchbar = ({
             ? handleUserFilter({ allUsers, userId, value })
             : [];
       }
-      console.log(matched, "matched");
       setFilteredSuggestions(matched);
     });
   };
@@ -142,19 +139,31 @@ const Searchbar = ({
   }, [selectedWordData]);
 
   // Fixed click handler
-  const handleSuggestionClick = (suggestion: Suggestion) => {
-    if (users && typeof suggestion !== "string") {
-      // Handle user selection
-      setSelectedUsername(suggestion.username);
-      setSearchDisplay(suggestion.username);
-    } else if (!users && typeof suggestion === "string") {
-      // Handle word selection
-      setSelectedWordName(suggestion);
-      setSearchDisplay(suggestion);
-    }
-    // Clear suggestions after selection
-    setFilteredSuggestions([]);
-  };
+  const handleSuggestionClick = useCallback(
+    (suggestion: Suggestion) => {
+      if (!users && typeof suggestion === "string") {
+        // Batch related state updates together
+        setSelectedWordName((prev) => {
+          // Reset and set in the same render cycle using a callback
+          setTimeout(() => {
+            setSelectedWordName(suggestion);
+          }, 0);
+          return null;
+        });
+        setSearchDisplay(suggestion);
+      } else if (users && typeof suggestion !== "string") {
+        setSelectedUsername(suggestion.username);
+        setSearchDisplay(suggestion.username);
+      }
+
+      // Clear UI state after interaction is complete
+      setTimeout(() => {
+        setSearchDisplay("");
+        setFilteredSuggestions([]);
+      }, 150);
+    },
+    [users]
+  );
 
   const { speak } = useSpeek({ text: selectedWord[0]?.word });
 
@@ -182,9 +191,27 @@ const Searchbar = ({
                 <CommandItem
                   key={index}
                   className="cursor-pointer"
+                  value={
+                    users && typeof suggestion !== "string"
+                      ? suggestion.username
+                      : (suggestion as string)
+                  }
                   onSelect={() => handleSuggestionClick(suggestion)}
                 >
-                  <span>salam</span>
+                  {users && typeof suggestion !== "string" ? (
+                    <div className="flex items-center gap-2">
+                      <Image
+                        src={suggestion.imageUrl}
+                        alt={suggestion.username}
+                        width={44}
+                        height={44}
+                        className="rounded-full border-orange-1 border-2"
+                      />
+                      <span>{suggestion.username}</span>
+                    </div>
+                  ) : (
+                    <span>{suggestion as string}</span>
+                  )}
                 </CommandItem>
               ))}
             </CommandGroup>

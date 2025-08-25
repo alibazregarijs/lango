@@ -13,7 +13,7 @@ export const useNotification = () => {
     userId: string,
     userTakerId: string,
     userSenderName: string,
-    userSenderImageUrl: string,
+    userSenderImageUrl: string
   ) => {
     try {
       let routeUrl = "/chat/" + uuidv4();
@@ -29,7 +29,7 @@ export const useNotification = () => {
       });
 
       if (res) {
-        toast("Chat request sent to the user.");
+        toast.success("Chat request sent to the user.");
         return {
           success: true,
           routeUrl,
@@ -37,15 +37,14 @@ export const useNotification = () => {
         };
       }
 
+      toast.error("You already have sent a chat request to this user.");
       return {
         success: false,
-        message: "You already have sent a chat request to this user.",
       };
     } catch (error) {
       console.error("Error sending notification:", error);
       return {
         success: false,
-        message: "Failed to send notification.",
       };
     }
   };
