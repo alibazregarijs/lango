@@ -160,6 +160,8 @@ export type Message = {
   content: string;
 };
 
+export type Suggestion = string | { username: string; imageUrl: string };
+
 export type MessagesQuery = Message[] | undefined;
 
 export type selectedWordProps = selectedWordProps[] | undefined;

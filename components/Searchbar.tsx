@@ -27,9 +27,8 @@ import Spinner from "@/components/Spinner";
 import { toast } from "sonner";
 import { handleUserFilter, handleWordFilter } from "@/utils/index";
 import { useRouter } from "next/navigation";
-import { useNotification } from "@/hooks/useNotification";
-
-type Suggestion = string | { username: string; imageUrl: string };
+import { useUserSelection } from "@/hooks/useHandleNotification";
+import { type Suggestion } from "@/types";
 
 const Searchbar = ({
   users = false,
@@ -48,14 +47,13 @@ const Searchbar = ({
   const [loading] = useState(false);
   const [selectedUsername, setSelectedUsername] = useState<string | null>(null);
 
-  const router = useRouter();
   const { userId, username, userImageUrl } = useUser();
-  const { sendNotificationToUser } = useNotification();
 
   const allUsers = users ? useQuery(api.users.getOnlineUsers) : [];
   const recentWordQuizzes = useQuery(api.words.getUserWordsQuery, {
     userId: userId!,
   });
+
   const selectedWordData = useQuery(
     api.words.getWordObjectQuery,
     selectedWordName ? { userId: userId!, word: selectedWordName } : "skip"
@@ -66,34 +64,18 @@ const Searchbar = ({
     selectedUsername ? { username: selectedUsername } : "skip"
   );
 
+  // Use the corrected hook
+  const { handleUserSelection } = useUserSelection({
+    onReset: () => setSelectedUsername(""),
+    onModalClose: () => setIsModalOpen?.(false),
+  });
+
+  // Handle user selection with the new approach
   useEffect(() => {
-    let flag = true;
-    const handleUserSelection = async () => {
-      if (selectedUserData && users && userId) {
-        const result = await sendNotificationToUser(
-          userId!,
-          selectedUserData.clerkId,
-          username!,
-          userImageUrl!
-        );
-
-        if (result.success && flag) {
-          setSelectedUsername("");
-          setIsModalOpen?.(false);
-          router.push(
-            `${result.routeUrl}?userSenderId=${userId}&userTakerId=${selectedUserData.clerkId}&imageUrl=${selectedUserData.imageUrl}`
-          );
-        } else {
-          setSelectedUsername("");
-        }
-      }
-    };
-
-    handleUserSelection();
-    return () => {
-      flag = false;
-    };
-  }, [selectedUserData, users, userId]);
+    if (selectedUserData && users && userId && username && userImageUrl) {
+      handleUserSelection(selectedUserData, userId, username, userImageUrl);
+    }
+  }, [selectedUserData]); // Only depend on selectedUserData to prevent multiple triggers
 
   const handleEmptySearch = (value: string) => {
     if (!value.trim()) {
@@ -106,8 +88,8 @@ const Searchbar = ({
   const handleFilter = (value: string) => {
     startTransition(() => {
       if (handleEmptySearch(value)) return;
-      let matched = [];
 
+      let matched = [];
       if (!users) {
         matched = recentWordQuizzes
           ? handleWordFilter({ value, recentWordQuizzes })
@@ -142,9 +124,7 @@ const Searchbar = ({
   const handleSuggestionClick = useCallback(
     (suggestion: Suggestion) => {
       if (!users && typeof suggestion === "string") {
-        // Batch related state updates together
         setSelectedWordName((prev) => {
-          // Reset and set in the same render cycle using a callback
           setTimeout(() => {
             setSelectedWordName(suggestion);
           }, 0);
@@ -155,8 +135,6 @@ const Searchbar = ({
         setSelectedUsername(suggestion.username);
         setSearchDisplay(suggestion.username);
       }
-
-      // Clear UI state after interaction is complete
       setTimeout(() => {
         setSearchDisplay("");
         setFilteredSuggestions([]);

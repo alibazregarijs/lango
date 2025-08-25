@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useCallback } from "react";
 import Image from "next/image";
 import { useSearchParams, useParams } from "next/navigation";
 import { useQuery, useMutation } from "convex/react";
@@ -23,48 +23,77 @@ const Page = () => {
   const imageUrl = searchParams.get("imageUrl");
   const roomId = params.roomId as string;
 
+  // Early return before any conditional hooks
+  if (!userId || roomId === undefined) {
+    return <Spinner loading={true} />;
+  }
+
+  // All hooks called unconditionally
+  const userSender = useQuery(
+    api.users.getUserById,
+    userSenderId ? { clerkId: userSenderId as Id<"users"> } : "skip"
+  );
+  const userTaker = useQuery(
+    api.users.getUserById,
+    userTakerId ? { clerkId: userTakerId as Id<"users"> } : "skip"
+  );
+  const messages = useQuery(
+    api.ChatRooms.getMessagesByRoom,
+    roomId ? { roomId } : "skip"
+  );
+  const createMessage = useMutation(api.Messages.createMessage);
+  const editMessageMutation = useMutation(api.Messages.updateMessage);
+  const deleteMessage = useMutation(api.Messages.deleteMessage);
+
   const [openModal, setOpenModal] = useState(false);
   const [message, setMessage] = useState<string>("");
   const [editMessage, setEditMessage] = useState<string>("");
   const messageIdRef = useRef<string | null>(null);
 
-  const messages = useQuery(api.ChatRooms.getMessagesByRoom, { roomId });
-  const createMessage = useMutation(api.Messages.createMessage);
-  const editMessageMutation = useMutation(api.Messages.updateMessage);
-  const deleteMessage = useMutation(api.Messages.deleteMessage);
-
-  if (!messages || !userId || roomId === undefined)
-    return <Spinner loading={true} />;
-
-
-  const handleRemoveMessage = async (messageId: Id<"messages">) => {
-    await deleteMessage({
-      messageId: messageId,
-    });
+  // Fixed online status logic
+  const getOnlineStatus = () => {
+    if (userId === userTakerId) {
+      return userSender?.online ? "text-green-400" : "text-gray-400";
+    } else {
+      return userTaker?.online ? "text-green-400" : "text-gray-400";
+    }
   };
 
-  const handleEditMessage = async () => {
+  const onlineStatus = getOnlineStatus();
+  const isOnline = onlineStatus === "text-green-400";
+  const statusText = isOnline ? "Online" : "Offline";
+
+  const handleRemoveMessage = useCallback(
+    async (messageId: Id<"messages">) => {
+      await deleteMessage({
+        messageId: messageId,
+      });
+    },
+    [deleteMessage]
+  );
+
+  const handleEditMessage = useCallback(async () => {
     if (!editMessage || !messageIdRef.current) return;
     try {
-      editMessageMutation({
+      await editMessageMutation({
         messageId: messageIdRef.current as Id<"messages">,
         content: editMessage,
       });
-      messageIdRef.current = "";
+      messageIdRef.current = null;
     } catch (error) {
       console.error("Error editing message:", error);
     } finally {
       setOpenModal(false);
       setEditMessage("");
     }
-  };
+  }, [editMessage, editMessageMutation]);
 
-  const handleSendMessage = async () => {
+  const handleSendMessage = useCallback(async () => {
     if (!message) return;
     try {
       await createMessage({
-        roomId: roomId!,
-        senderId: userId!,
+        roomId: roomId,
+        senderId: userId,
         content: message,
         replyToId: undefined,
         read: false,
@@ -73,15 +102,25 @@ const Page = () => {
     } catch (error) {
       console.error("Error sending message:", error);
     }
-  };
+  }, [message, createMessage, roomId, userId]);
 
-  const getValue = (value: string, messageId: string) => {
-    value === "delete" && handleRemoveMessage(messageId as Id<"messages">);
-    if (value === "edit") {
-      messageIdRef.current = messageId;
-      setOpenModal(true);
-    }
-  };
+  const getOption = useCallback(
+    (value: string, messageId: string) => {
+      if (value === "delete") {
+        handleRemoveMessage(messageId as Id<"messages">);
+      }
+      if (value === "edit") {
+        messageIdRef.current = messageId;
+        setOpenModal(true);
+      }
+    },
+    [handleRemoveMessage]
+  );
+
+  // Additional loading check for messages
+  if (!messages) {
+    return <Spinner loading={true} />;
+  }
 
   return (
     <div className="max-h-screen h-full p-4 flex justify-center items-start">
@@ -94,16 +133,32 @@ const Page = () => {
                 width={48}
                 height={48}
                 className="rounded-full border-2 border-orange-500 shadow-lg"
-                src={imageUrl!}
+                src={
+                  userId === userTakerId
+                    ? userSender?.imageUrl!
+                    : userTaker?.imageUrl!
+                }
                 alt="logo"
               />
-              <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-[#1A1D23]"></div>
+              <div
+                className={`absolute bottom-0 right-0 w-3 h-3 ${isOnline ? "bg-green-500" : "bg-gray-500"} rounded-full border-2 border-[#1A1D23]`}
+              ></div>
             </div>
             <div className="flex flex-col">
-              <span className="text-white font-semibold">Ali</span>
-              <span className="text-green-400 text-sm flex items-center">
-                <span className="w-2 h-2 bg-green-500 rounded-full mr-1 animate-pulse"></span>
-                Online
+              <span className="text-white font-semibold">
+                {userId === userTakerId ? userSender?.name : userTaker?.name}
+              </span>
+              <span className={`${onlineStatus} text-sm flex items-center`}>
+                <span
+                  className={`w-2 h-2 ${isOnline ? "bg-green-500 animate-pulse" : "bg-gray-500"} rounded-full mr-1`}
+                ></span>
+                {userId === userTakerId
+                  ? userSender?.lastSeen && !userSender.online
+                    ? formatDate(userSender.lastSeen)
+                    : statusText
+                  : userTaker?.lastSeen && !userTaker.online
+                    ? formatDate(userTaker.lastSeen)
+                    : statusText}
               </span>
             </div>
           </div>
@@ -160,7 +215,7 @@ const Page = () => {
                           key={message._id}
                           message={message.content}
                           messageId={message._id}
-                          onActionSelect={getValue}
+                          onActionSelect={getOption}
                         />
                       ) : (
                         <span>{message.content}</span>
@@ -264,9 +319,7 @@ const Page = () => {
       <Modal open={openModal} onOpenChange={setOpenModal}>
         <Modal.Content>
           <Modal.Section title="Edit your message here.">
-            <Modal.Body
-              className="max-sm:flex max-sm:flex-col space-y-4" // Added space-y-4 for spacing
-            >
+            <Modal.Body className="max-sm:flex max-sm:flex-col space-y-4">
               <Input
                 value={editMessage}
                 onChange={(e) => setEditMessage(e.target.value)}

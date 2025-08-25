@@ -192,11 +192,10 @@ export const getAllUsers = query({
   handler: async (ctx) => {
     // Get all users from the database
     const users = await ctx.db.query("users").collect();
-    
+
     return users;
   },
 });
-
 
 export const updateUserStatus = mutation({
   args: {
@@ -261,5 +260,16 @@ export const getByUsername = query({
 
     // Return the first user found (username should be unique)
     return users.length > 0 ? users[0] : null;
+  },
+});
+
+
+export const getUserById = query({
+  args: { clerkId: v.string() },
+  handler: async (ctx, { clerkId }) => {
+    return await ctx.db
+      .query("users")
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", clerkId))
+      .unique();
   },
 });
