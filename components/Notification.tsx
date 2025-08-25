@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { NotificationIcon } from "@/components/ui/NotificationIcon";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { formatDate } from "@/utils";
 
 const Notification = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -19,8 +20,6 @@ const Notification = () => {
     api.Notifications.getUnreadByUser,
     userId ? { userId } : "skip"
   );
-
-  if (!userId) return <Spinner loading={true} />;
 
   const markNotificationsAsRead = useMutation(
     api.Notifications.markNotificationsAsRead
@@ -41,7 +40,7 @@ const Notification = () => {
 
   const markAllAsRead = async () => {
     if (!hasUnreadNotifications) return;
-
+    if (!userId) return;
     try {
       await markNotificationsAsRead({ userId });
       toast.success("All notifications marked as read");
@@ -67,7 +66,6 @@ const Notification = () => {
     imageUrl: string
   ) => {
     try {
-      console.log(userTakerId, userSenderId, "hereeeee");
       await acceptNotificationByUser({ notificationId });
       await createChatRoom({
         takerId: userTakerId as string,
@@ -94,10 +92,6 @@ const Notification = () => {
       toast.error("Failed to mark as read");
     }
   };
-
-  const formatDate = useCallback((timestamp: number) => {
-    return new Date(timestamp).toLocaleString();
-  }, []);
 
   return (
     <>

@@ -1,5 +1,10 @@
 "use client";
-import React, { useState, startTransition, useEffect, useCallback } from "react";
+import React, {
+  useState,
+  startTransition,
+  useEffect,
+  useCallback,
+} from "react";
 import {
   Command,
   CommandEmpty,
@@ -11,6 +16,7 @@ import {
 } from "@/components/ui/command";
 import useDebounce from "@/hooks/useDebounce";
 import { useUser } from "@/context/UserContext";
+import Image from "next/image";
 import { api } from "@/convex/_generated/api";
 import { useQuery } from "convex/react";
 import { type selectedWordProps } from "@/types";
@@ -21,7 +27,9 @@ import Spinner from "@/components/Spinner";
 import { toast } from "sonner";
 import { handleUserFilter, handleWordFilter } from "@/utils/index";
 import { useRouter } from "next/navigation";
-import { useNotification } from "@/hooks/useNotification"; // Import the custom hook
+import { useNotification } from "@/hooks/useNotification";
+
+type Suggestion = string | { username: string; imageUrl: string };
 
 const Searchbar = ({
   users = false,
@@ -32,7 +40,9 @@ const Searchbar = ({
 }) => {
   const [selectedWordName, setSelectedWordName] = useState<string | null>(null);
   const [searchDisplay, setSearchDisplay] = useState("");
-  const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
+  const [filteredSuggestions, setFilteredSuggestions] = useState<Suggestion[]>(
+    []
+  );
   const [selectedWord, setSelectedWord] = useState<selectedWordProps[]>([]);
   const [open, setOpen] = useState(false);
   const [loading] = useState(false);
@@ -40,7 +50,7 @@ const Searchbar = ({
 
   const router = useRouter();
   const { userId, username, userImageUrl } = useUser();
-  const { sendNotificationToUser } = useNotification(); // Use the custom hook
+  const { sendNotificationToUser } = useNotification();
 
   const allUsers = users ? useQuery(api.users.getOnlineUsers) : [];
   const recentWordQuizzes = useQuery(api.words.getUserWordsQuery, {
@@ -51,39 +61,41 @@ const Searchbar = ({
     selectedWordName ? { userId: userId!, word: selectedWordName } : "skip"
   );
 
-  // Fetch user data when a username is selected
   const selectedUserData = useQuery(
     api.users.getByUsername,
     selectedUsername ? { username: selectedUsername } : "skip"
   );
 
-  // Handle user data when it becomes available
   useEffect(() => {
+    let flag = true;
     const handleUserSelection = async () => {
       if (selectedUserData && users && userId) {
         const result = await sendNotificationToUser(
           userId!,
           selectedUserData.clerkId,
           username!,
-          userImageUrl!,
-          selectedUserData.imageUrl
+          userImageUrl!
         );
-        
-        if (result.success) {
+
+        if (result.success && flag) {
           setSelectedUsername("");
           setIsModalOpen?.(false);
+          toast.success(result.message);
           router.push(
             `${result.routeUrl}?userSenderId=${userId}&userTakerId=${selectedUserData.clerkId}&imageUrl=${selectedUserData.imageUrl}`
           );
         } else {
-          toast(result.message);
+          toast.error(result.message);
           setSelectedUsername("");
         }
       }
     };
 
     handleUserSelection();
-  }, [selectedUserData, users, userId, username, userImageUrl, sendNotificationToUser, setIsModalOpen, router]);
+    return () => {
+      flag = false;
+    };
+  }, [selectedUserData, users, userId]);
 
   const handleEmptySearch = (value: string) => {
     if (!value.trim()) {
@@ -96,10 +108,9 @@ const Searchbar = ({
   const handleFilter = (value: string) => {
     startTransition(() => {
       if (handleEmptySearch(value)) return;
-      let matched: string[] = [];
+      let matched = [];
 
       if (!users) {
-        // Add null check for recentWordQuizzes
         matched = recentWordQuizzes
           ? handleWordFilter({ value, recentWordQuizzes })
           : [];
@@ -109,7 +120,7 @@ const Searchbar = ({
             ? handleUserFilter({ allUsers, userId, value })
             : [];
       }
-
+      console.log(matched, "matched");
       setFilteredSuggestions(matched);
     });
   };
@@ -121,7 +132,7 @@ const Searchbar = ({
 
   useEffect(() => {
     debouncedFilter(searchDisplay);
-  }, [searchDisplay, debouncedFilter]);
+  }, [searchDisplay]);
 
   useEffect(() => {
     if (selectedWordData) {
@@ -130,14 +141,19 @@ const Searchbar = ({
     }
   }, [selectedWordData]);
 
-  const handleSuggestionClick = (selectedItem: string) => {
-    setSearchDisplay(selectedItem);
-    if (users) {
-      setSelectedUsername(selectedItem);
-    } else {
-      setSelectedWordName(selectedItem);
+  // Fixed click handler
+  const handleSuggestionClick = (suggestion: Suggestion) => {
+    if (users && typeof suggestion !== "string") {
+      // Handle user selection
+      setSelectedUsername(suggestion.username);
+      setSearchDisplay(suggestion.username);
+    } else if (!users && typeof suggestion === "string") {
+      // Handle word selection
+      setSelectedWordName(suggestion);
+      setSearchDisplay(suggestion);
     }
-    setSearchDisplay("");
+    // Clear suggestions after selection
+    setFilteredSuggestions([]);
   };
 
   const { speak } = useSpeek({ text: selectedWord[0]?.word });
@@ -156,16 +172,19 @@ const Searchbar = ({
           <CommandList>
             <CommandEmpty>
               <span>
-                {users ? "No users found" : "You haven't seen any words yet."}
+                {users
+                  ? "No users is online yet."
+                  : "You haven't seen any words yet."}
               </span>
             </CommandEmpty>
             <CommandGroup heading="Suggestions">
               {filteredSuggestions.map((suggestion, index) => (
                 <CommandItem
                   key={index}
+                  className="cursor-pointer"
                   onSelect={() => handleSuggestionClick(suggestion)}
                 >
-                  {suggestion}
+                  <span>salam</span>
                 </CommandItem>
               ))}
             </CommandGroup>

@@ -26,6 +26,18 @@ export const quizItems = [
   },
 ];
 
+export const actions = [
+  {
+    value: "delete",
+    label: "Delete",
+  },
+  {
+    value: "edit",
+    label: "Edit",
+  },
+];
+
+
 export const LEVELS: Record<string, string> = {
   pre_school: "Pre-school",
   elementary: "Elementary",

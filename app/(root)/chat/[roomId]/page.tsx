@@ -1,15 +1,17 @@
 "use client";
-import React from "react";
+import React, { useRef, useState } from "react";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
 import { useSearchParams, useParams } from "next/navigation";
-import { useQuery , useMutation } from "convex/react";
+import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useUser } from "@/context/UserContext";
 import Spinner from "@/components/Spinner";
 import { formatDate } from "@/utils";
-import { useState } from "react";
-
+import { Combobox } from "@/components/ComboBox";
+import { Id } from "@/convex/_generated/dataModel";
+import { Modal } from "@/components/Modal";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 const Page = () => {
   const searchParams = useSearchParams();
@@ -21,50 +23,41 @@ const Page = () => {
   const imageUrl = searchParams.get("imageUrl");
   const roomId = params.roomId as string;
 
-  const [message, setMessage] = useState("");
+  const [openModal, setOpenModal] = useState(false);
+  const [message, setMessage] = useState<string>("");
+  const [editMessage, setEditMessage] = useState<string>("");
+  const messageIdRef = useRef<string | null>(null);
 
   const messages = useQuery(api.ChatRooms.getMessagesByRoom, { roomId });
   const createMessage = useMutation(api.Messages.createMessage);
+  const editMessageMutation = useMutation(api.Messages.updateMessage);
+  const deleteMessage = useMutation(api.Messages.deleteMessage);
 
-  if (!messages) return <Spinner loading={true} />;
+  if (!messages || !userId || roomId === undefined)
+    return <Spinner loading={true} />;
 
-  // const messages = [
-  //   {
-  //     id: 1,
-  //     text: "Hey there! How's your project going?",
-  //     sender: "user",
-  //     time: "10:30 AM",
-  //     read: true,
-  //   },
-  //   {
-  //     id: 2,
-  //     text: "It's going well! Just finished the UI design. What about you?",
-  //     sender: "other",
-  //     time: "10:32 AM",
-  //     read: false,
-  //   },
-  //   {
-  //     id: 3,
-  //     text: "I'm working on the backend API. Almost done with the authentication system.",
-  //     sender: "user",
-  //     time: "10:33 AM",
-  //     read: true,
-  //   },
-  //   {
-  //     id: 4,
-  //     text: "That's great! Let me know when you need me to integrate the frontend.",
-  //     sender: "other",
-  //     time: "10:35 AM",
-  //     read: false,
-  //   },
-  //   {
-  //     id: 5,
-  //     text: "Sure, I'll probably finish by tomorrow. Then we can test everything together.",
-  //     sender: "user",
-  //     time: "10:36 AM",
-  //     read: false,
-  //   },
-  // ];
+
+  const handleRemoveMessage = async (messageId: Id<"messages">) => {
+    await deleteMessage({
+      messageId: messageId,
+    });
+  };
+
+  const handleEditMessage = async () => {
+    if (!editMessage || !messageIdRef.current) return;
+    try {
+      editMessageMutation({
+        messageId: messageIdRef.current as Id<"messages">,
+        content: editMessage,
+      });
+      messageIdRef.current = "";
+    } catch (error) {
+      console.error("Error editing message:", error);
+    } finally {
+      setOpenModal(false);
+      setEditMessage("");
+    }
+  };
 
   const handleSendMessage = async () => {
     if (!message) return;
@@ -79,6 +72,14 @@ const Page = () => {
       setMessage("");
     } catch (error) {
       console.error("Error sending message:", error);
+    }
+  };
+
+  const getValue = (value: string, messageId: string) => {
+    value === "delete" && handleRemoveMessage(messageId as Id<"messages">);
+    if (value === "edit") {
+      messageIdRef.current = messageId;
+      setOpenModal(true);
     }
   };
 
@@ -154,7 +155,16 @@ const Page = () => {
                           : "bg-gray-700 text-white rounded-bl-none"
                       }`}
                     >
-                      <p>{message.content}</p>
+                      {message.senderId === userId ? (
+                        <Combobox
+                          key={message._id}
+                          message={message.content}
+                          messageId={message._id}
+                          onActionSelect={getValue}
+                        />
+                      ) : (
+                        <span>{message.content}</span>
+                      )}
                     </div>
                     <div
                       className={`flex items-center mt-1 ${message.senderId === userId ? "justify-end" : "justify-start"}`}
@@ -251,6 +261,26 @@ const Page = () => {
           </div>
         </div>
       </div>
+      <Modal open={openModal} onOpenChange={setOpenModal}>
+        <Modal.Content>
+          <Modal.Section title="Edit your message here.">
+            <Modal.Body
+              className="max-sm:flex max-sm:flex-col space-y-4" // Added space-y-4 for spacing
+            >
+              <Input
+                value={editMessage}
+                onChange={(e) => setEditMessage(e.target.value)}
+                placeholder="Edit your message..."
+                className="w-full"
+              />
+
+              <Button onClick={handleEditMessage} className="mt-4">
+                Save Changes
+              </Button>
+            </Modal.Body>
+          </Modal.Section>
+        </Modal.Content>
+      </Modal>
     </div>
   );
 };

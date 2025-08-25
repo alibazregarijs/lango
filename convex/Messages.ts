@@ -22,3 +22,24 @@ export const createMessage = mutation({
     return messageId;
   },
 });
+
+export const deleteMessage = mutation({
+  args: {
+    messageId: v.id("messages"),
+  },
+  handler: async (ctx, args) => {
+    // Delete the specific message by its ID
+    await ctx.db.delete(args.messageId);
+  },
+});
+
+export const updateMessage = mutation({
+  args: {
+    messageId: v.id("messages"),
+    content: v.string(),
+  },
+  handler: async (ctx, args) => {
+    // Update the specific message by its ID
+    await ctx.db.patch(args.messageId, { content: args.content });
+  },
+});

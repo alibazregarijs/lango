@@ -98,7 +98,7 @@ export type DialogContentProps = {
 };
 
 export type DialogHeaderProps = {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   title: string;
   loading?: boolean;
 };
@@ -149,5 +149,17 @@ export type allUsersProps = {
   lastSeen: number;
   online: boolean;
 };
+
+export type Message = {
+  _id: Id<"messages">;
+  _creationTime: number;
+  replyToId?: string | undefined;
+  read: boolean;
+  roomId: string;
+  senderId: string;
+  content: string;
+};
+
+export type MessagesQuery = Message[] | undefined;
 
 export type selectedWordProps = selectedWordProps[] | undefined;

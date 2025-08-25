@@ -85,19 +85,27 @@ export const handleUserFilter = ({
   try {
     return (
       allUsers
-        ?.filter((user: any) => {
-          let username: string = user.email && getGmailUsername(user.email);
+        ?.filter((user: allUsersProps) => {
+          const username = user.email ? getGmailUsername(user.email) : null;
           return (
             user &&
             username?.toLowerCase().includes(value.toLowerCase()) &&
             userId !== user.clerkId
           );
         })
-        .map((user: any) => getGmailUsername(user.email))
-        .filter((username): username is string => username !== null) ?? []
+        .map((user: allUsersProps) => {
+          const username = user.email ? getGmailUsername(user.email) : null;
+          return username
+            ? { username, imageUrl: user.imageUrl }
+            : null;
+        })
+        .filter(
+          (user): user is { username: string; imageUrl: string } => user !== null
+        ) ?? []
     );
   } catch (error) {
     console.error("Error filtering users:", error);
     return [];
   }
 };
+

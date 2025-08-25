@@ -17,7 +17,6 @@ const ListeningCarouselSlideComponent = ({
   disabled,
   isProcessing
 }: ListeningCarouselSlideProps) => {
-  console.log(isProcessing,"process");
   return (
     <>
       {loading ? (

@@ -14,7 +14,6 @@ export const useNotification = () => {
     userTakerId: string,
     userSenderName: string,
     userSenderImageUrl: string,
-    imageUrl: string
   ) => {
     try {
       let routeUrl = "/chat/" + uuidv4();
