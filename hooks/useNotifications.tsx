@@ -1,39 +1,69 @@
-import { useMemo } from "react";
-import { useMutation } from "convex/react";
+// hooks/useNotificationQueries.ts
+import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { useQuery } from "convex/react";
-import { useUser } from "@/context/UserContext";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import { Id } from "@/convex/_generated/dataModel";
+import { useMemo } from "react";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { useUser } from "@/context/UserContext";
+import { type Message } from "@/types";
 
-const useNotifications = () => {
-  const { userId } = useUser();
-  const router = useRouter();
-
+// Single responsibility: Handle Convex queries and mutations
+export const useNotificationQueries = (userId: string | null) => {
   const unreadNotifications = useQuery(
     api.Notifications.getUnreadByUser,
     userId ? { userId } : "skip"
   );
+
   const markNotificationsAsRead = useMutation(
     api.Notifications.markNotificationsAsRead
   );
+
   const acceptNotificationByUser = useMutation(
     api.Notifications.acceptNotificationById
   );
+
   const markNotificationAsReadById = useMutation(api.Notifications.markAsRead);
+
   const createChatRoom = useMutation(api.ChatRooms.createChatRoom);
 
-  // Derived state
+  return {
+    unreadNotifications,
+    markNotificationsAsRead,
+    acceptNotificationByUser,
+    markNotificationAsReadById,
+    createChatRoom,
+  };
+};
+
+// hooks/useNotificationState.ts
+
+// Single responsibility: Calculate derived state from notifications data
+export const useNotificationState = (notifications: Message[]) => {
   const notificationCount = useMemo(
-    () => unreadNotifications?.length || 0,
-    [unreadNotifications]
+    () => notifications?.length || 0,
+    [notifications]
   );
 
   const hasUnreadNotifications = notificationCount > 0;
 
-  const markAllAsRead = async () => {
+  return {
+    notificationCount,
+    hasUnreadNotifications,
+  };
+};
+
+// services/notificationService.ts
+
+// Single responsibility: Handle notification business logic
+export class NotificationService {
+  static async markAllAsRead(
+    markNotificationsAsRead: any,
+    userId: string,
+    hasUnreadNotifications: boolean
+  ) {
     if (!hasUnreadNotifications || !userId) return;
+
     try {
       await markNotificationsAsRead({ userId });
       toast.success("All notifications marked as read");
@@ -41,7 +71,87 @@ const useNotifications = () => {
       console.error("Error marking all notifications as read:", error);
       toast.error("Failed to mark notifications as read");
     }
+  }
+
+  static async acceptNotification(
+    acceptNotificationByUser: any,
+    createChatRoom: any,
+    params: {
+      notificationId: Id<"notifications">;
+      userTakerId: string;
+      userSenderId: string;
+    }
+  ) {
+    try {
+      await acceptNotificationByUser({
+        notificationId: params.notificationId,
+      });
+
+      await createChatRoom({
+        takerId: params.userTakerId,
+        giverId: params.userSenderId,
+      });
+
+      toast.success("You have accepted the request.");
+      return true;
+    } catch (error) {
+      console.error("Error accepting notification:", error);
+      toast.error("Failed to accept request");
+      return false;
+    }
+  }
+}
+
+// hooks/useNotificationNavigation.ts
+
+// Single responsibility: Handle navigation logic
+export const useNotificationNavigation = () => {
+  const router = useRouter();
+
+  const navigateToChat = (
+    routeUrl: string,
+    userSenderId: string,
+    userTakerId: string,
+    imageUrl: string
+  ) => {
+    router.push(
+      `${routeUrl}?userSenderId=${userSenderId}&userTakerId=${userTakerId}&imageUrl=${imageUrl}`
+    );
   };
+
+  return { navigateToChat };
+};
+
+// hooks/useNotifications.ts (Main hook - orchestrates everything)
+
+// Single responsibility: Orchestrate notification functionality
+const useNotifications = () => {
+  const { userId } = useUser();
+
+  // Data layer
+  const {
+    unreadNotifications,
+    markNotificationsAsRead,
+    acceptNotificationByUser,
+    markNotificationAsReadById,
+    createChatRoom,
+  } = useNotificationQueries(userId);
+
+  // State layer
+  const { notificationCount, hasUnreadNotifications } = useNotificationState(
+    unreadNotifications as Message[]
+  );
+
+  // Navigation layer
+  const { navigateToChat } = useNotificationNavigation();
+
+  // Actions
+  const markAllAsRead = () =>
+    NotificationService.markAllAsRead(
+      markNotificationsAsRead,
+      userId!,
+      hasUnreadNotifications
+    );
 
   const handleAcceptNotification = async (
     notificationId: Id<"notifications">,
@@ -51,33 +161,28 @@ const useNotifications = () => {
     imageUrl: string,
     onModalClose: () => void
   ) => {
-    try {
-      await acceptNotificationByUser({ notificationId });
-      await createChatRoom({
-        takerId: userTakerId,
-        giverId: userSenderId,
-      });
-      toast.success("You have accepted the request.");
-      router.push(
-        `${routeUrl}?userSenderId=${userSenderId}&userTakerId=${userTakerId}&imageUrl=${imageUrl}`
-      );
+    const success = await NotificationService.acceptNotification(
+      acceptNotificationByUser,
+      createChatRoom,
+      { notificationId, userTakerId, userSenderId }
+    );
+
+    if (success) {
+      navigateToChat(routeUrl, userSenderId, userTakerId, imageUrl);
       onModalClose();
-    } catch (error) {
-      console.error("Error accepting notification:", error);
-      toast.error("Failed to accept request");
     }
   };
 
   return {
+    // Data
     unreadNotifications,
     notificationCount,
     hasUnreadNotifications,
+
+    // Actions
     markAllAsRead,
-    acceptNotificationByUser,
-    createChatRoom,
-    markNotificationAsReadById,
-    router,
     handleAcceptNotification,
+    markNotificationAsReadById,
   };
 };
 
