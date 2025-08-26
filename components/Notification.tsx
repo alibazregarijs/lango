@@ -7,48 +7,21 @@ import { Button } from "./ui/button";
 import { Id } from "@/convex/_generated/dataModel";
 import { toast } from "sonner";
 import { NotificationIcon } from "@/components/ui/NotificationIcon";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { formatDate } from "@/utils";
+import useNotifications from "@/hooks/useNotifications";
 
 const Notification = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { userId } = useUser();
-  const router = useRouter();
 
-  const unreadNotifications = useQuery(
-    api.Notifications.getUnreadByUser,
-    userId ? { userId } : "skip"
-  );
-
-  const markNotificationsAsRead = useMutation(
-    api.Notifications.markNotificationsAsRead
-  );
-  const acceptNotificationByUser = useMutation(
-    api.Notifications.acceptNotificationById
-  );
-  const markNotificationAsReadById = useMutation(api.Notifications.markAsRead);
-  const createChatRoom = useMutation(api.ChatRooms.createChatRoom);
-
-  // Derived state
-  const notificationCount = useMemo(
-    () => unreadNotifications?.length || 0,
-    [unreadNotifications]
-  );
-
-  const hasUnreadNotifications = notificationCount > 0;
-
-  const markAllAsRead = async () => {
-    if (!hasUnreadNotifications) return;
-    if (!userId) return;
-    try {
-      await markNotificationsAsRead({ userId });
-      toast.success("All notifications marked as read");
-    } catch (error) {
-      console.error("Error marking all notifications as read:", error);
-      toast.error("Failed to mark notifications as read");
-    }
-  };
+  const {
+    unreadNotifications,
+    notificationCount,
+    hasUnreadNotifications,
+    markAllAsRead,
+    markNotificationAsReadById,
+    handleAcceptNotification,
+  } = useNotifications();
 
   const toggleModal = useCallback(() => {
     setIsOpen((prev) => !prev);
@@ -57,30 +30,6 @@ const Notification = () => {
   const closeModal = useCallback(() => {
     setIsOpen(false);
   }, []);
-
-  const handleAcceptRequest = async (
-    notificationId: Id<"notifications">,
-    routeUrl: string,
-    userTakerId: string,
-    userSenderId: string,
-    imageUrl: string
-  ) => {
-    try {
-      await acceptNotificationByUser({ notificationId });
-      await createChatRoom({
-        takerId: userTakerId as string,
-        giverId: userSenderId as string,
-      });
-      toast.success("You have accepted the request.");
-      router.push(
-        `${routeUrl}?userSenderId=${userSenderId}&userTakerId=${userTakerId}&imageUrl=${imageUrl}`
-      );
-      setIsOpen(false);
-    } catch (error) {
-      console.error("Error accepting notification:", error);
-      toast.error("Failed to accept request");
-    }
-  };
 
   const handleReadNotification = async (
     notificationId: Id<"notifications">
@@ -214,12 +163,13 @@ const Notification = () => {
                           {notification.accept === false && (
                             <Button
                               onClick={() =>
-                                handleAcceptRequest(
+                                handleAcceptNotification(
                                   notification._id,
                                   notification.routeUrl!,
                                   notification.userTakerId,
                                   notification.userSenderId,
-                                  notification.userSenderImageUrl!
+                                  notification.userSenderImageUrl!,
+                                  closeModal
                                 )
                               }
                               variant="default"

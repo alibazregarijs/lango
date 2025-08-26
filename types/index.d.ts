@@ -158,6 +158,13 @@ export type Message = {
   roomId: string;
   senderId: string;
   content: string;
+  userSenderImageUrl?: string;
+  userSenderName?: string;
+  accept?: boolean;
+  routeUrl?: string;
+  userTakerId?: string;
+  userSenderId?: string;
+  text?: string;
 };
 
 export type UseUserSelectionOptionsProps = {
