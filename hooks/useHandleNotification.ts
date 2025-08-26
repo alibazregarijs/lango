@@ -5,12 +5,28 @@ import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
 import { useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { type allUsersProps } from "@/types";
+import {
+  type allUsersProps,
+  UseUserSelectionOptionsProps,
+  NavigateChatResultProps,
+} from "@/types";
 
-interface UseUserSelectionOptions {
-  onReset: () => void;
-  onModalClose?: () => void;
-}
+export const useRequestManager = () => {
+  const requestInProgressRef = useRef(false);
+
+  const executeRequest = async (requestFn: () => Promise<void>) => {
+    if (requestInProgressRef.current) return;
+
+    requestInProgressRef.current = true;
+    try {
+      await requestFn();
+    } finally {
+      requestInProgressRef.current = false;
+    }
+  };
+
+  return { executeRequest };
+};
 
 export const useNotification = () => {
   const sendNotification = useMutation(api.Notifications.createNotification);
@@ -60,13 +76,53 @@ export const useNotification = () => {
   };
 };
 
+// hooks/useNotificationSender.ts
+export const useNotificationSender = () => {
+  const { sendNotificationToUser } = useNotification();
+
+  const sendChatRequest = async (
+    selectedUserData: allUsersProps,
+    userId: string,
+    username: string,
+    userImageUrl: string
+  ) => {
+    return await sendNotificationToUser(
+      userId,
+      selectedUserData.clerkId,
+      username,
+      userImageUrl
+    );
+  };
+
+  return { sendChatRequest };
+};
+
+// hooks/useNavigationHandler.ts
+export const useNavigationHandler = () => {
+  const router = useRouter();
+
+  const navigateToChat = (
+    result: NavigateChatResultProps,
+    userId: string,
+    selectedUserData: allUsersProps
+  ) => {
+    router.push(
+      `${result.routeUrl}?userSenderId=${userId}&userTakerId=${selectedUserData.clerkId}&imageUrl=${selectedUserData.imageUrl}`
+    );
+  };
+
+  return { navigateToChat };
+};
+
+// hooks/useUserSelection.ts
+
 export const useUserSelection = ({
   onReset,
   onModalClose,
-}: UseUserSelectionOptions) => {
-  const router = useRouter();
-  const { sendNotificationToUser } = useNotification();
-  const requestInProgressRef = useRef(false);
+}: UseUserSelectionOptionsProps) => {
+  const { executeRequest } = useRequestManager();
+  const { sendChatRequest } = useNotificationSender();
+  const { navigateToChat } = useNavigationHandler();
 
   const handleUserSelection = useCallback(
     async (
@@ -75,38 +131,29 @@ export const useUserSelection = ({
       username: string,
       userImageUrl: string
     ) => {
-      // Prevent duplicate requests
-      if (requestInProgressRef.current) {
-        return;
-      }
-
-      requestInProgressRef.current = true;
-
-      try {
-        const result = await sendNotificationToUser(
-          userId,
-          selectedUserData.clerkId,
-          username,
-          userImageUrl
-        );
-
-        if (result.success) {
-          onReset();
-          onModalClose?.();
-          router.push(
-            `${result.routeUrl}?userSenderId=${userId}&userTakerId=${selectedUserData.clerkId}&imageUrl=${selectedUserData.imageUrl}`
+      await executeRequest(async () => {
+        try {
+          const result = await sendChatRequest(
+            selectedUserData,
+            userId,
+            username,
+            userImageUrl
           );
-        } else {
+
+          if (result?.success) {
+            onReset();
+            onModalClose?.();
+            navigateToChat(result, userId, selectedUserData);
+          } else {
+            onReset();
+          }
+        } catch (error) {
+          console.error("Error in user selection:", error);
           onReset();
         }
-      } catch (error) {
-        console.error("Error sending notification:", error);
-        onReset();
-      } finally {
-        requestInProgressRef.current = false;
-      }
+      });
     },
-    [sendNotificationToUser, onReset, onModalClose, router]
+    [executeRequest, sendChatRequest, navigateToChat, onReset, onModalClose]
   );
 
   return {

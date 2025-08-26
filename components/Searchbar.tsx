@@ -24,9 +24,7 @@ import { Modal } from "@/components/Modal";
 import { Play } from "iconsax-reactjs";
 import useSpeek from "@/hooks/useSpeek";
 import Spinner from "@/components/Spinner";
-import { toast } from "sonner";
 import { handleUserFilter, handleWordFilter } from "@/utils/index";
-import { useRouter } from "next/navigation";
 import { useUserSelection } from "@/hooks/useHandleNotification";
 import { type Suggestion } from "@/types";
 
@@ -85,20 +83,26 @@ const Searchbar = ({
     return false;
   };
 
-  const handleFilter = (value: string) => {
-    startTransition(() => {
-      if (handleEmptySearch(value)) return;
+  const handleWordQuizFilter = (value: string) => {
+    if (!recentWordQuizzes) return [];
+    const matched = handleWordFilter({ value, recentWordQuizzes });
+    return matched;
+  };
 
+  const handleUserFilterFunction = (value: string) => {
+    if (!allUsers || !userId) return [];
+    const matched = handleUserFilter({ allUsers, userId, value });
+    return matched;
+  };
+
+  const handleFilter = (value: string) => {
+    if (handleEmptySearch(value)) return;
+    startTransition(() => {
       let matched = [];
       if (!users) {
-        matched = recentWordQuizzes
-          ? handleWordFilter({ value, recentWordQuizzes })
-          : [];
+        matched = handleWordQuizFilter(value);
       } else {
-        matched =
-          allUsers && userId
-            ? handleUserFilter({ allUsers, userId, value })
-            : [];
+        matched = handleUserFilterFunction(value);
       }
       setFilteredSuggestions(matched);
     });
@@ -121,31 +125,48 @@ const Searchbar = ({
   }, [selectedWordData]);
 
   // Fixed click handler
+  const handleSelectWordName = (suggestion: string) => {
+    setSelectedWordName(() => {
+      setTimeout(() => {
+        setSelectedWordName(suggestion);
+      }, 0);
+      return null;
+    });
+    setSearchDisplay(suggestion);
+  };
+
+  const handleSelectUsername = (suggestion: {
+    username: string;
+    imageUrl: string;
+  }) => {
+    setSelectedUsername(suggestion.username);
+    setSearchDisplay(suggestion.username);
+  };
+
+  const setCleanState = () => {
+    setTimeout(() => {
+      setSearchDisplay("");
+      setFilteredSuggestions([]);
+    }, 150);
+  };
+
   const handleSuggestionClick = useCallback(
     (suggestion: Suggestion) => {
       if (!users && typeof suggestion === "string") {
-        setSelectedWordName((prev) => {
-          setTimeout(() => {
-            setSelectedWordName(suggestion);
-          }, 0);
-          return null;
-        });
-        setSearchDisplay(suggestion);
+        handleSelectWordName(suggestion);
       } else if (users && typeof suggestion !== "string") {
-        setSelectedUsername(suggestion.username);
-        setSearchDisplay(suggestion.username);
+        handleSelectUsername(suggestion);
       }
-      setTimeout(() => {
-        setSearchDisplay("");
-        setFilteredSuggestions([]);
-      }, 150);
+      setCleanState();
     },
     [users]
   );
 
   const { speak } = useSpeek({ text: selectedWord[0]?.word });
 
-  if (!userId) return <Spinner loading={true} />;
+  if (allUsers === undefined || !userId || recentWordQuizzes === undefined) {
+    return <Spinner loading={true} />;
+  }
 
   return (
     <div className="h-full flex justify-center items-start">
@@ -176,20 +197,7 @@ const Searchbar = ({
                   }
                   onSelect={() => handleSuggestionClick(suggestion)}
                 >
-                  {users && typeof suggestion !== "string" ? (
-                    <div className="flex items-center gap-2">
-                      <Image
-                        src={suggestion.imageUrl}
-                        alt={suggestion.username}
-                        width={44}
-                        height={44}
-                        className="rounded-full border-orange-1 border-2"
-                      />
-                      <span>{suggestion.username}</span>
-                    </div>
-                  ) : (
-                    <span>{suggestion as string}</span>
-                  )}
+                  <SuggestionItem suggestion={suggestion} users={users} />
                 </CommandItem>
               ))}
             </CommandGroup>
@@ -233,6 +241,30 @@ const Searchbar = ({
       </div>
     </div>
   );
+};
+
+const SuggestionItem = ({
+  suggestion,
+  users,
+}: {
+  suggestion: Suggestion;
+  users: boolean;
+}) => {
+  if (users && typeof suggestion !== "string") {
+    return (
+      <div className="flex items-center gap-2">
+        <Image
+          src={suggestion.imageUrl}
+          alt={suggestion.username}
+          width={44}
+          height={44}
+          className="rounded-full border-orange-1 border-2"
+        />
+        <span>{suggestion.username}</span>
+      </div>
+    );
+  }
+  return <span>{suggestion as string}</span>;
 };
 
 export default Searchbar;

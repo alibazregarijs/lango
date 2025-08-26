@@ -160,6 +160,23 @@ export type Message = {
   content: string;
 };
 
+export type UseUserSelectionOptionsProps = {
+  onReset: () => void;
+  onModalClose?: () => void;
+};
+
+export type NavigateChatResultProps =
+  | {
+      success: boolean;
+      routeUrl: string;
+      message: string;
+    }
+  | {
+      success: boolean;
+      routeUrl?: undefined;
+      message?: undefined;
+    };
+
 export type Suggestion = string | { username: string; imageUrl: string };
 
 export type MessagesQuery = Message[] | undefined;
