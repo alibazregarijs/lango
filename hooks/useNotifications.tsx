@@ -1,5 +1,5 @@
 // hooks/useNotificationQueries.ts
-import { useQuery, useMutation } from "convex/react";
+import { useQuery, useMutation, ReactMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { useMemo } from "react";
@@ -58,7 +58,9 @@ export const useNotificationState = (notifications: Message[]) => {
 // Single responsibility: Handle notification business logic
 export class NotificationService {
   static async markAllAsRead(
-    markNotificationsAsRead: any,
+    markNotificationsAsRead: ReactMutation<
+      typeof api.Notifications.markNotificationsAsRead
+    >,
     userId: string,
     hasUnreadNotifications: boolean
   ) {
@@ -74,8 +76,10 @@ export class NotificationService {
   }
 
   static async acceptNotification(
-    acceptNotificationByUser: any,
-    createChatRoom: any,
+    acceptNotificationByUser: ReactMutation<
+      typeof api.Notifications.acceptNotificationById
+    >,
+    createChatRoom: ReactMutation<typeof api.ChatRooms.createChatRoom>,
     params: {
       notificationId: Id<"notifications">;
       userTakerId: string;
