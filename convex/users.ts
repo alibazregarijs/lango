@@ -133,8 +133,6 @@ export const updateUserImage = mutation({
       imageUrl: args.newImageUrl,
     });
 
-    console.log("updated ok");
-
     return { success: true };
   },
 });
@@ -262,7 +260,6 @@ export const getByUsername = query({
     return users.length > 0 ? users[0] : null;
   },
 });
-
 
 export const getUserById = query({
   args: { clerkId: v.string() },
