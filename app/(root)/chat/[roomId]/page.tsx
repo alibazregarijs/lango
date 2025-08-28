@@ -1,5 +1,11 @@
 "use client";
-import React, { useCallback } from "react";
+import React, {
+  useCallback,
+  useRef,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { Modal } from "@/components/Modal";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -12,10 +18,17 @@ import { useChatQueries } from "@/hooks/useChats";
 import { useChatState } from "@/hooks/useChats";
 import { useChatActions } from "@/hooks/useChats";
 import { type EditMessageModalProps } from "@/types";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
 
 const Page = () => {
-  const { userId, roomId } = useChatData();
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [isMount, setIsMount] = useState(false);
+  const { userId, roomId, userSenderId, userTakerId } = useChatData();
   const { messages } = useChatQueries();
+  const markAllMessagesAsTrue = useMutation(
+    api.Messages.markSenderMessagesInRoom
+  );
   const {
     openModal,
     message,
@@ -33,6 +46,7 @@ const Page = () => {
       message,
       messageIdRef,
       editMessage,
+      takerId: userTakerId as string,
       setMessage,
       setEditMessage,
     });
@@ -50,6 +64,38 @@ const Page = () => {
     [handleRemoveMessage, setOpenModal]
   );
 
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const markAllMessagesAsRead = useCallback(async () => {
+    if (!messages) return;
+    markAllMessagesAsTrue({
+      roomId,
+      senderId: userId === userSenderId ? userTakerId! : userSenderId!,
+      readStatus: true,
+    });
+    scrollToBottom();
+  }, [messages, markAllMessagesAsTrue, roomId, userSenderId]);
+
+  const unReadMessageCount = useMemo(() => {
+    if (!messages) return 0;
+    return messages.filter(
+      (message) => !message.read && message.senderId !== userId
+    ).length;
+  }, [messages]);
+
+  useEffect(() => {
+    scrollToBottom();
+    if (messages && messages?.length > 0) {
+      markAllMessagesAsTrue({
+        roomId,
+        senderId: userTakerId!,
+        readStatus: true,
+      });
+    }
+  }, [isMount]);
+
   if (!userId || roomId === undefined || !messages) {
     return <Spinner loading={true} />;
   }
@@ -58,7 +104,13 @@ const Page = () => {
     <div className="max-h-screen h-full p-4 flex justify-center items-start">
       <div className="w-full max-w-4xl bg-[#1A1D23] rounded-xl shadow-2xl overflow-hidden border border-gray-800 flex flex-col h-[85vh]">
         <ChatHeader />
-        <MessageList onActionSelect={getOption} />
+        <MessageList
+          onActionSelect={getOption}
+          messagesEndRef={messagesEndRef as React.RefObject<HTMLDivElement>}
+          onMount={setIsMount}
+          unReadMessageCount={unReadMessageCount}
+          onScroll={markAllMessagesAsRead}
+        />
         <MessageInput
           message={message}
           onMessageChange={setMessage}

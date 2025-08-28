@@ -194,6 +194,10 @@ export type EditMessageModalProps = {
 
 export type MessageListProps = {
   onActionSelect: (value: string, messageId: string) => void;
+  messagesEndRef: React.RefObject<HTMLDivElement>;
+  onMount: React.Dispatch<React.SetStateAction<boolean>>
+  unReadMessageCount: number
+  onScroll: () => void
 };
 
 export type MessageItemProps = {
@@ -202,13 +206,13 @@ export type MessageItemProps = {
   userImageUrl: string;
   imageUrl: string | null;
   onActionSelect: (value: string, messageId: string) => void;
-}
+};
 
 export type MessageInputProps = {
   message: string;
   onMessageChange: (value: string) => void;
   onSendMessage: () => void;
-}
+};
 
 export type Suggestion = string | { username: string; imageUrl: string };
 

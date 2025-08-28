@@ -13,6 +13,7 @@ export const MessageInput = ({
         <EmojiButton />
         <SendButton onSendMessage={onSendMessage} />
       </div>
+
     </div>
   );
 };

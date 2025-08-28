@@ -103,6 +103,7 @@ export default defineSchema({
   messages: defineTable({
     roomId: v.string(),
     senderId: v.string(), // Who sent the message
+    takerId: v.string(), // Who receives the message
     content: v.string(),
     replyToId: v.optional(v.string()), // Reference to message being replied to
     read: v.boolean(),

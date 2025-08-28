@@ -82,6 +82,7 @@ export const useChatActions = ({
   editMessage,
   setMessage,
   setEditMessage,
+  takerId
 }: {
   closeModal: () => void;
   message: string;
@@ -89,6 +90,7 @@ export const useChatActions = ({
   editMessage: string;
   setMessage: React.Dispatch<React.SetStateAction<string>>;
   setEditMessage: React.Dispatch<React.SetStateAction<string>>;
+  takerId: string
 }) => {
   const { createMessage, editMessageMutation, deleteMessage } =
     useChatMutations();
@@ -130,6 +132,7 @@ export const useChatActions = ({
       await createMessage({
         roomId,
         senderId: userId,
+        takerId:takerId,
         content: message,
         replyToId: undefined,
         read: false,
