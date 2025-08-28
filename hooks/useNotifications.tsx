@@ -50,12 +50,12 @@ const useNotifications = () => {
       acceptNotificationByUser,
       notificationId
     );
-    const res = await createChatRoomFunction({
+    await createChatRoomFunction({
       createChatRoom,
       userTakerId,
       userSenderId,
     });
-    if (success && res) {
+    if (success) {
       navigateToChat(routeUrl, userSenderId, userTakerId, imageUrl);
       onModalClose();
     }

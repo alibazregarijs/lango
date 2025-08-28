@@ -1,10 +1,6 @@
 "use client";
-import React, { useRef, useState, useCallback } from "react";
+import React, { useRef, useState, useCallback, use } from "react";
 import Image from "next/image";
-import { useSearchParams, useParams } from "next/navigation";
-import { useQuery, useMutation } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import { useUser } from "@/context/UserContext";
 import Spinner from "@/components/Spinner";
 import { formatDate } from "@/utils";
 import { Combobox } from "@/components/ComboBox";
@@ -12,113 +8,86 @@ import { Id } from "@/convex/_generated/dataModel";
 import { Modal } from "@/components/Modal";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useChatState } from "@/hooks/useChats";
+import { useChatsQuery } from "@/hooks/useChats";
+import { useChatsModal } from "@/hooks/useChats";
+import { useCheckOnlineStatus } from "@/hooks/useChats";
+import { useGetOption } from "@/hooks/useChats";
+import { ChatService } from "@/hooks/useChats";
 
 const Page = () => {
-  const searchParams = useSearchParams();
-  const params = useParams();
-  const { userId, userImageUrl } = useUser();
+  const {
+    userSenderId,
+    userTakerId,
+    imageUrl,
+    roomId,
+    userId,
+    userImageUrl,
 
-  const userSenderId = searchParams.get("userSenderId");
-  const userTakerId = searchParams.get("userTakerId");
-  const imageUrl = searchParams.get("imageUrl");
-  const roomId = params.roomId as string;
+    message,
+    editMessage,
+    messageIdRef,
+    setMessage,
+    setEditMessage,
+  } = useChatState();
 
-  // Early return before any conditional hooks
-  if (!userId || roomId === undefined) {
-    return <Spinner loading={true} />;
-  }
+  const {
+    createMessage,
+    editMessageMutation,
+    deleteMessage,
+    userSender,
+    userTaker,
+    messages,
+  } = useChatsQuery({
+    userSenderId: userSenderId as string,
+    userTakerId: userTakerId as string,
+    roomId: roomId as string,
+  });
 
-  // All hooks called unconditionally
-  const userSender = useQuery(
-    api.users.getUserById,
-    userSenderId ? { clerkId: userSenderId as Id<"users"> } : "skip"
-  );
-  const userTaker = useQuery(
-    api.users.getUserById,
-    userTakerId ? { clerkId: userTakerId as Id<"users"> } : "skip"
-  );
-  const messages = useQuery(
-    api.ChatRooms.getMessagesByRoom,
-    roomId ? { roomId } : "skip"
-  );
-  const createMessage = useMutation(api.Messages.createMessage);
-  const editMessageMutation = useMutation(api.Messages.updateMessage);
-  const deleteMessage = useMutation(api.Messages.deleteMessage);
+  const { openModal, closeModalFunction, openModalFunction, setOpenModal } =
+    useChatsModal();
 
-  const [openModal, setOpenModal] = useState(false);
-  const [message, setMessage] = useState<string>("");
-  const [editMessage, setEditMessage] = useState<string>("");
-  const messageIdRef = useRef<string | null>(null);
+  const getOption = useGetOption({
+    deleteMessageAction: deleteMessage,
+    messageIdRef,
+    onOpenModal: openModalFunction,
+  });
 
   // Fixed online status logic
-  const getOnlineStatus = () => {
-    if (userId === userTakerId) {
-      return userSender?.online ? "text-green-400" : "text-gray-400";
-    } else {
-      return userTaker?.online ? "text-green-400" : "text-gray-400";
-    }
-  };
+  const { onlineStatus, isOnline, statusText } = useCheckOnlineStatus({
+    userId: userId as string,
+    userTakerId: userTakerId as string,
+    isUserSenderOnline: userSender?.online as boolean,
+    isUserTakerOnline: userTaker?.online as boolean,
+  });
 
-  const onlineStatus = getOnlineStatus();
-  const isOnline = onlineStatus === "text-green-400";
-  const statusText = isOnline ? "Online" : "Offline";
-
-  const handleRemoveMessage = useCallback(
-    async (messageId: Id<"messages">) => {
-      await deleteMessage({
-        messageId: messageId,
-      });
-    },
-    [deleteMessage]
-  );
-
-  const handleEditMessage = useCallback(async () => {
-    if (!editMessage || !messageIdRef.current) return;
-    try {
-      await editMessageMutation({
-        messageId: messageIdRef.current as Id<"messages">,
-        content: editMessage,
-      });
-      messageIdRef.current = null;
-    } catch (error) {
-      console.error("Error editing message:", error);
-    } finally {
-      setOpenModal(false);
-      setEditMessage("");
-    }
+  const handleEditMessage = useCallback(() => {
+    ChatService.handleEditMessage({
+      editMessage,
+      editMessageMutation,
+      messageIdRef,
+      onCloseModal: closeModalFunction,
+      setEditMessage,
+    });
   }, [editMessage, editMessageMutation]);
 
-  const handleSendMessage = useCallback(async () => {
-    if (!message) return;
-    try {
-      await createMessage({
-        roomId: roomId,
-        senderId: userId,
-        content: message,
-        replyToId: undefined,
-        read: false,
-      });
-      setMessage("");
-    } catch (error) {
-      console.error("Error sending message:", error);
-    }
+  const emptyMessage = useCallback(() => {
+    setMessage("");
+  }, [setMessage]);
+
+  const handleSendMessage = useCallback(() => {
+    if (!userId) return;
+    ChatService.handleSendMessage({
+      message,
+      createMessage,
+      roomId,
+      userId,
+      onEmptyMessage: emptyMessage,
+    });
   }, [message, createMessage, roomId, userId]);
 
-  const getOption = useCallback(
-    (value: string, messageId: string) => {
-      if (value === "delete") {
-        handleRemoveMessage(messageId as Id<"messages">);
-      }
-      if (value === "edit") {
-        messageIdRef.current = messageId;
-        setOpenModal(true);
-      }
-    },
-    [handleRemoveMessage]
-  );
-
   // Additional loading check for messages
-  if (!messages) {
+  if (!userId || roomId === undefined || !messages) {
     return <Spinner loading={true} />;
   }
 
