@@ -206,6 +206,8 @@ export type MessageItemProps = {
   userImageUrl: string;
   imageUrl: string | null;
   onActionSelect: (value: string, messageId: string) => void;
+  ref: React.Ref<HTMLDivElement> | undefined;
+  messagesEndRef: React.RefObject<HTMLDivElement> | undefined;
 };
 
 export type MessageInputProps = {

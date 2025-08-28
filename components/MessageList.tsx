@@ -61,8 +61,9 @@ export const MessageList = ({
             userImageUrl={userImageUrl as string}
             imageUrl={imageUrl}
             onActionSelect={onActionSelect}
-            // Only attach ref to the last message
+            // Pass ref as a regular prop in React 19
             ref={index === messages.length - 1 ? lastMessageRef : undefined}
+            messagesEndRef={index === messages.length - 1 ? messagesEndRef : undefined}
           />
         ))}
 
@@ -78,63 +79,63 @@ export const MessageList = ({
             </div>
           </div>
         )}
-
-        <div ref={messagesEndRef} />
       </div>
     </div>
   );
 };
 
-// Forward ref to MessageItem component
-const MessageItem = React.forwardRef<HTMLDivElement, MessageItemProps>(
-  ({ message, userId, userImageUrl, imageUrl, onActionSelect }, ref) => {
-    const isOwnMessage = message.senderId === userId;
+// MessageItem component with ref as a regular prop
+const MessageItem = ({
+  message,
+  userId,
+  userImageUrl,
+  imageUrl,
+  onActionSelect,
+  ref, // ref is now a regular prop in React 19
+  messagesEndRef
+}: MessageItemProps) => {
+  const isOwnMessage = message.senderId === userId;
 
-    return (
+  return (
+    <div className={`flex ${isOwnMessage ? "justify-end" : "justify-start"}`}>
       <div
-        ref={ref} // Attach the ref here
-        className={`flex ${isOwnMessage ? "justify-end" : "justify-start"}`}
+        className={`flex ${isOwnMessage ? "flex-row-reverse" : "flex-row"} max-w-[75%] gap-3`}
       >
-        <div
-          className={`flex ${isOwnMessage ? "flex-row-reverse" : "flex-row"} max-w-[75%] gap-3`}
-        >
-          <div className="flex-shrink-0">
-            <Image
-              width={40}
-              height={40}
-              className="rounded-full border-2 border-orange-500"
-              src={isOwnMessage ? userImageUrl : imageUrl || ""}
-              alt="User"
-            />
-          </div>
+        <div className="flex-shrink-0">
+          <Image
+            width={40}
+            height={40}
+            className="rounded-full border-2 border-orange-500"
+            src={isOwnMessage ? userImageUrl : imageUrl || ""}
+            alt="User"
+          />
+        </div>
 
-          <div className="flex flex-col">
-            <div
-              className={`rounded-2xl px-4 py-2 ${
-                isOwnMessage
-                  ? "bg-orange-500 text-white rounded-br-none"
-                  : "bg-gray-700 text-white rounded-bl-none"
-              }`}
-            >
-              {isOwnMessage ? (
-                <Combobox
-                  message={message.content}
-                  messageId={message._id}
-                  onActionSelect={onActionSelect}
-                />
-              ) : (
-                <span>{message.content}</span>
-              )}
-            </div>
-            <MessageFooter message={message} isOwnMessage={isOwnMessage} />
+        <div className="flex flex-col">
+          <div
+            className={`rounded-2xl px-4 py-2 ${
+              isOwnMessage
+                ? "bg-orange-500 text-white rounded-br-none"
+                : "bg-gray-700 text-white rounded-bl-none"
+            }`}
+          >
+            {isOwnMessage ? (
+              <Combobox
+                message={message.content}
+                messageId={message._id}
+                onActionSelect={onActionSelect}
+              />
+            ) : (
+              <span>{message.content}</span>
+            )}
           </div>
+          <MessageFooter message={message} isOwnMessage={isOwnMessage} />
         </div>
       </div>
-    );
-  }
-);
-
-MessageItem.displayName = "MessageItem";
+      <div ref={messagesEndRef} />
+    </div>
+  );
+};
 
 const MessageFooter = ({
   message,
