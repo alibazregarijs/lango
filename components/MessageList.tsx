@@ -3,11 +3,7 @@ import { Combobox } from "./ComboBox";
 import { formatDate } from "@/utils";
 import { useChatData } from "@/hooks/useChats";
 import { useChatQueries } from "@/hooks/useChats";
-import { useChatActions } from "@/hooks/useChats";
-
-interface MessageListProps {
-  onActionSelect: (value: string, messageId: string) => void;
-}
+import { type MessageListProps, type MessageItemProps , type Message } from "@/types";
 
 export const MessageList = ({ onActionSelect }: MessageListProps) => {
   const { userId, userImageUrl, imageUrl } = useChatData();
@@ -33,15 +29,13 @@ export const MessageList = ({ onActionSelect }: MessageListProps) => {
   );
 };
 
-interface MessageItemProps {
-  message: any;
-  userId: string;
-  userImageUrl: string;
-  imageUrl: string | null;
-  onActionSelect: (value: string, messageId: string) => void;
-}
-
-const MessageItem = ({ message, userId, userImageUrl, imageUrl, onActionSelect }: MessageItemProps) => {
+const MessageItem = ({
+  message,
+  userId,
+  userImageUrl,
+  imageUrl,
+  onActionSelect,
+}: MessageItemProps) => {
   const isOwnMessage = message.senderId === userId;
 
   return (
@@ -84,13 +78,23 @@ const MessageItem = ({ message, userId, userImageUrl, imageUrl, onActionSelect }
   );
 };
 
-const MessageFooter = ({ message, isOwnMessage }: { message: any; isOwnMessage: boolean }) => (
-  <div className={`flex items-center mt-1 ${isOwnMessage ? "justify-end" : "justify-start"}`}>
+const MessageFooter = ({
+  message,
+  isOwnMessage,
+}: {
+  message: Message;
+  isOwnMessage: boolean;
+}) => (
+  <div
+    className={`flex items-center mt-1 ${isOwnMessage ? "justify-end" : "justify-start"}`}
+  >
     <span className="text-xs text-gray-400 mr-1">
       {formatDate(message._creationTime)}
     </span>
     {isOwnMessage && (
-      <span className={`text-xs ${message.read ? "text-blue-400" : "text-gray-500"}`}>
+      <span
+        className={`text-xs ${message.read ? "text-blue-400" : "text-gray-500"}`}
+      >
         {message.read ? "✓✓" : "✓"}
       </span>
     )}

@@ -54,12 +54,12 @@ export const Combobox = ({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[200px] justify-between cursor-pointer border-none bg-transparent! shadow-none"
+          className="justify-between cursor-pointer border-none bg-transparent! shadow-none w-full max-w-[200px] min-h-[40px] h-auto py-2"
         >
-          {
-            
-         message}
-          <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          <span className="w-full break-words whitespace-pre-wrap overflow-hidden text-left">
+            {message}
+          </span>
+          <ChevronsUpDownIcon className="ml-2 h-4 w-4 opacity-50 flex-shrink-0" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0">
@@ -72,9 +72,9 @@ export const Combobox = ({
                   key={action.value}
                   className={`${
                     action.value === "delete"
-                      ? "text-white bg-red-500 hover:bg-red-500!"
-                      : "bg-accent"
-                  }`}
+                      ? "text-white bg-red-500 hover:bg-red-600!" // Changed hover to red-600 for better UX
+                      : "bg-accent hover:bg-accent/80"
+                  } transition-colors`}
                   value={action.value}
                   onSelect={handleSelect}
                 >

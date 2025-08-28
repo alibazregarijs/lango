@@ -184,12 +184,30 @@ export type NavigateChatResultProps =
       message?: undefined;
     };
 
-type EditMessageModalProps = {
+export type EditMessageModalProps = {
   open: boolean;
   editMessage: string;
   onOpenChange: React.Dispatch<React.SetStateAction<boolean>>;
   onEditMessageChange: (message: string) => void;
   onSave: () => void;
+};
+
+export type MessageListProps = {
+  onActionSelect: (value: string, messageId: string) => void;
+};
+
+export type MessageItemProps = {
+  message: any;
+  userId: string;
+  userImageUrl: string;
+  imageUrl: string | null;
+  onActionSelect: (value: string, messageId: string) => void;
+}
+
+export type MessageInputProps = {
+  message: string;
+  onMessageChange: (value: string) => void;
+  onSendMessage: () => void;
 }
 
 export type Suggestion = string | { username: string; imageUrl: string };

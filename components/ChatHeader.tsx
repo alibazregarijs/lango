@@ -4,7 +4,6 @@ import { useOnlineStatus } from "@/hooks/useChats";
 import { useChatData } from "@/hooks/useChats";
 
 export const ChatHeader = () => {
-  const { userId, userTakerId } = useChatData();
   const { displayUser, isOnline, onlineStatus, statusText } = useOnlineStatus();
 
   return (

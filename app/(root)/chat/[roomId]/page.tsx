@@ -37,10 +37,6 @@ const Page = () => {
       setEditMessage,
     });
 
-  if (!userId || roomId === undefined || !messages) {
-    return <Spinner loading={true} />;
-  }
-
   const getOption = useCallback(
     (value: string, messageId: string) => {
       if (value === "delete") {
@@ -53,6 +49,10 @@ const Page = () => {
     },
     [handleRemoveMessage, setOpenModal]
   );
+
+  if (!userId || roomId === undefined || !messages) {
+    return <Spinner loading={true} />;
+  }
 
   return (
     <div className="max-h-screen h-full p-4 flex justify-center items-start">
@@ -94,7 +94,7 @@ const EditMessageModal = ({
             placeholder="Edit your message..."
             className="w-full"
           />
-          <Button onClick={onSave} className="mt-4">
+          <Button onClick={onSave} className="mt-4 cursor-pointer">
             Save Changes
           </Button>
         </Modal.Body>

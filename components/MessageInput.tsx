@@ -1,8 +1,4 @@
-interface MessageInputProps {
-  message: string;
-  onMessageChange: (value: string) => void;
-  onSendMessage: () => void;
-}
+import { type MessageInputProps } from "@/types";
 
 export const MessageInput = ({
   message,
@@ -25,7 +21,7 @@ const AttachmentButton = () => (
   <button className="p-2 rounded-full bg-gray-800 hover:bg-gray-700 transition-colors">
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      className="h-5 w-5 text-gray-400"
+      className="h-5 w-5 text-gray-400 cursor-pointer"
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
@@ -62,7 +58,7 @@ const EmojiButton = () => (
   <button className="p-2 rounded-full bg-gray-800 hover:bg-gray-700 transition-colors">
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      className="h-5 w-5 text-gray-400"
+      className="h-5 w-5 text-gray-400 cursor-pointer"
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
@@ -80,7 +76,7 @@ const EmojiButton = () => (
 const SendButton = ({ onSendMessage }: { onSendMessage: () => void }) => (
   <button
     onClick={onSendMessage}
-    className="p-2 rounded-full bg-orange-500 hover:bg-orange-600 transition-colors"
+    className="p-2 rounded-full bg-orange-500 hover:bg-orange-600 transition-colors cursor-pointer"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
