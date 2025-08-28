@@ -1,18 +1,12 @@
-import React from "react";
-import { useSearchParams } from "next/navigation";
-import { useParams } from "next/navigation";
-import { useUser } from "@/context/UserContext";
-import { useQuery, useMutation, ReactMutation } from "convex/react";
+import { useSearchParams, useParams } from "next/navigation";
+import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { useState, useCallback } from "react";
-import { useRef } from "react";
+import { useUser } from "@/context/UserContext";
+import { formatDate } from "@/utils";
+import { useState, useRef, useCallback } from "react";
 
-const useChats = () => {
-  return {};
-};
-
-export const useChatState = () => {
+export const useChatData = () => {
   const searchParams = useSearchParams();
   const params = useParams();
   const { userId, userImageUrl } = useUser();
@@ -22,10 +16,6 @@ export const useChatState = () => {
   const imageUrl = searchParams.get("imageUrl");
   const roomId = params.roomId as string;
 
-  const [message, setMessage] = useState<string>("");
-  const [editMessage, setEditMessage] = useState<string>("");
-  const messageIdRef = useRef<string | null>(null);
-
   return {
     userSenderId,
     userTakerId,
@@ -33,24 +23,12 @@ export const useChatState = () => {
     roomId,
     userId,
     userImageUrl,
-
-    message,
-    editMessage,
-    messageIdRef,
-    setMessage,
-    setEditMessage,
   };
 };
 
-export const useChatsQuery = ({
-  userSenderId,
-  userTakerId,
-  roomId,
-}: {
-  userSenderId: string;
-  userTakerId: string;
-  roomId: string;
-}) => {
+export const useChatQueries = () => {
+  const { userSenderId, userTakerId, roomId } = useChatData();
+
   const userSender = useQuery(
     api.users.getUserById,
     userSenderId ? { clerkId: userSenderId as Id<"users"> } : "skip"
@@ -63,126 +41,68 @@ export const useChatsQuery = ({
     api.ChatRooms.getMessagesByRoom,
     roomId ? { roomId } : "skip"
   );
+
+  return { userSender, userTaker, messages };
+};
+
+export const useChatMutations = () => {
   const createMessage = useMutation(api.Messages.createMessage);
   const editMessageMutation = useMutation(api.Messages.updateMessage);
   const deleteMessage = useMutation(api.Messages.deleteMessage);
 
-  return {
-    // data
-    userSender,
-    userTaker,
-    messages,
-
-    // actions
-    createMessage,
-    editMessageMutation,
-    deleteMessage,
-  };
+  return { createMessage, editMessageMutation, deleteMessage };
 };
 
-export const useChatsModal = () => {
+export const useChatState = () => {
   const [openModal, setOpenModal] = useState(false);
+  const [message, setMessage] = useState<string>("");
+  const [editMessage, setEditMessage] = useState<string>("");
+  const messageIdRef = useRef<string | null>(null);
 
-  const closeModalFunction = useCallback(() => {
-    setOpenModal(false);
-  }, [setOpenModal]);
-
-  const openModalFunction = useCallback(() => {
-    setOpenModal(true);
-  }, [setOpenModal]);
+  const closeModal = useCallback(() => setOpenModal(false), []);
+  const openModalFn = useCallback(() => setOpenModal(true), []);
 
   return {
     openModal,
-    closeModalFunction,
-    openModalFunction,
-    setOpenModal,
-  };
-};
-
-export const useCheckOnlineStatus = ({
-  userId,
-  userTakerId,
-  isUserSenderOnline,
-  isUserTakerOnline,
-}: {
-  userId: string;
-  userTakerId: string;
-  isUserSenderOnline: boolean;
-  isUserTakerOnline: boolean;
-}) => {
-  const getOnlineStatus = () => {
-    if (userId === userTakerId) {
-      return isUserSenderOnline ? "text-green-400" : "text-gray-400";
-    } else {
-      return isUserTakerOnline ? "text-green-400" : "text-gray-400";
-    }
-  };
-
-  const onlineStatus = getOnlineStatus();
-  const isOnline = onlineStatus === "text-green-400";
-  const statusText = isOnline ? "Online" : "Offline";
-
-  return {
-    onlineStatus,
-    isOnline,
-    statusText,
-  };
-};
-
-export const useGetOption = ({
-  deleteMessageAction, // action that we take from useQuery
-  messageIdRef,
-  onOpenModal,
-}: {
-  deleteMessageAction: ReactMutation<typeof api.Messages.deleteMessage>;
-  messageIdRef: React.RefObject<string | null>;
-  onOpenModal: () => void;
-}) => {
-  const getOption = useCallback(
-    (value: string, messageId: string) => {
-      if (value === "delete") {
-        ChatService.handleRemoveMessage(
-          deleteMessageAction,
-          messageId as Id<"messages">
-        );
-      }
-      if (value === "edit") {
-        messageIdRef.current = messageId;
-        onOpenModal();
-      }
-    },
-    [deleteMessageAction]
-  );
-  return getOption;
-};
-
-export class ChatService {
-  static async handleRemoveMessage(
-    deleteMessage: ReactMutation<typeof api.Messages.deleteMessage>,
-    messageId: Id<"messages">
-  ) {
-    try {
-      await deleteMessage({
-        messageId: messageId,
-      });
-    } catch (error) {
-      console.error("Error deleting message:", error);
-    }
-  }
-
-  static async handleEditMessage({
+    message,
     editMessage,
-    editMessageMutation,
     messageIdRef,
-    onCloseModal,
+    setOpenModal,
+    setMessage,
     setEditMessage,
-  }: {
-    editMessage: string;
-    editMessageMutation: ReactMutation<typeof api.Messages.updateMessage>;
-    messageIdRef: React.RefObject<string | null>;
-    onCloseModal: () => void;
-    setEditMessage: React.Dispatch<React.SetStateAction<string>>;
-  }) {
+    closeModal,
+    openModalFn,
+  };
+};
+
+export const useChatActions = ({
+  closeModal,
+  message,
+  messageIdRef,
+  editMessage,
+  setMessage,
+  setEditMessage,
+}: {
+  closeModal: () => void;
+  message: string;
+  messageIdRef: React.MutableRefObject<string | null>;
+  editMessage: string;
+  setMessage: React.Dispatch<React.SetStateAction<string>>;
+  setEditMessage: React.Dispatch<React.SetStateAction<string>>;
+}) => {
+  const { createMessage, editMessageMutation, deleteMessage } =
+    useChatMutations();
+
+  const { roomId, userId } = useChatData();
+
+  const handleRemoveMessage = useCallback(
+    async (messageId: Id<"messages">) => {
+      await deleteMessage({ messageId });
+    },
+    [deleteMessage]
+  );
+
+  const handleEditMessage = useCallback(async () => {
     if (!editMessage || !messageIdRef.current) return;
     try {
       await editMessageMutation({
@@ -193,38 +113,65 @@ export class ChatService {
     } catch (error) {
       console.error("Error editing message:", error);
     } finally {
-      onCloseModal();
+      closeModal();
       setEditMessage("");
     }
-  }
+  }, [
+    editMessage,
+    messageIdRef,
+    editMessageMutation,
+    closeModal,
+    setEditMessage,
+  ]);
 
-  static async handleSendMessage({
-    message,
-    createMessage,
-    roomId,
-    userId,
-    onEmptyMessage,
-  }: {
-    message: string;
-    createMessage: ReactMutation<typeof api.Messages.createMessage>;
-    roomId: string;
-    userId: string;
-    onEmptyMessage: () => void;
-  }) {
-    if (!message) return;
+  const handleSendMessage = useCallback(async () => {
+    if (!message || !userId) return;
     try {
       await createMessage({
-        roomId: roomId,
+        roomId,
         senderId: userId,
         content: message,
         replyToId: undefined,
         read: false,
       });
-      onEmptyMessage();
+      setMessage("");
     } catch (error) {
       console.error("Error sending message:", error);
     }
-  }
-}
+  }, [message, createMessage, roomId, userId, setMessage]);
 
-export default useChats;
+  return {
+    handleRemoveMessage,
+    handleEditMessage,
+    handleSendMessage,
+  };
+};
+
+export const useOnlineStatus = () => {
+  const { userSender, userTaker } = useChatQueries();
+  const { userId, userTakerId } = useChatData();
+
+  const displayUser = userId === userTakerId ? userSender : userTaker;
+  const isOnline = displayUser?.online;
+  const onlineStatus = isOnline ? "text-green-400" : "text-gray-400";
+  const statusText = isOnline ? "Online" : "Offline";
+
+  const getStatusDisplay = () => {
+    if (userId === userTakerId) {
+      return userSender?.lastSeen && !userSender.online
+        ? formatDate(userSender.lastSeen)
+        : statusText;
+    } else {
+      return userTaker?.lastSeen && !userTaker.online
+        ? formatDate(userTaker.lastSeen)
+        : statusText;
+    }
+  };
+
+  return {
+    displayUser,
+    isOnline,
+    onlineStatus,
+    statusText: getStatusDisplay(),
+  };
+};
