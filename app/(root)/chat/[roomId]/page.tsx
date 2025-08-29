@@ -1,11 +1,5 @@
 "use client";
-import React, {
-  useCallback,
-  useRef,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useMemo, memo, useState } from "react";
 import { Modal } from "@/components/Modal";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -13,22 +7,24 @@ import Spinner from "@/components/Spinner";
 import { ChatHeader } from "@/components/ChatHeader";
 import { MessageList } from "@/components/MessageList";
 import { MessageInput } from "@/components/MessageInput";
-import { useChatData } from "@/hooks/useChats";
-import { useChatQueries } from "@/hooks/useChats";
-import { useChatState } from "@/hooks/useChats";
-import { useChatActions } from "@/hooks/useChats";
+import { Id } from "@/convex/_generated/dataModel";
+import {
+  useChatData,
+  useChatQueries,
+  useChatState,
+  useChatActions,
+  useMarkMessagesAsRead,
+  useAutoScrollOnMount,
+  calculateUnReadMessageCount,
+  useScrollToBottom,
+  fetchMessages,
+} from "@/hooks/useChats";
 import { type EditMessageModalProps } from "@/types";
-import { useMutation } from "convex/react";
-import { api } from "@/convex/_generated/api";
 
-const Page = () => {
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [isMount, setIsMount] = useState(false);
-  const { userId, roomId, userSenderId, userTakerId } = useChatData();
-  const { messages } = useChatQueries();
-  const markAllMessagesAsTrue = useMutation(
-    api.Messages.markSenderMessagesInRoom
-  );
+const Page = memo(() => {
+  const { userId, roomId, userTakerId, userSenderId } = useChatData();
+  const { messages, setMessages } = fetchMessages();
+
   const {
     openModal,
     message,
@@ -38,63 +34,49 @@ const Page = () => {
     messageIdRef,
     setEditMessage,
     closeModal,
+    messagesEndRef,
+    isMount,
+    setIsMount,
   } = useChatState();
 
-  const { handleRemoveMessage, handleEditMessage, handleSendMessage } =
-    useChatActions({
-      closeModal,
-      message,
-      messageIdRef,
-      editMessage,
-      takerId: userTakerId as string,
-      setMessage,
-      setEditMessage,
-    });
+  const { scrollToBottom } = useScrollToBottom({
+    messagesEndRef: messagesEndRef as React.RefObject<HTMLDivElement> | null,
+  });
+
+  const {
+    handleRemoveMessage,
+    handleEditMessage,
+    handleSendMessage,
+    markAllMessagesAsRead,
+  } = useChatActions({
+    closeModal,
+    message,
+    messageIdRef,
+    editMessage,
+    takerId: userTakerId as string,
+    setMessage,
+    setEditMessage,
+    onScroll: scrollToBottom,
+    setMessages,
+  });
 
   const getOption = useCallback(
     (value: string, messageId: string) => {
       if (value === "delete") {
-        handleRemoveMessage(messageId as any);
+        handleRemoveMessage(messageId as Id<"messages">);
       }
       if (value === "edit") {
         messageIdRef.current = messageId;
         setOpenModal(true);
       }
     },
-    [handleRemoveMessage, setOpenModal]
+    [handleRemoveMessage, setOpenModal, messageIdRef]
   );
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  const unReadMessageCount = calculateUnReadMessageCount();
 
-  const markAllMessagesAsRead = useCallback(async () => {
-    if (!messages) return;
-    markAllMessagesAsTrue({
-      roomId,
-      senderId: userId === userSenderId ? userTakerId! : userSenderId!,
-      readStatus: true,
-    });
-    scrollToBottom();
-  }, [messages, markAllMessagesAsTrue, roomId, userSenderId]);
-
-  const unReadMessageCount = useMemo(() => {
-    if (!messages) return 0;
-    return messages.filter(
-      (message) => !message.read && message.senderId !== userId
-    ).length;
-  }, [messages]);
-
-  useEffect(() => {
-    scrollToBottom();
-    if (messages && messages?.length > 0) {
-      markAllMessagesAsTrue({
-        roomId,
-        senderId: userTakerId!,
-        readStatus: true,
-      });
-    }
-  }, [isMount]);
+  useAutoScrollOnMount(isMount as boolean, scrollToBottom);
+  useMarkMessagesAsRead(isMount);
 
   if (!userId || roomId === undefined || !messages) {
     return <Spinner loading={true} />;
@@ -110,11 +92,13 @@ const Page = () => {
           onMount={setIsMount}
           unReadMessageCount={unReadMessageCount}
           onScroll={markAllMessagesAsRead}
+          messages={messages}
         />
         <MessageInput
           message={message}
           onMessageChange={setMessage}
           onSendMessage={handleSendMessage}
+          scrollOnSendMessage={scrollToBottom}
         />
       </div>
 
@@ -127,32 +111,38 @@ const Page = () => {
       />
     </div>
   );
-};
+});
 
-const EditMessageModal = ({
-  open,
-  editMessage,
-  onOpenChange,
-  onEditMessageChange,
-  onSave,
-}: EditMessageModalProps) => (
-  <Modal open={open} onOpenChange={onOpenChange}>
-    <Modal.Content>
-      <Modal.Section title="Edit your message here.">
-        <Modal.Body className="max-sm:flex max-sm:flex-col space-y-4">
-          <Input
-            value={editMessage}
-            onChange={(e) => onEditMessageChange(e.target.value)}
-            placeholder="Edit your message..."
-            className="w-full"
-          />
-          <Button onClick={onSave} className="mt-4 cursor-pointer">
-            Save Changes
-          </Button>
-        </Modal.Body>
-      </Modal.Section>
-    </Modal.Content>
-  </Modal>
+Page.displayName = "Page";
+
+const EditMessageModal = memo(
+  ({
+    open,
+    editMessage,
+    onOpenChange,
+    onEditMessageChange,
+    onSave,
+  }: EditMessageModalProps) => (
+    <Modal open={open} onOpenChange={onOpenChange}>
+      <Modal.Content>
+        <Modal.Section title="Edit your message here.">
+          <Modal.Body className="max-sm:flex max-sm:flex-col space-y-4">
+            <Input
+              value={editMessage}
+              onChange={(e) => onEditMessageChange(e.target.value)}
+              placeholder="Edit your message..."
+              className="w-full"
+            />
+            <Button onClick={onSave} className="mt-4 cursor-pointer">
+              Save Changes
+            </Button>
+          </Modal.Body>
+        </Modal.Section>
+      </Modal.Content>
+    </Modal>
+  )
 );
+
+EditMessageModal.displayName = "EditMessageModal";
 
 export default Page;

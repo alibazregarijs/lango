@@ -1,31 +1,26 @@
 import Image from "next/image";
-import React from "react";
+import React, { memo } from "react";
 import { Combobox } from "./ComboBox";
 import { formatDate } from "@/utils";
 import { useChatData } from "@/hooks/useChats";
-import { useChatQueries } from "@/hooks/useChats";
-import {
-  type MessageListProps,
-  type MessageItemProps,
-  type Message,
-} from "@/types";
 import { useEffect, useRef, useCallback } from "react";
 import { ArrowDown3 } from "iconsax-reactjs";
+import { type MessageListProps, type MessageItemProps, type Message } from "@/types";
 
-export const MessageList = ({
+export const MessageList = memo(({
   onActionSelect,
   messagesEndRef,
   onMount,
   unReadMessageCount,
   onScroll,
+  messages
 }: MessageListProps) => {
   const { userId, userImageUrl, imageUrl } = useChatData();
-  const { messages } = useChatQueries();
   const observerRef = useRef<IntersectionObserver | null>(null);
 
   useEffect(() => {
     onMount(true);
-  }, []);
+  }, [onMount]);
 
   // Set up Intersection Observer to detect when last message is visible
   const lastMessageRef = useCallback(
@@ -38,10 +33,14 @@ export const MessageList = ({
         observerRef.current = new IntersectionObserver(
           ([entry]) => {
             if (entry.isIntersecting) {
+              console.log("Last message is visible, triggering onScroll");
               onScroll(); // Run onScroll when last message becomes visible
             }
           },
-          { threshold: 0.5 } // Trigger when 50% of the element is visible
+          {
+            threshold: 0.5,
+            rootMargin: "0px 0px -50px 0px", // Adjust this if needed
+          }
         );
 
         observerRef.current.observe(node);
@@ -54,17 +53,19 @@ export const MessageList = ({
     <div className="flex-1 p-4 overflow-y-auto custom-scrollbar bg-gradient-to-b from-gray-900 to-[#1A1D23]">
       <div className="space-y-6 relative">
         {messages?.map((message, index) => (
-          <MessageItem
-            key={message._id}
-            message={message}
-            userId={userId as string}
-            userImageUrl={userImageUrl as string}
-            imageUrl={imageUrl}
-            onActionSelect={onActionSelect}
-            // Pass ref as a regular prop in React 19
-            ref={index === messages.length - 1 ? lastMessageRef : undefined}
-            messagesEndRef={index === messages.length - 1 ? messagesEndRef : undefined}
-          />
+          <React.Fragment key={message._id}>
+            <MessageItem
+              message={message}
+              userId={userId as string}
+              userImageUrl={userImageUrl as string}
+              imageUrl={imageUrl}
+              onActionSelect={onActionSelect}
+              messagesEndRef={messagesEndRef}
+              // Pass ref as a regular prop in React 19
+              ref={index === messages.length - 1 ? lastMessageRef : undefined}
+            />
+            {index === messages.length - 1 && <div ref={messagesEndRef} />}
+          </React.Fragment>
         ))}
 
         {unReadMessageCount > 0 && (
@@ -82,22 +83,26 @@ export const MessageList = ({
       </div>
     </div>
   );
-};
+});
 
-// MessageItem component with ref as a regular prop
-const MessageItem = ({
+MessageList.displayName = 'MessageList';
+
+// MessageItem component - ref is now a regular prop in React 19
+const MessageItem = memo(({
   message,
   userId,
   userImageUrl,
   imageUrl,
   onActionSelect,
-  ref, // ref is now a regular prop in React 19
-  messagesEndRef
-}: MessageItemProps) => {
+  ref, // ref is now a regular prop
+}: MessageItemProps & { ref?: React.Ref<HTMLDivElement> }) => {
   const isOwnMessage = message.senderId === userId;
 
   return (
-    <div className={`flex ${isOwnMessage ? "justify-end" : "justify-start"}`}>
+    <div
+      ref={ref} // Use ref directly as a prop
+      className={`flex ${isOwnMessage ? "justify-end" : "justify-start"}`}
+    >
       <div
         className={`flex ${isOwnMessage ? "flex-row-reverse" : "flex-row"} max-w-[75%] gap-3`}
       >
@@ -132,12 +137,13 @@ const MessageItem = ({
           <MessageFooter message={message} isOwnMessage={isOwnMessage} />
         </div>
       </div>
-      <div ref={messagesEndRef} />
     </div>
   );
-};
+});
 
-const MessageFooter = ({
+MessageItem.displayName = 'MessageItem';
+
+const MessageFooter = memo(({
   message,
   isOwnMessage,
 }: {
@@ -158,4 +164,6 @@ const MessageFooter = ({
       </span>
     )}
   </div>
-);
+));
+
+MessageFooter.displayName = 'MessageFooter';
