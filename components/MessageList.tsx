@@ -2,7 +2,7 @@ import Image from "next/image";
 import React, { memo } from "react";
 import { Combobox } from "./ComboBox";
 import { formatDate } from "@/utils";
-import { useChatData } from "@/hooks/useChats";
+import { useChatData } from "@/app/(root)/chat/hooks/useChatData";
 import { useEffect, useRef, useCallback } from "react";
 import { ArrowDown3 } from "iconsax-reactjs";
 import { type MessageListProps, type MessageItemProps, type Message } from "@/types";

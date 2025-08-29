@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useEffect, useMemo, memo, useState } from "react";
+import React, { useCallback, useMemo, memo, useState } from "react";
 import { Modal } from "@/components/Modal";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -8,22 +8,20 @@ import { ChatHeader } from "@/components/ChatHeader";
 import { MessageList } from "@/components/MessageList";
 import { MessageInput } from "@/components/MessageInput";
 import { Id } from "@/convex/_generated/dataModel";
-import {
-  useChatData,
-  useChatQueries,
-  useChatState,
-  useChatActions,
-  useMarkMessagesAsRead,
-  useAutoScrollOnMount,
-  calculateUnReadMessageCount,
-  useScrollToBottom,
-  fetchMessages,
-} from "@/hooks/useChats";
+
+import { useChatState } from "@/app/(root)/chat/hooks/useChatState";
+import { useChatData } from "@/app/(root)/chat/hooks/useChatData";
+import { useChatActions } from "@/app/(root)/chat/hooks/useChatActions";
+import { useMarkMessagesAsRead } from "@/app/(root)/chat/hooks/useMessageStatus";
+import { useAutoScrollOnMount } from "@/app/(root)/chat/hooks/useScrollManagement";
+import { useUnreadMessageCount } from "@/app/(root)/chat/hooks/useMessageStatus";
+import { useScrollToBottom } from "@/app/(root)/chat/hooks/useScrollManagement";
+import { useMessageManagement } from "@/app/(root)/chat/hooks/useMessageManagement";
 import { type EditMessageModalProps } from "@/types";
 
 const Page = memo(() => {
-  const { userId, roomId, userTakerId, userSenderId } = useChatData();
-  const { messages, setMessages } = fetchMessages();
+  const { userId, roomId, userTakerId } = useChatData();
+  const { messages, setMessages } = useMessageManagement();
 
   const {
     openModal,
@@ -39,9 +37,7 @@ const Page = memo(() => {
     setIsMount,
   } = useChatState();
 
-  const { scrollToBottom } = useScrollToBottom({
-    messagesEndRef: messagesEndRef as React.RefObject<HTMLDivElement> | null,
-  });
+  const { scrollToBottom } = useScrollToBottom({ messagesEndRef: messagesEndRef as React.RefObject<HTMLDivElement> | null });
 
   const {
     handleRemoveMessage,
@@ -73,7 +69,7 @@ const Page = memo(() => {
     [handleRemoveMessage, setOpenModal, messageIdRef]
   );
 
-  const unReadMessageCount = calculateUnReadMessageCount();
+  const unReadMessageCount = useUnreadMessageCount();
 
   useAutoScrollOnMount(isMount as boolean, scrollToBottom);
   useMarkMessagesAsRead(isMount);

@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { Button } from "./ui/button";
-import { useOnlineStatus } from "@/hooks/useChats";
-import { useChatData } from "@/hooks/useChats";
+import { useOnlineStatus } from "@/app/(root)/chat/hooks/useOnlineStatus";
+
 
 export const ChatHeader = () => {
   const { displayUser, isOnline, onlineStatus, statusText } = useOnlineStatus();
