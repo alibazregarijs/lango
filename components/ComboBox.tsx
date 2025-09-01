@@ -27,16 +27,22 @@ const actions = [
     value: "edit",
     label: "Edit",
   },
+  {
+    value: "reply",
+    label: "Reply",
+  },
 ];
 
 export const Combobox = ({
   message,
   messageId,
   onActionSelect,
+  isOwnMessage,
 }: {
   message: string;
   messageId: string;
   onActionSelect?: (value: string, messageId: string) => void;
+  isOwnMessage: boolean;
 }) => {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
@@ -67,20 +73,25 @@ export const Combobox = ({
           <CommandList>
             <CommandEmpty>No framework found.</CommandEmpty>
             <CommandGroup>
-              {actions.map((action) => (
-                <CommandItem
-                  key={action.value}
-                  className={`${
-                    action.value === "delete"
-                      ? "text-white bg-red-500 hover:bg-red-600!" // Changed hover to red-600 for better UX
-                      : "bg-accent hover:bg-accent/80"
-                  } transition-colors`}
-                  value={action.value}
-                  onSelect={handleSelect}
-                >
-                  {action.label}
-                </CommandItem>
-              ))}
+              {actions.map((action) => {
+                let edit = action.value === "edit" && !isOwnMessage;
+                if (!edit) {
+                  return (
+                    <CommandItem
+                      key={action.value}
+                      className={`${
+                        action.value === "delete"
+                          ? "text-white bg-red-500 hover:bg-red-600!" // Changed hover to red-600 for better UX
+                          : "bg-accent hover:bg-accent/80"
+                      } transition-colors`}
+                      value={action.value}
+                      onSelect={handleSelect}
+                    >
+                      {action.label}
+                    </CommandItem>
+                  );
+                }
+              })}
             </CommandGroup>
           </CommandList>
         </Command>

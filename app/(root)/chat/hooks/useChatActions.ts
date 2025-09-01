@@ -16,6 +16,7 @@ export const useChatActions = ({
   takerId,
   onScroll,
   setMessages,
+  onCancelReply,
 }: {
   closeModal: () => void;
   message: string;
@@ -26,6 +27,7 @@ export const useChatActions = ({
   takerId: string;
   onScroll: () => void;
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
+  onCancelReply: () => void;
 }) => {
   const {
     createMessage,
@@ -99,14 +101,16 @@ export const useChatActions = ({
         return [...prevState, newMessage];
       });
       setMessage("");
+      onCancelReply();
       await createMessage({
         roomId,
         senderId: userId,
         takerId: takerId,
         content: message,
-        replyToId: undefined,
+        replyToId: (messageIdRef.current as Id<"messages">) ?? undefined,
         read: false,
       });
+      messageIdRef.current = null;
     } catch (error) {
       console.error("Error sending message:", error);
     }

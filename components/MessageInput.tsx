@@ -1,5 +1,7 @@
 import { type MessageInputProps } from "@/types";
 import { memo } from "react";
+import { useChatQueries } from "@/app/(root)/chat/hooks/useChatQueries";
+import { X } from "lucide-react";
 
 export const MessageInput = memo(
   ({
@@ -7,12 +9,57 @@ export const MessageInput = memo(
     onMessageChange,
     onSendMessage,
     scrollOnSendMessage,
+    messageInputRef,
+    replyedMessage,
+    onCancelReply,
   }: MessageInputProps) => {
     return (
       <div className="p-4 border-t border-gray-800 bg-[#1A1D23]">
+        {/* Reply message UI */}
+        {replyedMessage && (
+          <div className="flex items-center justify-between mb-3 p-3 bg-gray-800 rounded-md border-l-4 border-orange-500">
+            <div className="flex-1 min-w-0 mr-2">
+              <div className="flex items-center text-xs text-orange-400 mb-1">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-3 w-3 mr-1"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"
+                  />
+                </svg>
+                Replying to {replyedMessage.userSenderName || "message"}
+              </div>
+              <p className="text-gray-300 text-sm truncate">
+                {replyedMessage.content}
+              </p>
+            </div>
+            {onCancelReply && (
+              <button
+                onClick={onCancelReply}
+                className="flex-shrink-0 p-1 text-gray-400 hover:text-white rounded-full hover:bg-gray-700 transition-colors"
+                aria-label="Cancel reply"
+              >
+                <X size={16} />
+                {/* Using Lucide React X icon */}
+              </button>
+            )}
+          </div>
+        )}
+
         <div className="flex items-center space-x-3">
           <AttachmentButton />
-          <TextInput message={message} onMessageChange={onMessageChange} />
+          <TextInput
+            message={message}
+            messageInputRef={messageInputRef}
+            onMessageChange={onMessageChange}
+          />
           <EmojiButton />
           <SendButton
             onSendMessage={onSendMessage}
@@ -51,9 +98,11 @@ const TextInput = memo(
   ({
     message,
     onMessageChange,
+    messageInputRef,
   }: {
     message: string;
     onMessageChange: (value: string) => void;
+    messageInputRef: React.RefObject<HTMLInputElement> | undefined;
   }) => (
     <div className="flex-1 bg-gray-800 rounded-full px-4 py-2">
       <input
@@ -62,6 +111,7 @@ const TextInput = memo(
         onChange={(e) => onMessageChange(e.target.value)}
         value={message}
         className="w-full bg-transparent text-white outline-none placeholder-gray-400"
+        ref={messageInputRef}
       />
     </div>
   )

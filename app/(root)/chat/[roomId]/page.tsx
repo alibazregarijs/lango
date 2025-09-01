@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useMemo, memo, useState } from "react";
+import React, { useCallback, useRef, memo, useState } from "react";
 import { Modal } from "@/components/Modal";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -17,11 +17,20 @@ import { useAutoScrollOnMount } from "@/app/(root)/chat/hooks/useScrollManagemen
 import { useUnreadMessageCount } from "@/app/(root)/chat/hooks/useMessageStatus";
 import { useScrollToBottom } from "@/app/(root)/chat/hooks/useScrollManagement";
 import { useMessageManagement } from "@/app/(root)/chat/hooks/useMessageManagement";
-import { type EditMessageModalProps } from "@/types";
+import { type EditMessageModalProps, type Message } from "@/types";
 
 const Page = memo(() => {
   const { userId, roomId, userTakerId } = useChatData();
   const { messages, setMessages } = useMessageManagement();
+
+  const messageInputRef = useRef<HTMLInputElement>(null);
+  const [replyedMessage, setReplyedMessage] = useState<Message[]>([]);
+  const [isCancleReply, setCancleReply] = useState<boolean>(false);
+
+  const handleCancleReply = useCallback(() => {
+    setReplyedMessage([]);
+    setCancleReply(false);
+  }, []);
 
   const {
     openModal,
@@ -37,7 +46,9 @@ const Page = memo(() => {
     setIsMount,
   } = useChatState();
 
-  const { scrollToBottom } = useScrollToBottom({ messagesEndRef: messagesEndRef as React.RefObject<HTMLDivElement> | null });
+  const { scrollToBottom } = useScrollToBottom({
+    messagesEndRef: messagesEndRef as React.RefObject<HTMLDivElement> | null,
+  });
 
   const {
     handleRemoveMessage,
@@ -54,19 +65,25 @@ const Page = memo(() => {
     setEditMessage,
     onScroll: scrollToBottom,
     setMessages,
+    onCancelReply: handleCancleReply,
   });
 
   const getOption = useCallback(
     (value: string, messageId: string) => {
       if (value === "delete") {
         handleRemoveMessage(messageId as Id<"messages">);
-      }
-      if (value === "edit") {
+      } else if (value === "edit") {
         messageIdRef.current = messageId;
         setOpenModal(true);
+      } else if (value === "reply") {
+        messageIdRef.current = messageId;
+        messageInputRef.current?.focus();
+        setReplyedMessage(
+          messages.filter((message) => message._id === messageId)
+        );
       }
     },
-    [handleRemoveMessage, setOpenModal, messageIdRef]
+    [handleRemoveMessage, setOpenModal, messageIdRef, messages]
   );
 
   const unReadMessageCount = useUnreadMessageCount();
@@ -95,6 +112,9 @@ const Page = memo(() => {
           onMessageChange={setMessage}
           onSendMessage={handleSendMessage}
           scrollOnSendMessage={scrollToBottom}
+          messageInputRef={messageInputRef as React.RefObject<HTMLInputElement>}
+          replyedMessage={replyedMessage[0] as Message}
+          onCancelReply={handleCancleReply}
         />
       </div>
 

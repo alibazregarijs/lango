@@ -105,9 +105,10 @@ export default defineSchema({
     senderId: v.string(), // Who sent the message
     takerId: v.string(), // Who receives the message
     content: v.string(),
-    replyToId: v.optional(v.string()), // Reference to message being replied to
+    replyToId: v.optional(v.id("messages")), // Reference to message being replied to
     read: v.boolean(),
   })
     .index("by_room", ["roomId"])
-    .index("by_sender", ["senderId"]),
+    .index("by_sender", ["senderId"])
+    .index("by_reply_to", ["replyToId"]), // New index for efficient reply queries
 });

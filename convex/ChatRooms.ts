@@ -1,4 +1,4 @@
-import { mutation , query } from "./_generated/server";
+import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
 export const createChatRoom = mutation({
@@ -25,9 +25,29 @@ export const getMessagesByRoom = query({
     const messages = await ctx.db
       .query("messages")
       .withIndex("by_room", (q) => q.eq("roomId", args.roomId))
-      .order("asc") // or "desc" for reverse chronological order
+      .order("asc")
       .collect();
 
-    return messages;
+    // Fetch reply information for messages that are replies
+    const messagesWithReplies = await Promise.all(
+      messages.map(async (message) => {
+        if (message.replyToId) {
+          const repliedMessage = await ctx.db.get(message.replyToId);
+          return {
+            ...message,
+            replyTo: repliedMessage
+              ? {
+                  _id: repliedMessage._id,
+                  content: repliedMessage.content,
+                  senderId: repliedMessage.senderId,
+                }
+              : null,
+          };
+        }
+        return message;
+      })
+    );
+
+    return messagesWithReplies;
   },
 });

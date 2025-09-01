@@ -8,7 +8,7 @@ export const createMessage = mutation({
     senderId: v.string(),
     takerId: v.string(),
     content: v.string(),
-    replyToId: v.optional(v.string()),
+    replyToId: v.optional(v.id("messages")), // Optional field for replies
     read: v.optional(v.boolean()), // Make optional with default
   },
   handler: async (ctx, args) => {
@@ -17,7 +17,7 @@ export const createMessage = mutation({
       senderId: args.senderId,
       takerId: args.takerId,
       content: args.content,
-      replyToId: args.replyToId,
+      replyToId: args.replyToId, // This will be undefined for non-reply messages
       read: args.read ?? false, // Default to false if not provided
     });
 
@@ -45,7 +45,6 @@ export const updateMessage = mutation({
     await ctx.db.patch(args.messageId, { content: args.content });
   },
 });
-
 
 export const markSenderMessagesInRoom = mutation({
   args: {

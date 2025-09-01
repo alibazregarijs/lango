@@ -32,8 +32,6 @@ export const useMarkMessagesAsRead = (isMount: boolean) => {
     isMount,
     roomId,
     userTakerId,
-    messages,
-    markAllMessagesAsTrue,
     userId,
     userSenderId,
   ]);

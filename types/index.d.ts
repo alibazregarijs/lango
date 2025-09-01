@@ -197,8 +197,8 @@ export type MessageListProps = {
   messagesEndRef: React.RefObject<HTMLDivElement>;
   onMount: React.Dispatch<React.SetStateAction<boolean>>;
   unReadMessageCount: number;
-  onScroll: () => void;
   messages: Message[];
+  onScroll: () => void;
 };
 
 export type MessageItemProps = {
@@ -215,7 +215,10 @@ export type MessageInputProps = {
   message: string;
   onMessageChange: (value: string) => void;
   onSendMessage: () => void;
-  scrollOnSendMessage : () => void;
+  scrollOnSendMessage: () => void;
+  messageInputRef: React.RefObject<HTMLInputElement> | undefined;
+  replyedMessage: Message;
+  onCancelReply: () => void;
 };
 
 export type Suggestion = string | { username: string; imageUrl: string };
