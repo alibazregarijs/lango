@@ -12,7 +12,7 @@ export const useMessageManagement = () => {
   useEffect(() => {
     setIsLoading(true);
     if (messageQuery) {
-      setMessages(messageQuery);
+      setMessages(messageQuery as any);
       setIsLoading(false);
     }
   }, [messageQuery]);

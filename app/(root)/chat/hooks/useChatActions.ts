@@ -5,32 +5,32 @@ import { type Message } from "@/types";
 import { useChatMutations } from "./useChatMutations";
 import { useChatQueries } from "./useChatQueries";
 import { useChatData } from "./useChatData";
+import { useScrollToBottom } from "./useScrollManagement";
+import { useChatState } from "@/context/ChatStateContext";
 
 export const useChatActions = ({
   closeModal,
-  message,
-  messageIdRef,
-  editMessage,
   setMessage,
   setEditMessage,
-  takerId,
-  onScroll,
   setMessages,
-  onCancelReply,
-  replyedMessage,
+  setReplyedMessage,
 }: {
   closeModal: () => void;
-  message: string;
-  messageIdRef: React.MutableRefObject<string | null>;
-  editMessage: string;
   setMessage: React.Dispatch<React.SetStateAction<string>>;
   setEditMessage: React.Dispatch<React.SetStateAction<string>>;
-  takerId: string;
-  onScroll: () => void;
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
-  onCancelReply: () => void;
-  replyedMessage: Message[];
+  setReplyedMessage: React.Dispatch<React.SetStateAction<Message[]>>;
 }) => {
+  const {
+    message,
+    messageIdRef,
+    editMessage,
+    replyedMessage,
+    handleCancleReply: onCancelReply,
+  } = useChatState();
+  const { userTakerId: takerId } = useChatData();
+  const { scrollToBottom: onScroll } = useScrollToBottom();
+
   const {
     createMessage,
     editMessageMutation,
@@ -46,7 +46,11 @@ export const useChatActions = ({
       setMessages((prev: Message[]) => {
         return prev.filter((msg) => msg._id !== messageId);
       });
-      await deleteMessage({ messageId });
+      try {
+        await deleteMessage({ messageId });
+      } catch (error) {
+        console.error("Error deleting message:", error);
+      }
     },
     [deleteMessage, setMessages, messageIdRef]
   );
@@ -86,7 +90,17 @@ export const useChatActions = ({
   ]);
 
   const handleSendMessage = useCallback(async () => {
+    console.log(replyedMessage, "replyedMessage");
     if (!message || !userId) return;
+    let reply: { content: string; senderId: string } | undefined;
+    if (replyedMessage[0]) {
+      reply = {
+        content: replyedMessage[0].content,
+        senderId: userId,
+      };
+    } else {
+      reply = undefined;
+    }
     try {
       setMessages((prev) => {
         let prevState = [...prev];
@@ -97,21 +111,24 @@ export const useChatActions = ({
           senderId: userId,
           takerId: takerId,
           content: message,
-          replyToId: undefined,
+          replyToId: reply,
           read: false,
         };
         return [...prevState, newMessage];
       });
-      setMessage("");
+
       onCancelReply();
+      setReplyedMessage([]);
+      setMessage("");
       await createMessage({
         roomId,
         senderId: userId,
-        takerId: takerId,
+        takerId: takerId as string,
         content: message,
         replyToId: (messageIdRef.current as Id<"messages">) ?? undefined,
         read: false,
       });
+
       messageIdRef.current = null;
     } catch (error) {
       console.error("Error sending message:", error);

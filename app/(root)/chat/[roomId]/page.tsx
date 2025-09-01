@@ -10,7 +10,7 @@ import { MessageInput } from "@/components/MessageInput";
 import { Id } from "@/convex/_generated/dataModel";
 import { type EditMessageModalProps, type Message } from "@/types";
 
-import { useChatState } from "@/app/(root)/chat/hooks/useChatState";
+import { useChatState } from "@/context/ChatStateContext";
 import { useChatData } from "@/app/(root)/chat/hooks/useChatData";
 import { useChatActions } from "@/app/(root)/chat/hooks/useChatActions";
 import { useMarkMessagesAsRead } from "@/app/(root)/chat/hooks/useMessageStatus";
@@ -20,30 +20,24 @@ import { useScrollToBottom } from "@/app/(root)/chat/hooks/useScrollManagement";
 import { useMessageManagement } from "@/app/(root)/chat/hooks/useMessageManagement";
 
 const Page = memo(() => {
-  const { userId, roomId, userTakerId } = useChatData();
+  const { userId, roomId } = useChatData();
   const { messages, setMessages } = useMessageManagement();
 
   const {
     openModal,
-    message,
     editMessage,
     setOpenModal,
     setMessage,
     messageIdRef,
     setEditMessage,
     closeModal,
-    messagesEndRef,
     isMount,
     setIsMount,
-    handleCancleReply,
     messageInputRef,
     setReplyedMessage,
-    replyedMessage,
   } = useChatState();
 
-  const { scrollToBottom } = useScrollToBottom({
-    messagesEndRef: messagesEndRef as React.RefObject<HTMLDivElement> | null,
-  });
+  const { scrollToBottom } = useScrollToBottom();
 
   const {
     handleRemoveMessage,
@@ -52,17 +46,13 @@ const Page = memo(() => {
     markAllMessagesAsRead,
   } = useChatActions({
     closeModal,
-    message,
-    messageIdRef,
-    editMessage,
-    takerId: userTakerId as string,
     setMessage,
     setEditMessage,
-    onScroll: scrollToBottom,
     setMessages,
-    onCancelReply: handleCancleReply,
-    replyedMessage,
+    setReplyedMessage,
   });
+
+  console.log(messages, "messages 123");
 
   const getOption = useCallback(
     (value: string, messageId: string) => {
@@ -82,8 +72,6 @@ const Page = memo(() => {
     [handleRemoveMessage, setOpenModal, messageIdRef, messages]
   );
 
-  const unReadMessageCount = useUnreadMessageCount();
-
   useAutoScrollOnMount(isMount as boolean, scrollToBottom);
   useMarkMessagesAsRead(isMount);
 
@@ -97,20 +85,13 @@ const Page = memo(() => {
         <ChatHeader />
         <MessageList
           onActionSelect={getOption}
-          messagesEndRef={messagesEndRef as React.RefObject<HTMLDivElement>}
           onMount={setIsMount}
-          unReadMessageCount={unReadMessageCount}
           onScroll={markAllMessagesAsRead}
-          messages={messages}
+          messages={messages as Message[]}
         />
         <MessageInput
-          message={message}
           onMessageChange={setMessage}
           onSendMessage={handleSendMessage}
-          scrollOnSendMessage={scrollToBottom}
-          messageInputRef={messageInputRef as React.RefObject<HTMLInputElement>}
-          replyedMessage={replyedMessage[0] as Message} //
-          onCancelReply={handleCancleReply} //
         />
       </div>
 

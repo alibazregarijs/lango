@@ -35,11 +35,11 @@ export const getMessagesByRoom = query({
           const repliedMessage = await ctx.db.get(message.replyToId);
           return {
             ...message,
-            replyTo: repliedMessage
+            replyToId: repliedMessage
               ? {
-                  _id: repliedMessage._id,
-                  content: repliedMessage.content,
-                  senderId: repliedMessage.senderId,
+                  _id: repliedMessage._id ?? undefined,
+                  content: repliedMessage.content ?? undefined,
+                  senderId: repliedMessage.senderId ?? undefined,
                 }
               : null,
           };

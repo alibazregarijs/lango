@@ -15,7 +15,6 @@ export const useChatState = () => {
   const closeModal = useCallback(() => setOpenModal(false), []);
   const openModalFn = useCallback(() => setOpenModal(true), []);
   const handleCancleReply = useCallback(() => {
-    setReplyedMessage([]);
     setCancleReply(false);
   }, []);
 

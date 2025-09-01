@@ -2,21 +2,25 @@ import { type MessageInputProps } from "@/types";
 import { memo } from "react";
 import { useChatQueries } from "@/app/(root)/chat/hooks/useChatQueries";
 import { X } from "lucide-react";
+import { useChatState } from "@/context/ChatStateContext";
+import { useScrollToBottom } from "@/app/(root)/chat/hooks/useScrollManagement";
 
 export const MessageInput = memo(
   ({
-    message,
     onMessageChange,
     onSendMessage,
-    scrollOnSendMessage,
-    messageInputRef,
-    replyedMessage,
-    onCancelReply,
   }: MessageInputProps) => {
+    const {
+      message,
+      messageInputRef,
+      replyedMessage,
+      handleCancleReply: onCancelReply,
+    } = useChatState();
+    const {scrollToBottom:scrollOnSendMessage} = useScrollToBottom()
     return (
       <div className="p-4 border-t border-gray-800 bg-[#1A1D23]">
         {/* Reply message UI */}
-        {replyedMessage && (
+        {replyedMessage[0] && (
           <div className="flex items-center justify-between mb-3 p-3 bg-gray-800 rounded-md border-l-4 border-orange-500">
             <div className="flex-1 min-w-0 mr-2">
               <div className="flex items-center text-xs text-orange-400 mb-1">
@@ -34,10 +38,10 @@ export const MessageInput = memo(
                     d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"
                   />
                 </svg>
-                Replying to {replyedMessage.userSenderName || "message"}
+                Replying to {replyedMessage[0].userSenderName || "message"}
               </div>
               <p className="text-gray-300 text-sm truncate">
-                {replyedMessage.content}
+                {replyedMessage[0].content}
               </p>
             </div>
             {onCancelReply && (
@@ -57,7 +61,7 @@ export const MessageInput = memo(
           <AttachmentButton />
           <TextInput
             message={message}
-            messageInputRef={messageInputRef}
+            messageInputRef={messageInputRef as React.RefObject<HTMLInputElement>}
             onMessageChange={onMessageChange}
           />
           <EmojiButton />

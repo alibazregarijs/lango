@@ -153,7 +153,7 @@ export type allUsersProps = {
 export type Message = {
   _id: Id<"messages">;
   _creationTime: number;
-  replyToId?: string | undefined;
+  replyToId?: { content: string; senderId: string } | undefined;
   read: boolean;
   roomId: string;
   senderId: string;
@@ -194,11 +194,9 @@ export type EditMessageModalProps = {
 
 export type MessageListProps = {
   onActionSelect: (value: string, messageId: string) => void;
-  messagesEndRef: React.RefObject<HTMLDivElement>;
   onMount: React.Dispatch<React.SetStateAction<boolean>>;
-  unReadMessageCount: number;
-  messages: Message[];
   onScroll: () => void;
+  messages: Message[];
 };
 
 export type MessageItemProps = {
@@ -212,13 +210,8 @@ export type MessageItemProps = {
 };
 
 export type MessageInputProps = {
-  message: string;
   onMessageChange: (value: string) => void;
   onSendMessage: () => void;
-  scrollOnSendMessage: () => void;
-  messageInputRef: React.RefObject<HTMLInputElement> | undefined;
-  replyedMessage: Message;
-  onCancelReply: () => void;
 };
 
 export type Suggestion = string | { username: string; imageUrl: string };

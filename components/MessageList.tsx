@@ -11,18 +11,16 @@ import {
   type Message,
 } from "@/types";
 import { useScrollDetection } from "@/app/(root)/chat/hooks/useScrollManagement";
+import { useMessageManagement } from "@/app/(root)/chat/hooks/useMessageManagement";
+import { useChatState } from "@/context/ChatStateContext";
 
 export const MessageList = memo(
-  ({
-    onActionSelect,
-    messagesEndRef,
-    onMount,
-    onScroll,
-    messages,
-  }: MessageListProps) => {
+  ({ onActionSelect, onMount, onScroll,messages }: MessageListProps) => {
+    const { messagesEndRef } = useChatState();
     const { userId, userImageUrl, imageUrl } = useChatData();
     const observerRef = useRef<IntersectionObserver | null>(null);
     const { isAtBottom, setIsAtBottom } = useScrollDetection();
+
 
     useEffect(() => {
       onMount(true);
@@ -57,8 +55,6 @@ export const MessageList = memo(
 
     // Add one mock message with reply for testing
 
-    console.log(messages, "me 2");
-
     return (
       <div className="flex-1 p-4 overflow-y-auto detect_scroll custom-scrollbar bg-gradient-to-b from-gray-900 to-[#1A1D23]">
         <div className="space-y-6 relative">
@@ -70,7 +66,9 @@ export const MessageList = memo(
                 userImageUrl={userImageUrl as string}
                 imageUrl={imageUrl}
                 onActionSelect={onActionSelect}
-                messagesEndRef={messagesEndRef}
+                messagesEndRef={
+                  messagesEndRef as React.RefObject<HTMLDivElement>
+                }
                 // Pass ref as a regular prop in React 19
                 ref={index === messages.length - 1 ? lastMessageRef : undefined}
               />
@@ -109,7 +107,7 @@ const MessageItem = memo(
     ref, // ref is now a regular prop
   }: MessageItemProps & { ref?: React.Ref<HTMLDivElement> }) => {
     const isOwnMessage = message.senderId === userId;
-
+    console.log(message, "message");
     return (
       <div
         ref={ref} // Use ref directly as a prop
@@ -130,14 +128,14 @@ const MessageItem = memo(
 
           <div className="flex flex-col">
             {/* Reply Preview */}
-            {message.replyTo && (
+            {message.replyToId && (
               <div
                 className={`mb-1 ${isOwnMessage ? "text-right" : "text-left"}`}
               >
                 <div className="inline-flex items-center bg-gray-800 rounded-lg px-3 py-1 border-l-2 border-orange-500">
                   <ArrowLeft2 size={14} className="text-orange-500 mr-1" />
                   <span className="text-xs text-gray-300 truncate max-w-[120px]">
-                    {message.replyTo.content}
+                    {message.replyToId.content}
                   </span>
                 </div>
               </div>

@@ -1,4 +1,5 @@
 import { useEffect, useCallback, RefObject, useState } from "react";
+import { useChatState } from "@/context/ChatStateContext";
 
 export const useAutoScrollOnMount = (
   isMount: boolean,
@@ -11,11 +12,8 @@ export const useAutoScrollOnMount = (
   }, [isMount, scrollToBottom]);
 };
 
-export const useScrollToBottom = ({
-  messagesEndRef,
-}: {
-  messagesEndRef: RefObject<HTMLDivElement> | null;
-}) => {
+export const useScrollToBottom = () => {
+  const { messagesEndRef } = useChatState()
   const scrollToBottom = useCallback(() => {
     if (messagesEndRef?.current) {
       messagesEndRef.current.scrollIntoView({
