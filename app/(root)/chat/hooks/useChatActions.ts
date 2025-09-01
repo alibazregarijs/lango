@@ -17,6 +17,7 @@ export const useChatActions = ({
   onScroll,
   setMessages,
   onCancelReply,
+  replyedMessage,
 }: {
   closeModal: () => void;
   message: string;
@@ -28,6 +29,7 @@ export const useChatActions = ({
   onScroll: () => void;
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
   onCancelReply: () => void;
+  replyedMessage: Message[];
 }) => {
   const {
     createMessage,

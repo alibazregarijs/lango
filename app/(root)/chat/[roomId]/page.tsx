@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useRef, memo, useState } from "react";
+import React, { useCallback, memo } from "react";
 import { Modal } from "@/components/Modal";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import { ChatHeader } from "@/components/ChatHeader";
 import { MessageList } from "@/components/MessageList";
 import { MessageInput } from "@/components/MessageInput";
 import { Id } from "@/convex/_generated/dataModel";
+import { type EditMessageModalProps, type Message } from "@/types";
 
 import { useChatState } from "@/app/(root)/chat/hooks/useChatState";
 import { useChatData } from "@/app/(root)/chat/hooks/useChatData";
@@ -17,20 +18,10 @@ import { useAutoScrollOnMount } from "@/app/(root)/chat/hooks/useScrollManagemen
 import { useUnreadMessageCount } from "@/app/(root)/chat/hooks/useMessageStatus";
 import { useScrollToBottom } from "@/app/(root)/chat/hooks/useScrollManagement";
 import { useMessageManagement } from "@/app/(root)/chat/hooks/useMessageManagement";
-import { type EditMessageModalProps, type Message } from "@/types";
 
 const Page = memo(() => {
   const { userId, roomId, userTakerId } = useChatData();
   const { messages, setMessages } = useMessageManagement();
-
-  const messageInputRef = useRef<HTMLInputElement>(null);
-  const [replyedMessage, setReplyedMessage] = useState<Message[]>([]);
-  const [isCancleReply, setCancleReply] = useState<boolean>(false);
-
-  const handleCancleReply = useCallback(() => {
-    setReplyedMessage([]);
-    setCancleReply(false);
-  }, []);
 
   const {
     openModal,
@@ -44,6 +35,10 @@ const Page = memo(() => {
     messagesEndRef,
     isMount,
     setIsMount,
+    handleCancleReply,
+    messageInputRef,
+    setReplyedMessage,
+    replyedMessage,
   } = useChatState();
 
   const { scrollToBottom } = useScrollToBottom({
@@ -66,6 +61,7 @@ const Page = memo(() => {
     onScroll: scrollToBottom,
     setMessages,
     onCancelReply: handleCancleReply,
+    replyedMessage,
   });
 
   const getOption = useCallback(
@@ -113,8 +109,8 @@ const Page = memo(() => {
           onSendMessage={handleSendMessage}
           scrollOnSendMessage={scrollToBottom}
           messageInputRef={messageInputRef as React.RefObject<HTMLInputElement>}
-          replyedMessage={replyedMessage[0] as Message}
-          onCancelReply={handleCancleReply}
+          replyedMessage={replyedMessage[0] as Message} //
+          onCancelReply={handleCancleReply} //
         />
       </div>
 

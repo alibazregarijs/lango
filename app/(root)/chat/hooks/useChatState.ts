@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from "react";
+import { type Message } from "@/types";
 
 export const useChatState = () => {
   const [openModal, setOpenModal] = useState(false);
@@ -7,9 +8,16 @@ export const useChatState = () => {
   const messageIdRef = useRef<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const [isMount, setIsMount] = useState(false);
+  const messageInputRef = useRef<HTMLInputElement>(null);
+  const [replyedMessage, setReplyedMessage] = useState<Message[]>([]);
+  const [_, setCancleReply] = useState<boolean>(false);
 
   const closeModal = useCallback(() => setOpenModal(false), []);
   const openModalFn = useCallback(() => setOpenModal(true), []);
+  const handleCancleReply = useCallback(() => {
+    setReplyedMessage([]);
+    setCancleReply(false);
+  }, []);
 
   return {
     openModal,
@@ -24,5 +32,9 @@ export const useChatState = () => {
     messagesEndRef,
     isMount,
     setIsMount,
+    messageInputRef,
+    replyedMessage,
+    handleCancleReply,
+    setReplyedMessage,
   };
 };
