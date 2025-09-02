@@ -15,9 +15,9 @@ import { useChatData } from "@/app/(root)/chat/hooks/useChatData";
 import { useChatActions } from "@/app/(root)/chat/hooks/useChatActions";
 import { useMarkMessagesAsRead } from "@/app/(root)/chat/hooks/useMessageStatus";
 import { useAutoScrollOnMount } from "@/app/(root)/chat/hooks/useScrollManagement";
-import { useUnreadMessageCount } from "@/app/(root)/chat/hooks/useMessageStatus";
 import { useScrollToBottom } from "@/app/(root)/chat/hooks/useScrollManagement";
 import { useMessageManagement } from "@/app/(root)/chat/hooks/useMessageManagement";
+import useGetComboOption from "@/app/(root)/chat/hooks/useGetComboOption";
 
 const Page = memo(() => {
   const { userId, roomId } = useChatData();
@@ -26,47 +26,28 @@ const Page = memo(() => {
   const {
     setOpenModal,
     setMessage,
-    messageIdRef,
     setEditMessage,
     closeModal,
     isMount,
     setIsMount,
-    messageInputRef,
     setReplyedMessage,
   } = useChatState();
 
   const { scrollToBottom } = useScrollToBottom();
 
-  const {
-    handleRemoveMessage,
-    handleEditMessage,
-    handleSendMessage,
-    markAllMessagesAsRead,
-  } = useChatActions({
-    closeModal,
-    setMessage,
-    setEditMessage,
+  const { handleEditMessage, handleSendMessage, markAllMessagesAsRead } =
+    useChatActions({
+      closeModal,
+      setMessage,
+      setEditMessage,
+      setMessages,
+    });
+
+  const getOption = useGetComboOption({
     setMessages,
+    setOpenModal,
     setReplyedMessage,
   });
-
-  const getOption = useCallback(
-    (value: string, messageId: string) => {
-      if (value === "delete") {
-        handleRemoveMessage(messageId as Id<"messages">);
-      } else if (value === "edit") {
-        messageIdRef.current = messageId;
-        setOpenModal(true);
-      } else if (value === "reply") {
-        messageIdRef.current = messageId;
-        messageInputRef.current?.focus();
-        setReplyedMessage(
-          messages.filter((message) => message._id === messageId)
-        );
-      }
-    },
-    [handleRemoveMessage, setOpenModal, messageIdRef, messages]
-  );
 
   useAutoScrollOnMount(isMount as boolean, scrollToBottom);
   useMarkMessagesAsRead(isMount);
@@ -103,34 +84,28 @@ const Page = memo(() => {
 Page.displayName = "Page";
 
 const EditMessageModal = memo(
-  ({
-    onOpenChange,
-    onEditMessageChange,
-    onSave,
-  }: EditMessageModalProps) => {
-    const {openModal:open,editMessage} = useChatState();
+  ({ onOpenChange, onEditMessageChange, onSave }: EditMessageModalProps) => {
+    const { openModal: open, editMessage } = useChatState();
     return (
       <Modal open={open} onOpenChange={onOpenChange}>
-      <Modal.Content>
-        <Modal.Section title="Edit your message here.">
-          <Modal.Body className="max-sm:flex max-sm:flex-col space-y-4">
-            <Input
-              value={editMessage}
-              onChange={(e) => onEditMessageChange(e.target.value)}
-              placeholder="Edit your message..."
-              className="w-full"
-            />
-            <Button onClick={onSave} className="mt-4 cursor-pointer">
-              Save Changes
-            </Button>
-          </Modal.Body>
-        </Modal.Section>
-      </Modal.Content>
-    </Modal>
-    )
+        <Modal.Content>
+          <Modal.Section title="Edit your message here.">
+            <Modal.Body className="max-sm:flex max-sm:flex-col space-y-4">
+              <Input
+                value={editMessage}
+                onChange={(e) => onEditMessageChange(e.target.value)}
+                placeholder="Edit your message..."
+                className="w-full"
+              />
+              <Button onClick={onSave} className="mt-4 cursor-pointer">
+                Save Changes
+              </Button>
+            </Modal.Body>
+          </Modal.Section>
+        </Modal.Content>
+      </Modal>
+    );
   }
-    
-  
 );
 
 EditMessageModal.displayName = "EditMessageModal";

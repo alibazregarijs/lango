@@ -13,13 +13,11 @@ export const useChatActions = ({
   setMessage,
   setEditMessage,
   setMessages,
-  setReplyedMessage,
 }: {
-  closeModal: () => void;
-  setMessage: React.Dispatch<React.SetStateAction<string>>;
-  setEditMessage: React.Dispatch<React.SetStateAction<string>>;
-  setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
-  setReplyedMessage: React.Dispatch<React.SetStateAction<Message[]>>;
+  closeModal?: () => void;
+  setMessage?: React.Dispatch<React.SetStateAction<string>>;
+  setEditMessage?: React.Dispatch<React.SetStateAction<string>>;
+  setMessages?: React.Dispatch<React.SetStateAction<Message[]>>;
 }) => {
   const {
     message,
@@ -43,6 +41,7 @@ export const useChatActions = ({
 
   const handleRemoveMessage = useCallback(
     async (messageId: Id<"messages">) => {
+      if (!setMessages) return;
       setMessages((prev: Message[]) => {
         return prev.filter((msg) => msg._id !== messageId);
       });
@@ -56,7 +55,14 @@ export const useChatActions = ({
   );
 
   const handleEditMessage = useCallback(async () => {
-    if (!editMessage || !messageIdRef.current) return;
+    if (
+      !editMessage ||
+      !messageIdRef.current ||
+      !setMessages ||
+      !closeModal ||
+      !setEditMessage
+    )
+      return;
     try {
       setMessages((prev: Message[]) => {
         return prev.map((msg) => {
@@ -91,7 +97,7 @@ export const useChatActions = ({
 
   const handleSendMessage = useCallback(async () => {
     console.log(replyedMessage, "replyedMessage");
-    if (!message || !userId) return;
+    if (!message || !userId || !setMessages || !setMessage) return;
     let reply: { content: string; senderId: string } | undefined;
     if (replyedMessage[0]) {
       reply = {
