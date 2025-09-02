@@ -1,9 +1,8 @@
 import Image from "next/image";
-import React, { memo, useState } from "react";
+import React, { memo , useEffect, useRef } from "react";
 import { Combobox } from "./ComboBox";
 import { formatDate } from "@/utils";
 import { useChatData } from "@/app/(root)/chat/hooks/useChatData";
-import { useEffect, useRef, useCallback } from "react";
 import { ArrowDown3, ArrowLeft2 } from "iconsax-reactjs";
 import {
   type MessageListProps,
@@ -11,49 +10,23 @@ import {
   type Message,
 } from "@/types";
 import { useScrollDetection } from "@/app/(root)/chat/hooks/useScrollManagement";
-import { useMessageManagement } from "@/app/(root)/chat/hooks/useMessageManagement";
 import { useChatState } from "@/context/ChatStateContext";
+import useLastMessagDetection from "@/app/(root)/chat/hooks/useLastMessagDetection";
 
 export const MessageList = memo(
-  ({ onActionSelect, onMount, onScroll,messages }: MessageListProps) => {
+  ({ onActionSelect, onMount, onScroll, messages }: MessageListProps) => {
     const { messagesEndRef } = useChatState();
     const { userId, userImageUrl, imageUrl } = useChatData();
     const observerRef = useRef<IntersectionObserver | null>(null);
     const { isAtBottom, setIsAtBottom } = useScrollDetection();
-
+    const lastMessageRef = useLastMessagDetection({
+      onScroll,
+      setIsAtBottom,
+    });
 
     useEffect(() => {
       onMount(true);
     }, [onMount]);
-
-    // Set up Intersection Observer to detect when last message is visible
-    const lastMessageRef = useCallback(
-      (node: HTMLDivElement | null) => {
-        if (observerRef.current) {
-          observerRef.current.disconnect();
-        }
-
-        if (node) {
-          observerRef.current = new IntersectionObserver(
-            ([entry]) => {
-              if (entry.isIntersecting) {
-                onScroll(); // Run onScroll when last message becomes visible
-                setIsAtBottom(true);
-              }
-            },
-            {
-              threshold: 0.5,
-              rootMargin: "0px 0px -50px 0px", // Adjust this if needed
-            }
-          );
-
-          observerRef.current.observe(node);
-        }
-      },
-      [onScroll]
-    );
-
-    // Add one mock message with reply for testing
 
     return (
       <div className="flex-1 p-4 overflow-y-auto detect_scroll custom-scrollbar bg-gradient-to-b from-gray-900 to-[#1A1D23]">

@@ -117,9 +117,8 @@ export const useChatActions = ({
         return [...prevState, newMessage];
       });
 
-      onCancelReply();
-      setReplyedMessage([]);
       setMessage("");
+      onCancelReply();
       await createMessage({
         roomId,
         senderId: userId,

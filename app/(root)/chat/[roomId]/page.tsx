@@ -52,8 +52,6 @@ const Page = memo(() => {
     setReplyedMessage,
   });
 
-  console.log(messages, "messages 123");
-
   const getOption = useCallback(
     (value: string, messageId: string) => {
       if (value === "delete") {
