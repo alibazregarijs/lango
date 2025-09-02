@@ -185,8 +185,6 @@ export type NavigateChatResultProps =
     };
 
 export type EditMessageModalProps = {
-  open: boolean;
-  editMessage: string;
   onOpenChange: React.Dispatch<React.SetStateAction<boolean>>;
   onEditMessageChange: (message: string) => void;
   onSave: () => void;

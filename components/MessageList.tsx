@@ -17,7 +17,6 @@ export const MessageList = memo(
   ({ onActionSelect, onMount, onScroll, messages }: MessageListProps) => {
     const { messagesEndRef } = useChatState();
     const { userId, userImageUrl, imageUrl } = useChatData();
-    const observerRef = useRef<IntersectionObserver | null>(null);
     const { isAtBottom, setIsAtBottom } = useScrollDetection();
     const lastMessageRef = useLastMessagDetection({
       onScroll,

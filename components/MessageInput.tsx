@@ -6,17 +6,17 @@ import { useChatState } from "@/context/ChatStateContext";
 import { useScrollToBottom } from "@/app/(root)/chat/hooks/useScrollManagement";
 
 export const MessageInput = memo(
-  ({
-    onMessageChange,
-    onSendMessage,
-  }: MessageInputProps) => {
+  ({ onMessageChange, onSendMessage }: MessageInputProps) => {
+
     const {
       message,
       messageInputRef,
       replyedMessage,
       handleCancleReply: onCancelReply,
     } = useChatState();
-    const {scrollToBottom:scrollOnSendMessage} = useScrollToBottom()
+
+    const { scrollToBottom: scrollOnSendMessage } = useScrollToBottom();
+    
     return (
       <div className="p-4 border-t border-gray-800 bg-[#1A1D23]">
         {/* Reply message UI */}
@@ -61,7 +61,9 @@ export const MessageInput = memo(
           <AttachmentButton />
           <TextInput
             message={message}
-            messageInputRef={messageInputRef as React.RefObject<HTMLInputElement>}
+            messageInputRef={
+              messageInputRef as React.RefObject<HTMLInputElement>
+            }
             onMessageChange={onMessageChange}
           />
           <EmojiButton />

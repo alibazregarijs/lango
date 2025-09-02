@@ -24,8 +24,6 @@ const Page = memo(() => {
   const { messages, setMessages } = useMessageManagement();
 
   const {
-    openModal,
-    editMessage,
     setOpenModal,
     setMessage,
     messageIdRef,
@@ -94,8 +92,6 @@ const Page = memo(() => {
       </div>
 
       <EditMessageModal
-        open={openModal}
-        editMessage={editMessage}
         onOpenChange={setOpenModal}
         onEditMessageChange={setEditMessage}
         onSave={handleEditMessage}
@@ -108,13 +104,13 @@ Page.displayName = "Page";
 
 const EditMessageModal = memo(
   ({
-    open,
-    editMessage,
     onOpenChange,
     onEditMessageChange,
     onSave,
-  }: EditMessageModalProps) => (
-    <Modal open={open} onOpenChange={onOpenChange}>
+  }: EditMessageModalProps) => {
+    const {openModal:open,editMessage} = useChatState();
+    return (
+      <Modal open={open} onOpenChange={onOpenChange}>
       <Modal.Content>
         <Modal.Section title="Edit your message here.">
           <Modal.Body className="max-sm:flex max-sm:flex-col space-y-4">
@@ -131,7 +127,10 @@ const EditMessageModal = memo(
         </Modal.Section>
       </Modal.Content>
     </Modal>
-  )
+    )
+  }
+    
+  
 );
 
 EditMessageModal.displayName = "EditMessageModal";
