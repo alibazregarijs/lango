@@ -13,14 +13,14 @@ const ChatRequest = ({
 }) => {
   return (
     <div className="flex lg:flex-col flex-row justify-between lg:justify-center items-center bg-black-2 rounded-xl p-4 mb-6 space-y-0 lg:space-y-4">
-      <div className="flex-center">
+      <div className="flex flex-col">
         <Button
           variant="outline"
           onClick={() => setIsModalOpen(true)}
-          className="bg-transparent flex items-center gap-2 cursor-pointer"
+          className="flex items-center gap-2 cursor-pointer xl:p-2! p-[2px]!"
         >
-          <Message size="24" color="#F97535" />
-          <span>Chat with someone</span>
+          <Message size="24" color="#F97535" className="truncate" />
+          <span className="truncate xl:text-[14px] text-[12px]">Chat with someone</span>
         </Button>
       </div>
       <div className="flex-center">

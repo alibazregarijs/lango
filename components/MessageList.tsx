@@ -141,7 +141,7 @@ const MessageFooter = memo(
     <div
       className={`flex items-center mt-1 ${isOwnMessage ? "justify-end" : "justify-start"}`}
     >
-      <span className="text-xs text-gray-400 mr-1">
+      <span className="text-xs text-gray-400 mr-1 truncate">
         {formatDate(message._creationTime)}
       </span>
       {isOwnMessage && (

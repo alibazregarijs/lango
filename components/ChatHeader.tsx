@@ -7,8 +7,8 @@ export const ChatHeader = () => {
   const { displayUser, isOnline, onlineStatus, statusText } = useOnlineStatus();
 
   return (
-    <div className="flex justify-between items-center p-4 border-b border-gray-800 bg-[#1A1D23]">
-      <div className="flex items-center space-x-3">
+    <div className="sm:flex sm:flex-row flex-col justify-between items-center p-4 border-b border-gray-800 bg-[#1A1D23]">
+      <div className="flex items-center space-x-3 space-y-3">
         <div className="relative">
           <Image
             width={48}
