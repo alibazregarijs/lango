@@ -23,5 +23,7 @@ export const useChatQueries = () => {
     userSenderId && userTakerId ? { userTakerId, userSenderId } : "skip"
   );
 
-  return { userSender, userTaker, messages , room };
+
+
+  return { userSender, userTaker, messages, room };
 };

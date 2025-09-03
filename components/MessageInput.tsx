@@ -1,14 +1,12 @@
 import { type MessageInputProps } from "@/types";
-import React, { memo, use, useEffect, useState } from "react";
+import React, { memo } from "react";
 import { X } from "lucide-react";
 import { useChatState } from "@/context/ChatStateContext";
 import { useScrollToBottom } from "@/app/(root)/chat/hooks/useScrollManagement";
-import { useChatData } from "@/app/(root)/chat/hooks/useChatData";
-import { useMutation } from "convex/react";
-import { api } from "@/convex/_generated/api";
+import useUserTyping from "@/app/(root)/chat/hooks/useUserTyping";
 
 export const MessageInput = memo(
-  ({ onMessageChange, onSendMessage, onTyping }: MessageInputProps) => {
+  ({ onMessageChange, onSendMessage }: MessageInputProps) => {
     const {
       message,
       messageInputRef,
@@ -111,35 +109,8 @@ const TextInput = memo(
     onMessageChange: (value: string) => void;
     messageInputRef: React.RefObject<HTMLInputElement> | undefined;
   }) => {
-    const { userId, roomId, userSenderId, userTakerId } = useChatData();
-    const setTypingMutation = useMutation(api.ChatRooms.updateTyping);
-    const [isTyping, setTyping] = useState(false);
-    const userSenderTyping = userId === userSenderId;
 
-    useEffect(() => {
-      if (message) {
-        setTyping(true);
-      }
-
-      const timer = setTimeout(() => {
-        setTyping(false);
-      }, 500);
-
-      return () => clearTimeout(timer); // cancel old timer when message changes
-    }, [message]);
-
-    const handleSetTyping = async ({ isTyping }: { isTyping: boolean }) => {
-      await setTypingMutation({
-        takerId: userTakerId!,
-        giverId: userSenderId!,
-        userSenderTyping: userSenderTyping && isTyping ? true : false,
-        userTakerTyping: !userSenderTyping && isTyping ? true : false,
-      });
-    };
-
-    useEffect(() => {
-      handleSetTyping({ isTyping });
-    }, [isTyping]);
+    useUserTyping({ message }); // detect if user is typing
 
     return (
       <div className="flex-1 bg-gray-800 rounded-full px-4 py-2">

@@ -57,6 +57,8 @@ export const getMessagesByRoom = query({
 // Public mutation with validators to update typing flags by roomId.
 // convex/chatRooms.ts
 
+// convex/chatRooms.ts
+
 export const updateTyping = mutation({
   args: {
     takerId: v.string(),
@@ -64,25 +66,30 @@ export const updateTyping = mutation({
     userSenderTyping: v.optional(v.boolean()),
     userTakerTyping: v.optional(v.boolean()),
   },
-  handler: async (ctx, args) => {
+  handler: async (
+    ctx,
+    { takerId, giverId, userSenderTyping, userTakerTyping }
+  ) => {
     const room = await ctx.db
       .query("chatRooms")
       .withIndex("by_participants", (q) =>
-        q.eq("takerId", args.takerId).eq("giverId", args.giverId)
+        q.eq("takerId", takerId).eq("giverId", giverId)
       )
-      .unique();
-    if (!room) return; // or throw
+      .order("desc")
+      .first();
 
-    const patch: Record<string, any> = {};
-    if (args.userSenderTyping !== undefined)
-      patch.userSenderTyping = args.userSenderTyping;
-    if (args.userTakerTyping !== undefined)
-      patch.userTakerTyping = args.userTakerTyping;
-    if (Object.keys(patch).length) await ctx.db.patch(room._id, patch);
+    if (!room) return; // or throw new Error("Room not found");
+
+    const patch: Partial<typeof room> = {};
+    if (userSenderTyping !== undefined)
+      patch.userSenderTyping = userSenderTyping;
+    if (userTakerTyping !== undefined) patch.userTakerTyping = userTakerTyping;
+
+    if (Object.keys(patch).length) {
+      await ctx.db.patch(room._id, patch);
+    }
   },
 });
-
-
 export const getChatRoom = query({
   args: {
     userTakerId: v.string(),

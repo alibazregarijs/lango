@@ -6,11 +6,12 @@ import { useChatQueries } from "@/app/(root)/chat/hooks/useChatQueries";
 
 export const ChatHeader = () => {
   const { displayUser, isOnline, onlineStatus, statusText } = useOnlineStatus();
-  const { userId: currentUserId, userSenderId, userTakerId } = useChatData();
+  const { userId: currentUserId, userSenderId } = useChatData();
   const { room } = useChatQueries();
   const userSenderOnPage = currentUserId === userSenderId;
 
   // Determine if the other user is typing
+  
   const isTyping =
     (!userSenderOnPage && room?.userSenderTyping) ||
     (userSenderOnPage && room?.userTakerTyping);

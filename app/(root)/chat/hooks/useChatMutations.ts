@@ -8,11 +8,13 @@ export const useChatMutations = () => {
   const markAllMessagesAsTrue = useMutation(
     api.Messages.markSenderMessagesInRoom
   );
+  const setTypingMutation = useMutation(api.ChatRooms.updateTyping);
 
   return {
     createMessage,
     editMessageMutation,
     deleteMessage,
     markAllMessagesAsTrue,
+    setTypingMutation,
   };
 };

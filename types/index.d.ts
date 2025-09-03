@@ -212,7 +212,6 @@ export type MessageItemProps = {
 export type MessageInputProps = {
   onMessageChange: (value: string) => void;
   onSendMessage: () => void;
-  onTyping: React.Dispatch<React.SetStateAction<{ isTyping: boolean; userId: string | null }>>;
 };
 
 export type Suggestion = string | { username: string; imageUrl: string };

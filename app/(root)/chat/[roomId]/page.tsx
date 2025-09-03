@@ -21,13 +21,7 @@ import useGetComboOption from "@/app/(root)/chat/hooks/useGetComboOption";
 const Page = memo(() => {
   const { userId, roomId } = useChatData();
   const { messages, setMessages } = useMessageManagement();
-  const [isTyping, setTyping] = useState<{
-    isTyping: boolean;
-    userId: string | null;
-  }>({
-    isTyping: false,
-    userId: null,
-  });
+ 
 
   const {
     setOpenModal,
@@ -75,7 +69,7 @@ const Page = memo(() => {
         <MessageInput
           onMessageChange={setMessage}
           onSendMessage={handleSendMessage}
-          onTyping={setTyping}
+    
         />
       </div>
 
