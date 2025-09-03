@@ -97,6 +97,8 @@ export default defineSchema({
   chatRooms: defineTable({
     takerId: v.string(), // User who initiates/receives
     giverId: v.string(), // User who provides/sends
+    userSenderTyping: v.optional(v.boolean()), // Whether user is typing
+    userTakerTyping: v.optional(v.boolean()), // Whether user is typing
   }).index("by_participants", ["takerId", "giverId"]),
 
   // Messages table

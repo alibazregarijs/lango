@@ -1,10 +1,19 @@
 import Image from "next/image";
 import { Button } from "./ui/button";
 import { useOnlineStatus } from "@/app/(root)/chat/hooks/useOnlineStatus";
-
+import { useChatData } from "@/app/(root)/chat/hooks/useChatData";
+import { useChatQueries } from "@/app/(root)/chat/hooks/useChatQueries";
 
 export const ChatHeader = () => {
   const { displayUser, isOnline, onlineStatus, statusText } = useOnlineStatus();
+  const { userId: currentUserId, userSenderId, userTakerId } = useChatData();
+  const { room } = useChatQueries();
+  const userSenderOnPage = currentUserId === userSenderId;
+
+  // Determine if the other user is typing
+  const isTyping =
+    (!userSenderOnPage && room?.userSenderTyping) ||
+    (userSenderOnPage && room?.userTakerTyping);
 
   return (
     <div className="sm:flex sm:flex-row flex-col justify-between items-center p-4 border-b border-gray-800 bg-[#1A1D23]">
@@ -25,12 +34,25 @@ export const ChatHeader = () => {
           <span className="text-white font-semibold">
             {displayUser?.name || "Unknown User"}
           </span>
-          <span className={`${onlineStatus} text-sm flex items-center`}>
-            <span
-              className={`w-2 h-2 ${isOnline ? "bg-green-500 animate-pulse" : "bg-gray-500"} rounded-full mr-1`}
-            ></span>
-            {statusText}
-          </span>
+          {isTyping ? (
+            <div className="flex items-center h-5">
+              <span className="text-sm text-gray-400 flex items-center">
+                <span className="flex space-x-1 ml-1">
+                  <span className="h-1 w-1 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                  <span className="h-1 w-1 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+                  <span className="h-1 w-1 bg-gray-400 rounded-full animate-bounce"></span>
+                </span>
+                <span className="ml-1">Typing</span>
+              </span>
+            </div>
+          ) : (
+            <span className={`${onlineStatus} text-sm flex items-center h-5`}>
+              <span
+                className={`w-2 h-2 ${isOnline ? "bg-green-500 animate-pulse" : "bg-gray-500"} rounded-full mr-1`}
+              ></span>
+              {statusText}
+            </span>
+          )}
         </div>
       </div>
 

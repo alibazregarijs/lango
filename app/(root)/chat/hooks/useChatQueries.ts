@@ -18,6 +18,10 @@ export const useChatQueries = () => {
     api.ChatRooms.getMessagesByRoom,
     roomId ? { roomId } : "skip"
   );
+  const room = useQuery(
+    api.ChatRooms.getChatRoom,
+    userSenderId && userTakerId ? { userTakerId, userSenderId } : "skip"
+  );
 
-  return { userSender, userTaker, messages };
+  return { userSender, userTaker, messages , room };
 };

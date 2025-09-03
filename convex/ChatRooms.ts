@@ -13,6 +13,8 @@ export const createChatRoom = mutation({
     const newRoomId = await ctx.db.insert("chatRooms", {
       takerId,
       giverId,
+      userSenderTyping: false,
+      userTakerTyping: false,
     });
 
     return await ctx.db.get(newRoomId);
@@ -49,5 +51,50 @@ export const getMessagesByRoom = query({
     );
 
     return messagesWithReplies;
+  },
+});
+
+// Public mutation with validators to update typing flags by roomId.
+// convex/chatRooms.ts
+
+export const updateTyping = mutation({
+  args: {
+    takerId: v.string(),
+    giverId: v.string(),
+    userSenderTyping: v.optional(v.boolean()),
+    userTakerTyping: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    const room = await ctx.db
+      .query("chatRooms")
+      .withIndex("by_participants", (q) =>
+        q.eq("takerId", args.takerId).eq("giverId", args.giverId)
+      )
+      .unique();
+    if (!room) return; // or throw
+
+    const patch: Record<string, any> = {};
+    if (args.userSenderTyping !== undefined)
+      patch.userSenderTyping = args.userSenderTyping;
+    if (args.userTakerTyping !== undefined)
+      patch.userTakerTyping = args.userTakerTyping;
+    if (Object.keys(patch).length) await ctx.db.patch(room._id, patch);
+  },
+});
+
+
+export const getChatRoom = query({
+  args: {
+    userTakerId: v.string(),
+    userSenderId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("chatRooms")
+      .withIndex("by_participants", (q) =>
+        q.eq("takerId", args.userTakerId).eq("giverId", args.userSenderId)
+      )
+      .order("desc")
+      .first();
   },
 });

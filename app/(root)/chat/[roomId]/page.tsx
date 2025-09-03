@@ -1,5 +1,5 @@
 "use client";
-import React, { memo } from "react";
+import React, { memo, use, useEffect, useState } from "react";
 import { Modal } from "@/components/Modal";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,13 @@ import useGetComboOption from "@/app/(root)/chat/hooks/useGetComboOption";
 const Page = memo(() => {
   const { userId, roomId } = useChatData();
   const { messages, setMessages } = useMessageManagement();
+  const [isTyping, setTyping] = useState<{
+    isTyping: boolean;
+    userId: string | null;
+  }>({
+    isTyping: false,
+    userId: null,
+  });
 
   const {
     setOpenModal,
@@ -58,7 +65,7 @@ const Page = memo(() => {
   return (
     <div className="max-h-screen h-full p-4 flex justify-center items-start">
       <div className="w-full max-w-4xl bg-[#1A1D23] rounded-xl shadow-2xl overflow-hidden border border-gray-800 flex flex-col h-[85vh]">
-        <ChatHeader />
+        <ChatHeader/>
         <MessageList
           onActionSelect={getOption}
           onMount={setIsMount}
@@ -68,6 +75,7 @@ const Page = memo(() => {
         <MessageInput
           onMessageChange={setMessage}
           onSendMessage={handleSendMessage}
+          onTyping={setTyping}
         />
       </div>
 
