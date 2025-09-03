@@ -11,6 +11,14 @@ import {
   NavigateChatResultProps,
 } from "@/types";
 
+export const useRedirect = (url: string) => {
+  const router = useRouter();
+  const redirectToChat = useCallback(() => {
+    router.push(url);
+  }, [router]);
+  redirectToChat();
+};
+
 export const useRequestManager = () => {
   const requestInProgressRef = useRef(false);
 
@@ -59,7 +67,7 @@ export const useNotification = () => {
         };
       }
 
-      toast.error("You already have sent a chat request to this user.");
+      toast.error("Failed to send chat request.");
       return {
         success: false,
       };

@@ -47,7 +47,7 @@ const Searchbar = ({
 
   const { userId, username, userImageUrl } = useUser();
 
-  const allUsers = users ? useQuery(api.users.getOnlineUsers) : [];
+  const allUsers = useQuery(api.users.getOnlineUsers, users ? {} : "skip");
   const recentWordQuizzes = useQuery(api.words.getUserWordsQuery, {
     userId: userId!,
   });
@@ -164,7 +164,7 @@ const Searchbar = ({
 
   const { speak } = useSpeek({ text: selectedWord[0]?.word });
 
-  if (allUsers === undefined || !userId || recentWordQuizzes === undefined) {
+  if (!userId || recentWordQuizzes === undefined) {
     return <Spinner loading={true} />;
   }
 

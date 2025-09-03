@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, memo } from "react";
+import React, { memo } from "react";
 import { Modal } from "@/components/Modal";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,6 @@ import Spinner from "@/components/Spinner";
 import { ChatHeader } from "@/components/ChatHeader";
 import { MessageList } from "@/components/MessageList";
 import { MessageInput } from "@/components/MessageInput";
-import { Id } from "@/convex/_generated/dataModel";
 import { type EditMessageModalProps, type Message } from "@/types";
 
 import { useChatState } from "@/context/ChatStateContext";

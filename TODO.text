@@ -1,6 +1,7 @@
 TODO:
 FEATURES:
-        1-chat : [send message - delete message - edit message - pin message - reply to message - last seen , seen message or not seen]
+        [pin message , emojis]
 
 BUGS:
     1-user can send chat request to the same user in one specefic time
+    2-fix type of useChatActions.

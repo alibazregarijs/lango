@@ -1,4 +1,4 @@
-import { useEffect, useCallback, RefObject, useState } from "react";
+import { useEffect, useCallback, useState } from "react";
 import { useChatState } from "@/context/ChatStateContext";
 
 export const useAutoScrollOnMount = (

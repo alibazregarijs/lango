@@ -74,7 +74,7 @@ export const Combobox = ({
             <CommandEmpty>No framework found.</CommandEmpty>
             <CommandGroup>
               {actions.map((action) => {
-                let edit = action.value === "edit" && !isOwnMessage;
+                const edit = action.value === "edit" && !isOwnMessage;
                 if (!edit) {
                   return (
                     <CommandItem

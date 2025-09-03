@@ -15,17 +15,6 @@ export const createNotification = mutation({
   },
   handler: async (ctx, args) => {
     // Use the correct compound index name
-    const existingNotification = await ctx.db
-      .query("notifications")
-      .withIndex("by_user_sender", (q) =>
-        q.eq("userTakerId", args.userTakerId).eq("userSenderId", args.userSenderId)
-      )
-      .first();
-
-    if (existingNotification) {
-      return false;
-    }
-
     await ctx.db.insert("notifications", {
       userTakerId: args.userTakerId,
       userSenderId: args.userSenderId,

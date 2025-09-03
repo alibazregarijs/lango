@@ -109,8 +109,8 @@ export const useChatActions = ({
     }
     try {
       setMessages((prev) => {
-        let prevState = [...prev];
-        let newMessage = {
+        const prevState = [...prev];
+        const newMessage = {
           _id: uuidv4(),
           _creationTime: Date.now(),
           roomId,

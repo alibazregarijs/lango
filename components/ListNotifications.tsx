@@ -23,7 +23,7 @@ export const ListNotifications = ({
   ) => void;
 }) => {
   return (
-    <div className="overflow-y-auto max-h-64">
+    <div className="overflow-y-auto max-h-64 custom-scrollbar">  
       {unreadNotifications && unreadNotifications.length > 0 ? (
         <div role="list">
           {unreadNotifications.map((notification) => (
