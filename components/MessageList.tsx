@@ -79,7 +79,6 @@ const MessageItem = memo(
     ref, // ref is now a regular prop
   }: MessageItemProps & { ref?: React.Ref<HTMLDivElement> }) => {
     const isOwnMessage = message.senderId === userId;
-    console.log(message, "message");
     return (
       <div
         ref={ref} // Use ref directly as a prop

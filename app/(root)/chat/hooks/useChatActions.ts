@@ -96,7 +96,6 @@ export const useChatActions = ({
   ]);
 
   const handleSendMessage = useCallback(async () => {
-    console.log(replyedMessage, "replyedMessage");
     if (!message || !userId || !setMessages || !setMessage) return;
     let reply: { content: string; senderId: string } | undefined;
     if (replyedMessage[0]) {

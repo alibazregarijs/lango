@@ -55,7 +55,7 @@ const ListeningCarouselSlideComponent = ({
                   <Button
                     className="bg-black-2 text-white cursor-pointer hover:bg-orange-1"
                     onClick={onSubmit}
-                    disabled={disabled}
+                    disabled={isProcessing || disabled}
                   >
                     {isProcessing ? "Processing..." : "Submit"}
                   </Button>
