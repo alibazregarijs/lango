@@ -1,5 +1,11 @@
 "use client";
-import { useState, useRef, useCallback, startTransition } from "react";
+import {
+  useState,
+  useRef,
+  useCallback,
+  startTransition,
+  useEffect,
+} from "react";
 import QuizWordCarouselSlide from "@/components/QuizWordCarouselSlide";
 import { useCarousel } from "@/hooks/useCarousel";
 import { CarouselDemo } from "@/components/Carousel";
@@ -8,7 +14,7 @@ import useFetchItems from "@/hooks/useFetchItems";
 import { toast } from "sonner";
 import { type CheckboxItemProps } from "@/types";
 import useDisableWordsSlide from "@/hooks/useDisableWordsSlide";
-import { useAction, useMutation , useQuery } from "convex/react";
+import { useAction, useMutation, useQuery } from "convex/react";
 import { useUser } from "@/context/UserContext";
 import Spinner from "@/components/Spinner";
 
@@ -19,7 +25,15 @@ import {
   NEGATIVE_GRADE,
   MAX_WORDS_OPTION,
   ZERO_GRADE,
+  LEVELS,
 } from "@/constants";
+
+type SchoolLevel =
+  | "pre_school"
+  | "elementary_school"
+  | "middle_school"
+  | "high_school"
+  | "college";
 
 const Page = () => {
   const { userId } = useUser();
@@ -30,6 +44,7 @@ const Page = () => {
   const [question, setQuestion] = useState<string[]>([]);
   const [level, setLevel] = useState("pre_school");
   const [correctWord, setCorrectWord] = useState<string[]>([]);
+  const [levels, setLevels] = useState<SchoolLevel[]>([]);
 
   const {
     slideIndex,
@@ -55,7 +70,7 @@ const Page = () => {
     });
 
     try {
-      const res = await getQuizWordAction({ level });
+      const res = await getQuizWordAction({ level }); // getting the quiz word
       if (res) setLoading(false);
 
       let question: number | string = res[0];
@@ -85,6 +100,10 @@ const Page = () => {
       setWordItems((prev) => [...prev, [...parsedItems, { disabled: false }]]);
       setQuestion((prev) => [...prev, question]);
       setCorrectWord((prev) => [...prev, correctWordResponse]);
+      setLevels((prev) => {
+        const prevItems = [...prev];
+        return [...prevItems, level] as SchoolLevel[];
+      });
     } catch (error) {
       toast.error("An error occurred. Please try again.");
       console.error("Failed to fetch quiz word:", error);
@@ -103,7 +122,7 @@ const Page = () => {
         try {
           await createWordsQuiz({
             userId: userId!,
-            level: level,
+            level: levels[slideIndex],
             grade: POSITIVE_GRADE,
             isCorrect: true,
             correctWord: correctWord[slideIndex],
@@ -117,13 +136,12 @@ const Page = () => {
         toast.error("Wrong Answer!");
         if (retryResponseRef.current >= MAX_RESPONSE_RETRY) {
           disableItem();
-          
           try {
             await createWordsQuiz({
               userId: userId!,
-              level: level,
+              level: levels[slideIndex],
               grade: totalScore! > 0 ? NEGATIVE_GRADE : ZERO_GRADE,
-              isCorrect: true,
+              isCorrect: false,
               correctWord: correctWord[slideIndex],
               question: question[slideIndex],
             });
@@ -145,6 +163,11 @@ const Page = () => {
     ]
   );
 
+  useEffect(() => {
+    console.log(levels, "levelllll in useffect");
+    console.log(question, "question");
+  }, [levels]);
+
   useFetchItems({
     setLoading,
     slideIndexRef,
@@ -165,7 +188,7 @@ const Page = () => {
     >
       <QuizWordCarouselSlide
         key={worditems.length}
-        level={level}
+        level={levels[slideIndex]}
         setLevel={setLevel}
         question={question[slideIndex]}
         items={worditems[slideIndex]}
