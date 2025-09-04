@@ -120,4 +120,3 @@ npx convex deploy
 | npx convex dev    | Starts Convex development backend  |
 | npx convex deploy | Deploys Convex to production       |
 
-EOF
