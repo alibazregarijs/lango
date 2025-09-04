@@ -3,18 +3,29 @@ import { Button } from "./ui/button";
 import { useOnlineStatus } from "@/app/(root)/chat/hooks/useOnlineStatus";
 import { useChatData } from "@/app/(root)/chat/hooks/useChatData";
 import { useChatQueries } from "@/app/(root)/chat/hooks/useChatQueries";
+import { useRouter } from "next/navigation";
+import { useChatMutations } from "@/app/(root)/chat/hooks/useChatMutations";
 
 export const ChatHeader = () => {
   const { displayUser, isOnline, onlineStatus, statusText } = useOnlineStatus();
-  const { userId: currentUserId, userSenderId } = useChatData();
+  const { userId: currentUserId, userSenderId, roomId } = useChatData();
   const { room } = useChatQueries();
+  const { deleteAllMessagesByRoom } = useChatMutations();
   const userSenderOnPage = currentUserId === userSenderId;
-
+  const router = useRouter();
   // Determine if the other user is typing
-  
   const isTyping =
     (!userSenderOnPage && room?.userSenderTyping) ||
     (userSenderOnPage && room?.userTakerTyping);
+
+  const handleCancleChat = () => {
+    router.push("/");
+  };
+
+  const handleDeleteChat = async () => {
+    console.log("delete ");
+    await deleteAllMessagesByRoom({ roomId: roomId as string });
+  };
 
   return (
     <div className="sm:flex sm:flex-row flex-col justify-between items-center p-4 border-b border-gray-800 bg-[#1A1D23]">
@@ -61,10 +72,14 @@ export const ChatHeader = () => {
         <Button
           variant="outline"
           className="bg-transparent cursor-pointer text-gray-300 border-gray-700 hover:bg-gray-800"
+          onClick={handleCancleChat}
         >
           Cancel Chat
         </Button>
-        <Button className="bg-red-500 cursor-pointer hover:bg-red-600 text-white">
+        <Button
+          className="bg-red-500 cursor-pointer hover:bg-red-600 text-white"
+          onClick={handleDeleteChat}
+        >
           Delete Chat
         </Button>
       </div>

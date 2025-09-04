@@ -3,5 +3,4 @@ FEATURES:
         [pin message , emojis]
 
 BUGS:
-    1-user can send chat request to the same user in one specefic time
-    2-fix type of useChatActions.
+    1-notifications redirect user to other roomId

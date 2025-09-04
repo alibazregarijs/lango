@@ -34,7 +34,7 @@ export const getUnreadByUser = query({
   args: {
     userId: v.string(),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx, args) => {  
     return await ctx.db
       .query("notifications")
       .withIndex("by_userTakerId", (q) => q.eq("userTakerId", args.userId))

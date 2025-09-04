@@ -9,12 +9,14 @@ export const useChatMutations = () => {
     api.Messages.markSenderMessagesInRoom
   );
   const setTypingMutation = useMutation(api.ChatRooms.updateTyping);
-
+  const deleteAllMessagesByRoom = useMutation(api.ChatRooms.deleteMessagesByRoom);
+  
   return {
     createMessage,
     editMessageMutation,
     deleteMessage,
     markAllMessagesAsTrue,
     setTypingMutation,
+    deleteAllMessagesByRoom
   };
 };

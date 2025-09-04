@@ -105,3 +105,18 @@ export const getChatRoom = query({
       .first();
   },
 });
+
+export const deleteMessagesByRoom = mutation({
+  args: { roomId: v.string() },
+  handler: async (ctx, args) => {
+    console.log("delete in convex")
+    console.log(args.roomId,"roomid")
+    const messages = await ctx.db
+      .query("messages")
+      .withIndex("by_room", q => q.eq("roomId", args.roomId))
+      .collect();
+    for (const message of messages) {
+      await ctx.db.delete(message._id);
+    }
+  },
+});
